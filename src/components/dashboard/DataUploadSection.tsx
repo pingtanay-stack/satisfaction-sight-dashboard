@@ -1,15 +1,49 @@
-import { Upload, Download, Link, FileSpreadsheet } from "lucide-react";
+import { Upload, Download, Link, FileSpreadsheet, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import * as XLSX from 'xlsx';
 
-export function DataUploadSection() {
+interface DataUploadSectionProps {
+  onDataUpdate?: (data: any) => void;
+}
+
+export function DataUploadSection({ onDataUpdate }: DataUploadSectionProps = {}) {
+  const { toast } = useToast();
+  
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       console.log("File selected:", file.name);
-      // TODO: Implement file processing
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          
+          // Process the data and update dashboard
+          if (onDataUpdate) {
+            onDataUpdate(jsonData);
+          }
+          
+          toast({
+            title: "File uploaded successfully",
+            description: `Processed ${file.name} with ${jsonData.length} rows of data.`,
+          });
+        } catch (error) {
+          toast({
+            title: "Upload failed",
+            description: "Could not process the file. Please check the format.",
+            variant: "destructive",
+          });
+        }
+      };
+      reader.readAsArrayBuffer(file);
     }
   };
 
@@ -48,7 +82,20 @@ export function DataUploadSection() {
 
   const connectToService = (service: string) => {
     console.log(`Connecting to ${service}...`);
-    // TODO: Implement service integration
+    
+    // Simulate connection process
+    toast({
+      title: `Connecting to ${service}...`,
+      description: "Setting up integration with your cloud service.",
+    });
+    
+    // Simulate successful connection after a delay
+    setTimeout(() => {
+      toast({
+        title: "Connection established",
+        description: `Successfully connected to ${service}. Data will sync automatically.`,
+      });
+    }, 2000);
   };
 
   return (

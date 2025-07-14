@@ -72,12 +72,12 @@ export function NPSGauge({ currentScore, target, trend, className }: NPSGaugePro
       <CardContent className="pt-2">
         <div className="space-y-4">
           {/* Gauge Visualization */}
-          <div className="relative flex items-center justify-center">
-            <div className="relative w-48 h-24">
+          <div className="relative flex items-center justify-center py-4">
+            <div className="relative w-48 h-28">
               {/* Background arc */}
-              <svg className="w-full h-full" viewBox="0 0 200 100">
+              <svg className="w-full h-full" viewBox="0 0 200 110">
                 <path
-                  d="M 20 80 A 80 80 0 0 1 180 80"
+                  d="M 20 85 A 80 80 0 0 1 180 85"
                   fill="none"
                   stroke="hsl(var(--muted))"
                   strokeWidth="8"
@@ -86,7 +86,7 @@ export function NPSGauge({ currentScore, target, trend, className }: NPSGaugePro
                 
                 {/* Progress arc */}
                 <path
-                  d="M 20 80 A 80 80 0 0 1 180 80"
+                  d="M 20 85 A 80 80 0 0 1 180 85"
                   fill="none"
                   stroke="url(#gaugeGradient)"
                   strokeWidth="8"
@@ -98,9 +98,9 @@ export function NPSGauge({ currentScore, target, trend, className }: NPSGaugePro
                 {/* Target indicator */}
                 <line
                   x1={100 + 70 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
-                  y1={80 - 70 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
+                  y1={85 - 70 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
                   x2={100 + 85 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
-                  y2={80 - 85 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
+                  y2={85 - 85 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
                   stroke="hsl(var(--warning))"
                   strokeWidth="3"
                   strokeLinecap="round"
@@ -117,7 +117,7 @@ export function NPSGauge({ currentScore, target, trend, className }: NPSGaugePro
               </svg>
               
               {/* Center score display */}
-              <div className="absolute inset-0 flex flex-col items-center justify-end pb-2">
+              <div className="absolute inset-0 flex flex-col items-center justify-end pb-4">
                 <span className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                   {currentScore}
                 </span>

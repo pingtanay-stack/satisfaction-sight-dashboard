@@ -141,7 +141,10 @@ const Index = () => {
         </div>
 
         {/* Data Upload Section */}
-        <DataUploadSection />
+        <DataUploadSection onDataUpdate={(data) => {
+          console.log("Dashboard data updated:", data);
+          // Here you would update your metrics with the new data
+        }} />
 
         {/* Footer */}
         <div className="text-center py-8">
