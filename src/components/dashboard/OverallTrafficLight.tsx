@@ -64,9 +64,9 @@ export function OverallTrafficLight({ metrics }: OverallTrafficLightProps) {
           </div>
           
           {/* Status Content */}
-          <div className="text-center text-white">
+          <div className="text-center">
             <div className="text-3xl mb-1 animate-bounce">{emoji}</div>
-            <h3 className="text-lg font-bold">{message}</h3>
+            <h3 className="text-lg font-bold text-foreground">{message}</h3>
             <div className="flex items-center justify-center gap-1 mt-1">
               {[...Array(5)].map((_, i) => (
                 <Star 
@@ -75,12 +75,12 @@ export function OverallTrafficLight({ metrics }: OverallTrafficLightProps) {
                     "h-3 w-3 transition-all duration-300",
                     i < Math.ceil((percentage / 100) * 5) 
                       ? "text-yellow-400 fill-yellow-400" 
-                      : "text-white/30"
+                      : "text-muted-foreground/50"
                   )} 
                 />
               ))}
             </div>
-            <p className="text-sm text-white/80 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {targetsMetCount}/{totalTargets} targets achieved
             </p>
           </div>
