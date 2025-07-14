@@ -14,8 +14,36 @@ export function DataUploadSection() {
   };
 
   const downloadTemplate = () => {
-    // TODO: Generate and download Excel template
-    console.log("Downloading template...");
+    // Create Excel template data
+    const templateData = [
+      ['Month', 'NPS Score', 'Jira Satisfaction', 'Project Satisfaction', 'Ad-hoc Feedback'],
+      ['Jan', '25', '3.2', '3.1', '3.5'],
+      ['Feb', '32', '3.4', '3.3', '3.3'],
+      ['Mar', '38', '3.6', '3.6', '3.1'],
+      ['Apr', '42', '3.7', '3.8', '3.0'],
+      ['May', '45', '3.8', '3.9', '3.1'],
+      ['Jun', '48', '3.8', '4.2', '3.2'],
+      ['Jul', '', '', '', ''],
+      ['Aug', '', '', '', ''],
+      ['Sep', '', '', '', ''],
+      ['Oct', '', '', '', ''],
+      ['Nov', '', '', '', ''],
+      ['Dec', '', '', '', '']
+    ];
+
+    // Convert to CSV format
+    const csvContent = templateData.map(row => row.join(',')).join('\n');
+    
+    // Create and download the file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'customer_satisfaction_template.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const connectToService = (service: string) => {

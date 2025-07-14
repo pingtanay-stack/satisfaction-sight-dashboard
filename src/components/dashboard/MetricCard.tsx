@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, Target, Users, Ticket, FolderOpen, MessageSquare } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ interface MetricCardProps {
   target: number;
   maxScore: number;
   trend: number; // percentage change
+  icon?: React.ReactNode;
   className?: string;
 }
 
@@ -18,6 +19,7 @@ export function MetricCard({
   target,
   maxScore,
   trend,
+  icon,
   className
 }: MetricCardProps) {
   const percentage = (currentScore / maxScore) * 100;
@@ -38,10 +40,13 @@ export function MetricCard({
     )}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {title}
-          </CardTitle>
-          <Badge 
+          <div className="flex items-center gap-2">
+            {icon && <div className="text-primary">{icon}</div>}
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {title}
+            </CardTitle>
+          </div>
+          <Badge
             variant={statusColor === "success" ? "default" : "secondary"}
             className={cn(
               "text-xs",

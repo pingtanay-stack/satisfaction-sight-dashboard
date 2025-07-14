@@ -1,8 +1,9 @@
 import { MetricCard } from "@/components/dashboard/MetricCard";
+import { NPSGauge } from "@/components/dashboard/NPSGauge";
 import { TrafficLightIndicator } from "@/components/dashboard/TrafficLightIndicator";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { DataUploadSection } from "@/components/dashboard/DataUploadSection";
-import { BarChart3, TrendingUp } from "lucide-react";
+import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare } from "lucide-react";
 
 // Mock data for demonstration
 const mockMetrics = {
@@ -67,14 +68,15 @@ const Index = () => {
 
         {/* Metric Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <MetricCard
-            title="Net Promoter Score (NPS)"
-            currentScore={mockMetrics.nps.current}
-            target={mockMetrics.nps.target}
-            maxScore={100}
-            trend={12.5}
-            className="animate-fade-in"
-          />
+          {/* NPS Gauge - Special treatment */}
+          <div className="md:col-span-2 lg:col-span-1">
+            <NPSGauge
+              currentScore={mockMetrics.nps.current}
+              target={mockMetrics.nps.target}
+              trend={12.5}
+              className="animate-fade-in h-full"
+            />
+          </div>
           
           <MetricCard
             title="Jira Ticket Satisfaction"
@@ -82,6 +84,7 @@ const Index = () => {
             target={mockMetrics.jira.target}
             maxScore={5}
             trend={5.6}
+            icon={<Ticket className="h-4 w-4" />}
             className="animate-fade-in"
           />
           
@@ -91,6 +94,7 @@ const Index = () => {
             target={mockMetrics.project.target}
             maxScore={5}
             trend={16.7}
+            icon={<FolderOpen className="h-4 w-4" />}
             className="animate-fade-in"
           />
           
@@ -100,6 +104,7 @@ const Index = () => {
             target={mockMetrics.adhoc.target}
             maxScore={5}
             trend={-8.6}
+            icon={<MessageSquare className="h-4 w-4" />}
             className="animate-fade-in"
           />
         </div>
