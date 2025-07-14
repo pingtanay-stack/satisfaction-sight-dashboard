@@ -3,7 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 import * as XLSX from 'xlsx';
 
 interface DataUploadSectionProps {
@@ -12,6 +15,11 @@ interface DataUploadSectionProps {
 
 export function DataUploadSection({ onDataUpdate }: DataUploadSectionProps = {}) {
   const { toast } = useToast();
+  const [cloudUrls, setCloudUrls] = useState({
+    sharepoint: "",
+    onedrive: "",
+    googlesheets: ""
+  });
   
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -80,10 +88,18 @@ export function DataUploadSection({ onDataUpdate }: DataUploadSectionProps = {})
     document.body.removeChild(link);
   };
 
-  const connectToService = (service: string) => {
-    console.log(`Connecting to ${service}...`);
+  const connectToService = (service: string, url: string) => {
+    if (!url.trim()) {
+      toast({
+        title: "URL Required",
+        description: `Please enter a valid ${service} URL before connecting.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log(`Connecting to ${service} with URL: ${url}`);
     
-    // Simulate connection process
     toast({
       title: `Connecting to ${service}...`,
       description: "Setting up integration with your cloud service.",
@@ -139,44 +155,73 @@ export function DataUploadSection({ onDataUpdate }: DataUploadSectionProps = {})
         <Separator />
         
         {/* Cloud Integration Section */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <h4 className="font-medium">Connect to Cloud Services</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Button 
-              variant="outline" 
-              className="h-auto p-4 flex flex-col gap-2"
-              onClick={() => connectToService('SharePoint')}
-            >
-              <Link className="h-6 w-6" />
-              <span className="text-sm">SharePoint</span>
-              <Badge variant="secondary" className="text-xs">
-                Excel Online
-              </Badge>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-auto p-4 flex flex-col gap-2"
-              onClick={() => connectToService('OneDrive')}
-            >
-              <Link className="h-6 w-6" />
-              <span className="text-sm">OneDrive</span>
-              <Badge variant="secondary" className="text-xs">
-                Microsoft 365
-              </Badge>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-auto p-4 flex flex-col gap-2"
-              onClick={() => connectToService('Google Sheets')}
-            >
-              <Link className="h-6 w-6" />
-              <span className="text-sm">Google Sheets</span>
-              <Badge variant="secondary" className="text-xs">
-                Real-time sync
-              </Badge>
-            </Button>
+          
+          {/* SharePoint */}
+          <div className="space-y-2">
+            <Label htmlFor="sharepoint-url" className="text-sm font-medium">SharePoint URL</Label>
+            <div className="flex gap-2">
+              <Input
+                id="sharepoint-url"
+                placeholder="https://yourcompany.sharepoint.com/..."
+                value={cloudUrls.sharepoint}
+                onChange={(e) => setCloudUrls(prev => ({ ...prev, sharepoint: e.target.value }))}
+                className="flex-1"
+              />
+              <Button 
+                variant="outline"
+                onClick={() => connectToService('SharePoint', cloudUrls.sharepoint)}
+              >
+                <Link className="h-4 w-4 mr-2" />
+                Connect
+              </Button>
+            </div>
+            <Badge variant="secondary" className="text-xs">Excel Online</Badge>
+          </div>
+          
+          {/* OneDrive */}
+          <div className="space-y-2">
+            <Label htmlFor="onedrive-url" className="text-sm font-medium">OneDrive File URL</Label>
+            <div className="flex gap-2">
+              <Input
+                id="onedrive-url"
+                placeholder="https://onedrive.live.com/..."
+                value={cloudUrls.onedrive}
+                onChange={(e) => setCloudUrls(prev => ({ ...prev, onedrive: e.target.value }))}
+                className="flex-1"
+              />
+              <Button 
+                variant="outline"
+                onClick={() => connectToService('OneDrive', cloudUrls.onedrive)}
+              >
+                <Link className="h-4 w-4 mr-2" />
+                Connect
+              </Button>
+            </div>
+            <Badge variant="secondary" className="text-xs">Microsoft 365</Badge>
+          </div>
+          
+          {/* Google Sheets */}
+          <div className="space-y-2">
+            <Label htmlFor="googlesheets-url" className="text-sm font-medium">Google Sheets URL</Label>
+            <div className="flex gap-2">
+              <Input
+                id="googlesheets-url"
+                placeholder="https://docs.google.com/spreadsheets/..."
+                value={cloudUrls.googlesheets}
+                onChange={(e) => setCloudUrls(prev => ({ ...prev, googlesheets: e.target.value }))}
+                className="flex-1"
+              />
+              <Button 
+                variant="outline"
+                onClick={() => connectToService('Google Sheets', cloudUrls.googlesheets)}
+              >
+                <Link className="h-4 w-4 mr-2" />
+                Connect
+              </Button>
+            </div>
+            <Badge variant="secondary" className="text-xs">Real-time sync</Badge>
           </div>
         </div>
         
