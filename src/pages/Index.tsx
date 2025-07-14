@@ -1,9 +1,9 @@
-import { MetricCard } from "@/components/dashboard/MetricCard";
 import { NPSGauge } from "@/components/dashboard/NPSGauge";
-import { TrafficLightIndicator } from "@/components/dashboard/TrafficLightIndicator";
+import { OverallTrafficLight } from "@/components/dashboard/OverallTrafficLight";
+import { CompactMetricCard } from "@/components/dashboard/CompactMetricCard";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { DataUploadSection } from "@/components/dashboard/DataUploadSection";
-import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare } from "lucide-react";
+import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 // Default mock data
@@ -101,24 +101,26 @@ const Index = () => {
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light/20 via-background to-secondary-light/20">
-      <div className="container mx-auto p-6 space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2 animate-fade-in">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Customer Satisfaction Dashboard
-          </h1>
-          <p className="text-muted-foreground">
-            Track and monitor customer satisfaction metrics with real-time insights
-          </p>
-        </div>
-
-        {/* Traffic Light Indicator */}
-        <TrafficLightIndicator metrics={metrics} />
-
-        {/* Metric Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* NPS Gauge - Special treatment */}
-          <div className="md:col-span-2 lg:col-span-1">
+      <div className="container mx-auto p-4 space-y-4">
+        {/* Header with Traffic Light */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
+          <div className="text-center lg:text-left">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Customer Satisfaction
+            </h1>
+            <div className="flex items-center justify-center lg:justify-start gap-1 mt-1">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <p className="text-sm text-muted-foreground">Real-time insights</p>
+            </div>
+          </div>
+          
+          {/* Overall Traffic Light */}
+          <div className="lg:col-span-1">
+            <OverallTrafficLight metrics={metrics} />
+          </div>
+          
+          {/* NPS Gauge */}
+          <div className="lg:col-span-1">
             <NPSGauge
               currentScore={metrics.nps.current}
               target={metrics.nps.target}
@@ -126,54 +128,56 @@ const Index = () => {
               className="animate-fade-in h-full"
             />
           </div>
-          
-          <MetricCard
-            title="Jira Ticket Satisfaction"
+        </div>
+
+        {/* Compact Metric Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <CompactMetricCard
+            title="Jira Tickets"
             currentScore={metrics.jira.current}
             target={metrics.jira.target}
             maxScore={5}
             trend={5.6}
             icon={<Ticket className="h-4 w-4" />}
-            className="animate-fade-in"
           />
           
-          <MetricCard
+          <CompactMetricCard
             title="Project Satisfaction"
             currentScore={metrics.project.current}
             target={metrics.project.target}
             maxScore={5}
             trend={16.7}
             icon={<FolderOpen className="h-4 w-4" />}
-            className="animate-fade-in"
           />
           
-          <MetricCard
+          <CompactMetricCard
             title="Ad-hoc Feedback"
             currentScore={metrics.adhoc.current}
             target={metrics.adhoc.target}
             maxScore={5}
             trend={-8.6}
             icon={<MessageSquare className="h-4 w-4" />}
-            className="animate-fade-in"
           />
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Charts Section - Compact Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           <TrendChart
-            title="Net Promoter Score"
+            title="Net Promoter Score Trend"
             data={npsData}
             target={30}
             maxScore={100}
           />
           
           <TrendChart
-            title="Project Satisfaction"
+            title="Project Satisfaction Trend"
             data={satisfactionData}
             target={3.5}
             maxScore={5}
           />
-          
+        </div>
+        
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           <TrendChart
             title="Jira Ticket Satisfaction"
             data={jiraData}
@@ -192,12 +196,12 @@ const Index = () => {
         {/* Data Upload Section */}
         <DataUploadSection onDataUpdate={processUploadedData} />
 
-        {/* Footer */}
-        <div className="text-center py-8">
-          <div className="flex items-center justify-center gap-2 text-muted-foreground">
-            <BarChart3 className="h-4 w-4" />
-            <span className="text-sm">Customer Satisfaction Analytics Platform</span>
-            <TrendingUp className="h-4 w-4" />
+        {/* Interactive Footer */}
+        <div className="text-center py-4">
+          <div className="flex items-center justify-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+            <span className="text-sm font-medium">Customer Satisfaction Analytics Platform</span>
+            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
           </div>
         </div>
       </div>
