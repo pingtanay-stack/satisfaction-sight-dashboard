@@ -9,6 +9,7 @@ interface CompactMetricCardProps {
   target: number;
   maxScore: number;
   trend: number;
+  respondents?: number;
   icon?: React.ReactNode;
   className?: string;
 }
@@ -19,6 +20,7 @@ export function CompactMetricCard({
   target,
   maxScore,
   trend,
+  respondents,
   icon,
   className
 }: CompactMetricCardProps) {
@@ -104,18 +106,25 @@ export function CompactMetricCard({
               </span>
             </div>
             
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star 
-                  key={i} 
-                  className={cn(
-                    "h-2.5 w-2.5 transition-all duration-300",
-                    i < Math.ceil((currentScore / maxScore) * 5) 
-                      ? "text-yellow-400 fill-yellow-400" 
-                      : "text-muted-foreground/30"
-                  )} 
-                />
-              ))}
+            <div className="flex items-center gap-2">
+              {respondents && (
+                <span className="text-muted-foreground">
+                  {respondents} responses
+                </span>
+              )}
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star 
+                    key={i} 
+                    className={cn(
+                      "h-2.5 w-2.5 transition-all duration-300",
+                      i < Math.ceil((currentScore / maxScore) * 5) 
+                        ? "text-yellow-400 fill-yellow-400" 
+                        : "text-muted-foreground/30"
+                    )} 
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>

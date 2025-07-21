@@ -8,10 +8,10 @@ import { useState } from "react";
 
 // Default mock data
 const defaultMetrics = {
-  nps: { current: 45, target: 30 },
-  jira: { current: 3.8, target: 3.5 },
-  project: { current: 4.2, target: 3.5 },
-  adhoc: { current: 3.2, target: 3.5 }
+  nps: { current: 45, target: 30, respondents: 156 },
+  jira: { current: 3.8, target: 3.5, respondents: 89 },
+  project: { current: 4.2, target: 3.5, respondents: 45 },
+  adhoc: { current: 3.2, target: 3.5, respondents: 23 }
 };
 
 const defaultNpsData = [
@@ -59,7 +59,7 @@ const Index = () => {
 
   const processUploadedData = (data: any[][]) => {
     // Skip header row
-    const dataRows = data.slice(1).filter(row => row.length >= 5 && row[0] && row[1] !== "");
+    const dataRows = data.slice(1).filter(row => row.length >= 8 && row[0] && row[1] !== "");
     
     const newNpsData: { month: string; score: number }[] = [];
     const newJiraData: { month: string; score: number }[] = [];
@@ -81,17 +81,24 @@ const Index = () => {
       }
     });
     
-    // Update current metrics with latest values
+    // Update current metrics with latest values and respondents
     const latestNps = newNpsData.length > 0 ? newNpsData[newNpsData.length - 1].score : defaultMetrics.nps.current;
     const latestJira = newJiraData.length > 0 ? newJiraData[newJiraData.length - 1].score : defaultMetrics.jira.current;
     const latestProject = newSatisfactionData.length > 0 ? newSatisfactionData[newSatisfactionData.length - 1].score : defaultMetrics.project.current;
     const latestAdhoc = newAdhocData.length > 0 ? newAdhocData[newAdhocData.length - 1].score : defaultMetrics.adhoc.current;
     
+    // Extract respondents from last row if available
+    const lastRow = dataRows[dataRows.length - 1];
+    const npsRespondents = lastRow && lastRow[5] ? parseInt(lastRow[5]) : defaultMetrics.nps.respondents;
+    const jiraRespondents = lastRow && lastRow[6] ? parseInt(lastRow[6]) : defaultMetrics.jira.respondents;
+    const projectRespondents = lastRow && lastRow[7] ? parseInt(lastRow[7]) : defaultMetrics.project.respondents;
+    const adhocRespondents = lastRow && lastRow[8] ? parseInt(lastRow[8]) : defaultMetrics.adhoc.respondents;
+    
     setMetrics({
-      nps: { current: latestNps, target: 30 },
-      jira: { current: latestJira, target: 3.5 },
-      project: { current: latestProject, target: 3.5 },
-      adhoc: { current: latestAdhoc, target: 3.5 }
+      nps: { current: latestNps, target: 30, respondents: npsRespondents },
+      jira: { current: latestJira, target: 3.5, respondents: jiraRespondents },
+      project: { current: latestProject, target: 3.5, respondents: projectRespondents },
+      adhoc: { current: latestAdhoc, target: 3.5, respondents: adhocRespondents }
     });
     
     if (newNpsData.length > 0) setNpsData(newNpsData);
@@ -118,46 +125,54 @@ const Index = () => {
           <OverallTrafficLight metrics={metrics} />
         </div>
         
-        {/* NPS Gauge - Centered and Larger */}
-        <div className="flex justify-center mb-8">
-          <div className="w-full max-w-2xl">
+        {/* Main Dashboard Layout - NPS Center with Cards Around */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Left Cards */}
+          <div className="space-y-4">
+            <CompactMetricCard
+              title="Jira Tickets"
+              currentScore={metrics.jira.current}
+              target={metrics.jira.target}
+              maxScore={5}
+              trend={5.6}
+              respondents={metrics.jira.respondents}
+              icon={<Ticket className="h-4 w-4" />}
+            />
+            
+            <CompactMetricCard
+              title="Project Satisfaction"
+              currentScore={metrics.project.current}
+              target={metrics.project.target}
+              maxScore={5}
+              trend={16.7}
+              respondents={metrics.project.respondents}
+              icon={<FolderOpen className="h-4 w-4" />}
+            />
+          </div>
+
+          {/* Center - NPS Gauge */}
+          <div className="flex items-center justify-center">
             <NPSGauge
               currentScore={metrics.nps.current}
               target={metrics.nps.target}
               trend={12.5}
-              className="animate-fade-in h-full"
+              respondents={metrics.nps.respondents}
+              className="animate-fade-in w-full"
             />
           </div>
-        </div>
 
-        {/* Compact Metric Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <CompactMetricCard
-            title="Jira Tickets"
-            currentScore={metrics.jira.current}
-            target={metrics.jira.target}
-            maxScore={5}
-            trend={5.6}
-            icon={<Ticket className="h-4 w-4" />}
-          />
-          
-          <CompactMetricCard
-            title="Project Satisfaction"
-            currentScore={metrics.project.current}
-            target={metrics.project.target}
-            maxScore={5}
-            trend={16.7}
-            icon={<FolderOpen className="h-4 w-4" />}
-          />
-          
-          <CompactMetricCard
-            title="Ad-hoc Feedback"
-            currentScore={metrics.adhoc.current}
-            target={metrics.adhoc.target}
-            maxScore={5}
-            trend={-8.6}
-            icon={<MessageSquare className="h-4 w-4" />}
-          />
+          {/* Right Card */}
+          <div className="space-y-4">
+            <CompactMetricCard
+              title="Ad-hoc Feedback"
+              currentScore={metrics.adhoc.current}
+              target={metrics.adhoc.target}
+              maxScore={5}
+              trend={-8.6}
+              respondents={metrics.adhoc.respondents}
+              icon={<MessageSquare className="h-4 w-4" />}
+            />
+          </div>
         </div>
 
         {/* Charts Section - Compact Grid */}

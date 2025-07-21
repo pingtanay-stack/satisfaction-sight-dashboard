@@ -56,21 +56,21 @@ export function DataUploadSection({ onDataUpdate }: DataUploadSectionProps = {})
   };
 
   const downloadTemplate = () => {
-    // Create Excel template data
+    // Create Excel template data with respondents columns
     const templateData = [
-      ['Month', 'NPS Score', 'Jira Satisfaction', 'Project Satisfaction', 'Ad-hoc Feedback'],
-      ['Jan', '25', '3.2', '3.1', '3.5'],
-      ['Feb', '32', '3.4', '3.3', '3.3'],
-      ['Mar', '38', '3.6', '3.6', '3.1'],
-      ['Apr', '42', '3.7', '3.8', '3.0'],
-      ['May', '45', '3.8', '3.9', '3.1'],
-      ['Jun', '48', '3.8', '4.2', '3.2'],
-      ['Jul', '', '', '', ''],
-      ['Aug', '', '', '', ''],
-      ['Sep', '', '', '', ''],
-      ['Oct', '', '', '', ''],
-      ['Nov', '', '', '', ''],
-      ['Dec', '', '', '', '']
+      ['Month', 'NPS Score', 'Jira Satisfaction', 'Project Satisfaction', 'Ad-hoc Feedback', 'NPS Responses', 'Jira Responses', 'Project Responses', 'Adhoc Responses'],
+      ['Jan', '25', '3.2', '3.1', '3.5', '120', '75', '35', '18'],
+      ['Feb', '32', '3.4', '3.3', '3.3', '135', '82', '40', '20'],
+      ['Mar', '38', '3.6', '3.6', '3.1', '156', '89', '45', '23'],
+      ['Apr', '42', '3.7', '3.8', '3.0', '167', '95', '48', '25'],
+      ['May', '45', '3.8', '3.9', '3.1', '172', '102', '52', '28'],
+      ['Jun', '48', '3.8', '4.2', '3.2', '180', '108', '55', '30'],
+      ['Jul', '', '', '', '', '', '', '', ''],
+      ['Aug', '', '', '', '', '', '', '', ''],
+      ['Sep', '', '', '', '', '', '', '', ''],
+      ['Oct', '', '', '', '', '', '', '', ''],
+      ['Nov', '', '', '', '', '', '', '', ''],
+      ['Dec', '', '', '', '', '', '', '', '']
     ];
 
     // Convert to CSV format

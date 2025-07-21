@@ -7,10 +7,11 @@ interface NPSGaugeProps {
   currentScore: number;
   target: number;
   trend: number;
+  respondents?: number;
   className?: string;
 }
 
-export function NPSGauge({ currentScore, target, trend, className }: NPSGaugeProps) {
+export function NPSGauge({ currentScore, target, trend, respondents, className }: NPSGaugeProps) {
   // NPS ranges from -100 to 100, so we need to normalize for display
   const normalizedScore = ((currentScore + 100) / 200) * 100; // Convert to 0-100 percentage
   const normalizedTarget = ((target + 100) / 200) * 100;
@@ -124,6 +125,11 @@ export function NPSGauge({ currentScore, target, trend, className }: NPSGaugePro
                 <span className="text-xs text-muted-foreground">
                   Target: {target}
                 </span>
+                {respondents && (
+                  <span className="text-xs text-muted-foreground mt-1">
+                    {respondents} responses
+                  </span>
+                )}
               </div>
             </div>
           </div>
