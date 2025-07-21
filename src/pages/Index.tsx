@@ -123,23 +123,23 @@ const Index = () => {
         {/* Main Dashboard Layout - Traffic Light & NPS Side by Side */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
           {/* Left Side - Traffic Light & NPS */}
-          <div className="xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Traffic Light - Bigger */}
-            <div className="flex items-center justify-center">
-              <div className="w-full max-w-md">
+          <div className="xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Traffic Light - Much Bigger */}
+            <div className="flex items-start justify-center">
+              <div className="w-full max-w-lg transform scale-110">
                 <OverallTrafficLight metrics={metrics} />
               </div>
             </div>
             
-            {/* NPS Gauge - Bigger */}
-            <div className="flex items-center justify-center">
-              <div className="w-full max-w-md">
+            {/* NPS Gauge - Bigger to match right side height */}
+            <div className="flex items-start justify-center">
+              <div className="w-full max-w-lg">
                 <NPSGauge
                   currentScore={metrics.nps.current}
                   target={metrics.nps.target}
                   trend={12.5}
                   respondents={metrics.nps.respondents}
-                  className="animate-fade-in w-full"
+                  className="animate-fade-in w-full transform scale-105"
                 />
               </div>
             </div>
