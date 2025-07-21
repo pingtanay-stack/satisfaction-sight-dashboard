@@ -120,33 +120,30 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Main Dashboard Layout - Traffic Light & NPS Side by Side */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
-          {/* Left Side - Traffic Light & NPS */}
-          <div className="xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Traffic Light - Much Bigger */}
-            <div className="flex items-start justify-center">
-              <div className="w-full max-w-lg transform scale-110">
-                <OverallTrafficLight metrics={metrics} />
-              </div>
+        {/* Main Dashboard Layout - Aligned Cards */}
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-8">
+          {/* Traffic Light - Modern Design */}
+          <div className="flex items-center justify-center">
+            <div className="w-full max-w-sm transform scale-110">
+              <OverallTrafficLight metrics={metrics} />
             </div>
-            
-            {/* NPS Gauge - Bigger to match right side height */}
-            <div className="flex items-start justify-center">
-              <div className="w-full max-w-lg">
-                <NPSGauge
-                  currentScore={metrics.nps.current}
-                  target={metrics.nps.target}
-                  trend={12.5}
-                  respondents={metrics.nps.respondents}
-                  className="animate-fade-in w-full transform scale-105"
-                />
-              </div>
+          </div>
+          
+          {/* NPS Gauge - Much Bigger */}
+          <div className="flex items-center justify-center">
+            <div className="w-full max-w-sm">
+              <NPSGauge
+                currentScore={metrics.nps.current}
+                target={metrics.nps.target}
+                trend={12.5}
+                respondents={metrics.nps.respondents}
+                className="animate-fade-in w-full transform scale-125"
+              />
             </div>
           </div>
 
-          {/* Right Side - All Other Surveys */}
-          <div className="space-y-6">
+          {/* Survey Metrics - Aligned */}
+          <div className="xl:col-span-2 space-y-4">
             <div className="text-center mb-4">
               <h3 className="text-lg font-semibold text-foreground mb-1">Survey Metrics</h3>
               <p className="text-sm text-muted-foreground">Performance across all channels</p>
