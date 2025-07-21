@@ -72,8 +72,9 @@ const Index = () => {
   const [showAdvancedCharts, setShowAdvancedCharts] = useState(false);
 
   const processUploadedData = (data: any[][]) => {
-    // Skip header row
-    const dataRows = data.slice(1).filter(row => row.length >= 8 && row[0] && row[1] !== "");
+    // Skip header row and filter valid rows
+    // Template structure: ['Month', 'NPS Score', 'NPS Respondents', 'Jira Score', 'Jira Respondents', 'Project Satisfaction Score', 'Project Respondents', 'Ad-hoc Score', 'Ad-hoc Respondents', 'NPS Comments']
+    const dataRows = data.slice(1).filter(row => row.length >= 9 && row[0] && row[1] !== "");
     
     const newNpsData: { month: string; score: number }[] = [];
     const newJiraData: { month: string; score: number }[] = [];
@@ -84,9 +85,9 @@ const Index = () => {
       if (row[0] && row[1] !== undefined) {
         const month = row[0].toString();
         const npsScore = parseFloat(row[1]) || 0;
-        const jiraScore = parseFloat(row[2]) || 0;
-        const projectScore = parseFloat(row[3]) || 0;
-        const adhocScore = parseFloat(row[4]) || 0;
+        const jiraScore = parseFloat(row[3]) || 0;
+        const projectScore = parseFloat(row[5]) || 0;
+        const adhocScore = parseFloat(row[7]) || 0;
         
         if (npsScore > 0) newNpsData.push({ month, score: npsScore });
         if (jiraScore > 0) newJiraData.push({ month, score: jiraScore });
@@ -101,18 +102,17 @@ const Index = () => {
     const latestProject = newSatisfactionData.length > 0 ? newSatisfactionData[newSatisfactionData.length - 1].score : defaultMetrics.project.current;
     const latestAdhoc = newAdhocData.length > 0 ? newAdhocData[newAdhocData.length - 1].score : defaultMetrics.adhoc.current;
     
-    // Extract respondents from last row if available
-    const lastRow = dataRows[dataRows.length - 1];
-    const npsRespondents = lastRow && lastRow[5] ? parseInt(lastRow[5]) : defaultMetrics.nps.respondents;
-    const jiraRespondents = lastRow && lastRow[6] ? parseInt(lastRow[6]) : defaultMetrics.jira.respondents;
-    const projectRespondents = lastRow && lastRow[7] ? parseInt(lastRow[7]) : defaultMetrics.project.respondents;
-    const adhocRespondents = lastRow && lastRow[8] ? parseInt(lastRow[8]) : defaultMetrics.adhoc.respondents;
+    // Calculate total respondents from all months
+    const npsRespondents = dataRows.reduce((sum, row) => sum + (parseInt(row[2]) || 0), 0);
+    const jiraRespondents = dataRows.reduce((sum, row) => sum + (parseInt(row[4]) || 0), 0);
+    const projectRespondents = dataRows.reduce((sum, row) => sum + (parseInt(row[6]) || 0), 0);
+    const adhocRespondents = dataRows.reduce((sum, row) => sum + (parseInt(row[8]) || 0), 0);
     
     setMetrics({
-      nps: { current: latestNps, target: 30, respondents: npsRespondents },
-      jira: { current: latestJira, target: 3.5, respondents: jiraRespondents },
-      project: { current: latestProject, target: 3.5, respondents: projectRespondents },
-      adhoc: { current: latestAdhoc, target: 3.5, respondents: adhocRespondents }
+      nps: { current: latestNps, target: 30, respondents: npsRespondents || defaultMetrics.nps.respondents },
+      jira: { current: latestJira, target: 3.5, respondents: jiraRespondents || defaultMetrics.jira.respondents },
+      project: { current: latestProject, target: 3.5, respondents: projectRespondents || defaultMetrics.project.respondents },
+      adhoc: { current: latestAdhoc, target: 3.5, respondents: adhocRespondents || defaultMetrics.adhoc.respondents }
     });
     
     if (newNpsData.length > 0) setNpsData(newNpsData);
