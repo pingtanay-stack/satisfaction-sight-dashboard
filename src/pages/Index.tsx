@@ -120,58 +120,69 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Overall Traffic Light */}
-        <div className="flex justify-center mb-6">
-          <OverallTrafficLight metrics={metrics} />
-        </div>
-        
-        {/* Main Dashboard Layout - NPS Center with Cards Around */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Left Cards */}
-          <div className="space-y-4">
-            <CompactMetricCard
-              title="Jira Tickets"
-              currentScore={metrics.jira.current}
-              target={metrics.jira.target}
-              maxScore={5}
-              trend={5.6}
-              respondents={metrics.jira.respondents}
-              icon={<Ticket className="h-4 w-4" />}
-            />
+        {/* Main Dashboard Layout - Traffic Light & NPS Side by Side */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+          {/* Left Side - Traffic Light & NPS */}
+          <div className="xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Traffic Light - Bigger */}
+            <div className="flex items-center justify-center">
+              <div className="w-full max-w-md">
+                <OverallTrafficLight metrics={metrics} />
+              </div>
+            </div>
             
-            <CompactMetricCard
-              title="Project Satisfaction"
-              currentScore={metrics.project.current}
-              target={metrics.project.target}
-              maxScore={5}
-              trend={16.7}
-              respondents={metrics.project.respondents}
-              icon={<FolderOpen className="h-4 w-4" />}
-            />
+            {/* NPS Gauge - Bigger */}
+            <div className="flex items-center justify-center">
+              <div className="w-full max-w-md">
+                <NPSGauge
+                  currentScore={metrics.nps.current}
+                  target={metrics.nps.target}
+                  trend={12.5}
+                  respondents={metrics.nps.respondents}
+                  className="animate-fade-in w-full"
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Center - NPS Gauge */}
-          <div className="flex items-center justify-center">
-            <NPSGauge
-              currentScore={metrics.nps.current}
-              target={metrics.nps.target}
-              trend={12.5}
-              respondents={metrics.nps.respondents}
-              className="animate-fade-in w-full"
-            />
-          </div>
-
-          {/* Right Card */}
-          <div className="space-y-4">
-            <CompactMetricCard
-              title="Ad-hoc Feedback"
-              currentScore={metrics.adhoc.current}
-              target={metrics.adhoc.target}
-              maxScore={5}
-              trend={-8.6}
-              respondents={metrics.adhoc.respondents}
-              icon={<MessageSquare className="h-4 w-4" />}
-            />
+          {/* Right Side - All Other Surveys */}
+          <div className="space-y-6">
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-1">Survey Metrics</h3>
+              <p className="text-sm text-muted-foreground">Performance across all channels</p>
+            </div>
+            
+            <div className="space-y-4">
+              <CompactMetricCard
+                title="Jira Tickets"
+                currentScore={metrics.jira.current}
+                target={metrics.jira.target}
+                maxScore={5}
+                trend={5.6}
+                respondents={metrics.jira.respondents}
+                icon={<Ticket className="h-4 w-4" />}
+              />
+              
+              <CompactMetricCard
+                title="Project Satisfaction"
+                currentScore={metrics.project.current}
+                target={metrics.project.target}
+                maxScore={5}
+                trend={16.7}
+                respondents={metrics.project.respondents}
+                icon={<FolderOpen className="h-4 w-4" />}
+              />
+              
+              <CompactMetricCard
+                title="Ad-hoc Feedback"
+                currentScore={metrics.adhoc.current}
+                target={metrics.adhoc.target}
+                maxScore={5}
+                trend={-8.6}
+                respondents={metrics.adhoc.respondents}
+                icon={<MessageSquare className="h-4 w-4" />}
+              />
+            </div>
           </div>
         </div>
 
