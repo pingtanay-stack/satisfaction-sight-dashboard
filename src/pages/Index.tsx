@@ -121,23 +121,23 @@ const Index = () => {
         </div>
 
         {/* Main Dashboard Layout - Aligned Cards */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 mb-8">
           {/* Traffic Light - Modern Design */}
-          <div className="flex items-center justify-center">
+          <div className="flex items-start justify-center xl:pt-4">
             <div className="w-full max-w-sm transform scale-110">
               <OverallTrafficLight metrics={metrics} />
             </div>
           </div>
           
           {/* NPS Gauge - Much Bigger */}
-          <div className="flex items-center justify-center">
+          <div className="flex items-start justify-center xl:pt-4">
             <div className="w-full max-w-sm">
               <NPSGauge
                 currentScore={metrics.nps.current}
                 target={metrics.nps.target}
                 trend={12.5}
                 respondents={metrics.nps.respondents}
-                className="animate-fade-in w-full transform scale-125"
+                className="animate-fade-in w-full transform scale-110"
               />
             </div>
           </div>

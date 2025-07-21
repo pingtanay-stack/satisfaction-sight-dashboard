@@ -48,42 +48,39 @@ export function OverallTrafficLight({ metrics }: OverallTrafficLightProps) {
       <CardContent className="p-6">
         <div className="text-center space-y-4">
           {/* Modern Traffic Light */}
-          <div className="relative mx-auto w-20 h-32 bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl shadow-2xl border border-slate-700">
+          <div className="relative mx-auto w-24 h-40 bg-gradient-to-b from-gray-900 to-black rounded-3xl shadow-2xl border-2 border-gray-700">
             {/* Traffic Light Background */}
-            <div className="absolute inset-2 bg-gradient-to-b from-slate-700 to-slate-800 rounded-xl">
+            <div className="absolute inset-3 bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl">
               {/* Light Slots */}
-              <div className="flex flex-col items-center justify-center h-full gap-2 py-2">
+              <div className="flex flex-col items-center justify-center h-full gap-3 py-3">
                 {/* Red Light */}
                 <div className={cn(
-                  "w-10 h-10 rounded-full transition-all duration-700 shadow-inner",
-                  "bg-gradient-radial from-center",
+                  "w-12 h-12 rounded-full transition-all duration-500 border-2",
                   status === "danger" 
-                    ? "from-red-400 to-red-600 shadow-[0_0_20px_rgba(239,68,68,0.8)] animate-pulse" 
-                    : "from-slate-600 to-slate-700 shadow-slate-800"
+                    ? "bg-red-500 border-red-300 shadow-[0_0_25px_rgba(239,68,68,0.9),inset_0_2px_8px_rgba(255,255,255,0.3)] animate-pulse" 
+                    : "bg-gray-700 border-gray-600 shadow-inner"
                 )} />
                 
                 {/* Yellow Light */}
                 <div className={cn(
-                  "w-10 h-10 rounded-full transition-all duration-700 shadow-inner",
-                  "bg-gradient-radial from-center",
+                  "w-12 h-12 rounded-full transition-all duration-500 border-2",
                   status === "warning" 
-                    ? "from-yellow-300 to-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.8)] animate-pulse" 
-                    : "from-slate-600 to-slate-700 shadow-slate-800"
+                    ? "bg-yellow-400 border-yellow-200 shadow-[0_0_25px_rgba(234,179,8,0.9),inset_0_2px_8px_rgba(255,255,255,0.3)] animate-pulse" 
+                    : "bg-gray-700 border-gray-600 shadow-inner"
                 )} />
                 
                 {/* Green Light */}
                 <div className={cn(
-                  "w-10 h-10 rounded-full transition-all duration-700 shadow-inner",
-                  "bg-gradient-radial from-center",
+                  "w-12 h-12 rounded-full transition-all duration-500 border-2",
                   status === "success" 
-                    ? "from-green-400 to-green-600 shadow-[0_0_20px_rgba(34,197,94,0.8)] animate-pulse" 
-                    : "from-slate-600 to-slate-700 shadow-slate-800"
+                    ? "bg-green-500 border-green-300 shadow-[0_0_25px_rgba(34,197,94,0.9),inset_0_2px_8px_rgba(255,255,255,0.3)] animate-pulse" 
+                    : "bg-gray-700 border-gray-600 shadow-inner"
                 )} />
               </div>
             </div>
             
             {/* Post */}
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-3 h-4 bg-gradient-to-b from-slate-700 to-slate-900 rounded-b"></div>
+            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-4 h-6 bg-gradient-to-b from-gray-700 to-black rounded-b-md"></div>
           </div>
           
           {/* Status Content */}
