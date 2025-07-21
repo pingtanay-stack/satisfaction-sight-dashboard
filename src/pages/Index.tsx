@@ -102,25 +102,25 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light/20 via-background to-secondary-light/20">
       <div className="container mx-auto p-4 space-y-4">
-        {/* Header with Traffic Light */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
-          <div className="text-center lg:text-left">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Customer Satisfaction
-            </h1>
-            <div className="flex items-center justify-center lg:justify-start gap-1 mt-1">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <p className="text-sm text-muted-foreground">Real-time insights</p>
-            </div>
+        {/* Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Customer Satisfaction
+          </h1>
+          <div className="flex items-center justify-center gap-1 mt-1">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <p className="text-sm text-muted-foreground">Real-time insights</p>
           </div>
-          
-          {/* Overall Traffic Light */}
-          <div className="lg:col-span-1">
-            <OverallTrafficLight metrics={metrics} />
-          </div>
-          
-          {/* NPS Gauge */}
-          <div className="lg:col-span-1">
+        </div>
+
+        {/* Overall Traffic Light */}
+        <div className="flex justify-center mb-6">
+          <OverallTrafficLight metrics={metrics} />
+        </div>
+        
+        {/* NPS Gauge - Centered and Larger */}
+        <div className="flex justify-center mb-8">
+          <div className="w-full max-w-2xl">
             <NPSGauge
               currentScore={metrics.nps.current}
               target={metrics.nps.target}
