@@ -3,8 +3,11 @@ import { OverallTrafficLight } from "@/components/dashboard/OverallTrafficLight"
 import { CompactMetricCard } from "@/components/dashboard/CompactMetricCard";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { DataUploadSection } from "@/components/dashboard/DataUploadSection";
-import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { DetailModal } from "@/components/dashboard/DetailModal";
+import { AdvancedCharts } from "@/components/dashboard/AdvancedCharts";
+import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, Eye } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
 
 // Default mock data
 const defaultMetrics = {
@@ -56,6 +59,17 @@ const Index = () => {
   const [satisfactionData, setSatisfactionData] = useState(defaultSatisfactionData);
   const [jiraData, setJiraData] = useState(defaultJiraData);
   const [adhocData, setAdhocData] = useState(defaultAdhocData);
+  const [selectedCard, setSelectedCard] = useState<{
+    type: 'nps' | 'jira' | 'project' | 'adhoc';
+    title: string;
+    currentScore: number;
+    target: number;
+    maxScore: number;
+    trend: number;
+    respondents?: number;
+  } | null>(null);
+  const [focusedCard, setFocusedCard] = useState<string>('nps');
+  const [showAdvancedCharts, setShowAdvancedCharts] = useState(false);
 
   const processUploadedData = (data: any[][]) => {
     // Skip header row
@@ -106,47 +120,80 @@ const Index = () => {
     if (newSatisfactionData.length > 0) setSatisfactionData(newSatisfactionData);
     if (newAdhocData.length > 0) setAdhocData(newAdhocData);
   };
+
+  // Dynamic rotation effect
+  useEffect(() => {
+    const cards = ['nps', 'jira', 'project', 'adhoc'];
+    const interval = setInterval(() => {
+      setFocusedCard(prev => {
+        const currentIndex = cards.indexOf(prev);
+        return cards[(currentIndex + 1) % cards.length];
+      });
+    }, 60000); // Change every 1 minute
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleCardClick = (type: 'nps' | 'jira' | 'project' | 'adhoc', title: string, currentScore: number, target: number, maxScore: number, trend: number, respondents?: number) => {
+    setSelectedCard({ type, title, currentScore, target, maxScore, trend, respondents });
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light/20 via-background to-secondary-light/20">
       <div className="container mx-auto p-4 space-y-4">
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Customer Satisfaction
+            Customer Satisfaction Dashboard
           </h1>
-          <div className="flex items-center justify-center gap-1 mt-1">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <p className="text-sm text-muted-foreground">Real-time insights</p>
+          <div className="flex items-center justify-center gap-4 mt-2">
+            <div className="flex items-center gap-1">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <p className="text-sm text-muted-foreground">Real-time insights</p>
+            </div>
+            <Badge 
+              variant="outline" 
+              className={`animate-pulse ${focusedCard === 'nps' ? 'border-primary text-primary' : ''}`}
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              Focus: {focusedCard.toUpperCase()}
+            </Badge>
+            <button
+              onClick={() => setShowAdvancedCharts(!showAdvancedCharts)}
+              className="text-xs px-3 py-1 bg-secondary/20 hover:bg-secondary/40 rounded-full transition-colors"
+            >
+              {showAdvancedCharts ? 'Simple View' : 'Advanced Analytics'}
+            </button>
           </div>
         </div>
 
-        {/* Main Dashboard Layout - Aligned Cards */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 mb-8">
-          {/* Traffic Light - Modern Design */}
-          <div className="flex items-start justify-center xl:pt-4">
-            <div className="w-full max-w-sm transform scale-110">
+        {/* Main Dashboard Layout - Perfectly Aligned */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+          {/* Traffic Light - Left Aligned */}
+          <div className="xl:col-span-3 flex items-center justify-center">
+            <div className={`w-full max-w-xs transform transition-all duration-500 ${focusedCard === 'traffic' ? 'scale-110 ring-2 ring-primary/20' : 'scale-100'}`}>
               <OverallTrafficLight metrics={metrics} />
             </div>
           </div>
           
-          {/* NPS Gauge - Much Bigger */}
-          <div className="flex items-start justify-center xl:pt-4">
-            <div className="w-full max-w-sm">
+          {/* NPS Gauge - Center Aligned */}
+          <div className="xl:col-span-3 flex items-center justify-center">
+            <div className={`w-full max-w-xs transform transition-all duration-500 ${focusedCard === 'nps' ? 'scale-110 ring-2 ring-primary/20' : 'scale-105'}`}>
               <NPSGauge
                 currentScore={metrics.nps.current}
                 target={metrics.nps.target}
                 trend={12.5}
                 respondents={metrics.nps.respondents}
-                className="animate-fade-in w-full transform scale-110"
+                className="animate-fade-in w-full"
+                onClick={() => handleCardClick('nps', 'Net Promoter Score', metrics.nps.current, metrics.nps.target, 100, 12.5, metrics.nps.respondents)}
               />
             </div>
           </div>
 
-          {/* Survey Metrics - Aligned */}
-          <div className="xl:col-span-2 space-y-4">
+          {/* Survey Metrics - Right Aligned */}
+          <div className="xl:col-span-6 space-y-4">
             <div className="text-center mb-4">
               <h3 className="text-lg font-semibold text-foreground mb-1">Survey Metrics</h3>
-              <p className="text-sm text-muted-foreground">Performance across all channels</p>
+              <p className="text-sm text-muted-foreground">Click cards for detailed insights</p>
             </div>
             
             <div className="space-y-4">
@@ -158,6 +205,8 @@ const Index = () => {
                 trend={5.6}
                 respondents={metrics.jira.respondents}
                 icon={<Ticket className="h-4 w-4" />}
+                className={`transition-all duration-500 ${focusedCard === 'jira' ? 'ring-2 ring-primary/20 scale-105' : ''}`}
+                onClick={() => handleCardClick('jira', 'Jira Tickets', metrics.jira.current, metrics.jira.target, 5, 5.6, metrics.jira.respondents)}
               />
               
               <CompactMetricCard
@@ -168,6 +217,8 @@ const Index = () => {
                 trend={16.7}
                 respondents={metrics.project.respondents}
                 icon={<FolderOpen className="h-4 w-4" />}
+                className={`transition-all duration-500 ${focusedCard === 'project' ? 'ring-2 ring-primary/20 scale-105' : ''}`}
+                onClick={() => handleCardClick('project', 'Project Satisfaction', metrics.project.current, metrics.project.target, 5, 16.7, metrics.project.respondents)}
               />
               
               <CompactMetricCard
@@ -178,43 +229,56 @@ const Index = () => {
                 trend={-8.6}
                 respondents={metrics.adhoc.respondents}
                 icon={<MessageSquare className="h-4 w-4" />}
+                className={`transition-all duration-500 ${focusedCard === 'adhoc' ? 'ring-2 ring-primary/20 scale-105' : ''}`}
+                onClick={() => handleCardClick('adhoc', 'Ad-hoc Feedback', metrics.adhoc.current, metrics.adhoc.target, 5, -8.6, metrics.adhoc.respondents)}
               />
             </div>
           </div>
         </div>
 
-        {/* Charts Section - Compact Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          <TrendChart
-            title="Net Promoter Score Trend"
-            data={npsData}
-            target={30}
-            maxScore={100}
+        {/* Charts Section */}
+        {showAdvancedCharts ? (
+          <AdvancedCharts 
+            npsData={npsData}
+            satisfactionData={satisfactionData}
+            jiraData={jiraData}
+            adhocData={adhocData}
           />
-          
-          <TrendChart
-            title="Project Satisfaction Trend"
-            data={satisfactionData}
-            target={3.5}
-            maxScore={5}
-          />
-        </div>
-        
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          <TrendChart
-            title="Jira Ticket Satisfaction"
-            data={jiraData}
-            target={3.5}
-            maxScore={5}
-          />
-          
-          <TrendChart
-            title="Ad-hoc Customer Feedback"
-            data={adhocData}
-            target={3.5}
-            maxScore={5}
-          />
-        </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <TrendChart
+                title="Net Promoter Score Trend"
+                data={npsData}
+                target={30}
+                maxScore={100}
+              />
+              
+              <TrendChart
+                title="Project Satisfaction Trend"
+                data={satisfactionData}
+                target={3.5}
+                maxScore={5}
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+              <TrendChart
+                title="Jira Ticket Satisfaction"
+                data={jiraData}
+                target={3.5}
+                maxScore={5}
+              />
+              
+              <TrendChart
+                title="Ad-hoc Customer Feedback"
+                data={adhocData}
+                target={3.5}
+                maxScore={5}
+              />
+            </div>
+          </>
+        )}
 
         {/* Data Upload Section */}
         <DataUploadSection onDataUpdate={processUploadedData} />
@@ -226,7 +290,25 @@ const Index = () => {
             <span className="text-sm font-medium">Customer Satisfaction Analytics Platform</span>
             <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
           </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Dashboard auto-rotates focus every minute • Click cards for detailed insights
+          </p>
         </div>
+
+        {/* Detail Modal */}
+        {selectedCard && (
+          <DetailModal
+            isOpen={!!selectedCard}
+            onClose={() => setSelectedCard(null)}
+            title={selectedCard.title}
+            currentScore={selectedCard.currentScore}
+            target={selectedCard.target}
+            maxScore={selectedCard.maxScore}
+            trend={selectedCard.trend}
+            respondents={selectedCard.respondents}
+            type={selectedCard.type}
+          />
+        )}
       </div>
     </div>
   );

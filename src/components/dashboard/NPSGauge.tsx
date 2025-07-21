@@ -9,9 +9,10 @@ interface NPSGaugeProps {
   trend: number;
   respondents?: number;
   className?: string;
+  onClick?: () => void;
 }
 
-export function NPSGauge({ currentScore, target, trend, respondents, className }: NPSGaugeProps) {
+export function NPSGauge({ currentScore, target, trend, respondents, className, onClick }: NPSGaugeProps) {
   // NPS ranges from -100 to 100, so we need to normalize for display
   const normalizedScore = ((currentScore + 100) / 200) * 100; // Convert to 0-100 percentage
   const normalizedTarget = ((target + 100) / 200) * 100;
@@ -44,10 +45,13 @@ export function NPSGauge({ currentScore, target, trend, respondents, className }
   const targetAngle = (normalizedTarget / 100) * 180;
   
   return (
-    <Card className={cn(
-      "hover-lift card-shadow hover:card-shadow-hover transition-all duration-300 animate-fade-in",
-      className
-    )}>
+    <Card 
+      className={cn(
+        "hover-lift card-shadow hover:card-shadow-hover transition-all duration-300 animate-fade-in cursor-pointer hover:scale-105",
+        className
+      )}
+      onClick={onClick}
+    >
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

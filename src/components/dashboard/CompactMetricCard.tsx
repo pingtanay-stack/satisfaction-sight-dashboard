@@ -12,6 +12,7 @@ interface CompactMetricCardProps {
   respondents?: number;
   icon?: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
 export function CompactMetricCard({
@@ -22,7 +23,8 @@ export function CompactMetricCard({
   trend,
   respondents,
   icon,
-  className
+  className,
+  onClick
 }: CompactMetricCardProps) {
   const percentage = (currentScore / maxScore) * 100;
   const isTargetMet = currentScore >= target;
@@ -43,7 +45,13 @@ export function CompactMetricCard({
   };
 
   return (
-    <Card className={cn("hover-lift animate-fade-in card-shadow group hover:card-shadow-hover transition-all duration-300", className)}>
+    <Card 
+      className={cn(
+        "hover-lift animate-fade-in card-shadow group hover:card-shadow-hover transition-all duration-300 cursor-pointer hover:scale-105",
+        className
+      )}
+      onClick={onClick}
+    >
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
