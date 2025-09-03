@@ -87,7 +87,7 @@ const Index = () => {
     console.log("processUploadedData called with:", data);
     // Skip header row and filter valid rows
     // Template structure: ['Month', 'NPS Score', 'NPS Respondents', 'Jira Score', 'Jira Respondents', 'Project Satisfaction Score', 'Project Respondents', 'Ad-hoc Score', 'Ad-hoc Respondents', 'NPS Comments']
-    const dataRows = data.slice(1).filter(row => row.length >= 9 && row[0] && row[1] !== "");
+    const dataRows = data.slice(1).filter(row => row.length >= 8 && row[0] && row[1] !== "");
     console.log("Filtered data rows:", dataRows);
     
     const newNpsData: { month: string; score: number }[] = [];
