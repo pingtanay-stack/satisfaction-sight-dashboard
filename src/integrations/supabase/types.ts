@@ -135,6 +135,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_dashboard_data: {
+        Row: {
+          adhoc_data: Json
+          created_at: string
+          id: string
+          jira_data: Json
+          metrics: Json
+          nps_data: Json
+          satisfaction_data: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          adhoc_data: Json
+          created_at?: string
+          id?: string
+          jira_data: Json
+          metrics: Json
+          nps_data: Json
+          satisfaction_data: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          adhoc_data?: Json
+          created_at?: string
+          id?: string
+          jira_data?: Json
+          metrics?: Json
+          nps_data?: Json
+          satisfaction_data?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

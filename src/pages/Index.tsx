@@ -5,11 +5,21 @@ import { TrendChart } from "@/components/dashboard/TrendChart";
 import { DataUploadSection } from "@/components/dashboard/DataUploadSection";
 import { DetailModal } from "@/components/dashboard/DetailModal";
 import { AdvancedCharts } from "@/components/dashboard/AdvancedCharts";
-import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, Eye, RotateCcw } from "lucide-react";
+import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, Eye, RotateCcw, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { saveDashboardData, loadDashboardData, clearDashboardData, hasSavedData } from "@/lib/localStorage";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Session, User } from "@supabase/supabase-js";
+import { 
+  saveDashboardDataToSupabase, 
+  loadDashboardDataFromSupabase, 
+  clearDashboardDataFromSupabase, 
+  hasSavedDataInSupabase,
+  type DashboardData 
+} from "@/lib/supabaseStorage";
 
 // Default mock data
 const defaultMetrics = {
@@ -56,21 +66,27 @@ const defaultAdhocData = [
 ];
 
 const Index = () => {
-  // Load data from localStorage or use defaults
-  const savedData = loadDashboardData({
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Default data structure
+  const defaultData: DashboardData = {
     metrics: defaultMetrics,
     npsData: defaultNpsData,
     satisfactionData: defaultSatisfactionData,
     jiraData: defaultJiraData,
     adhocData: defaultAdhocData,
-  });
+  };
 
-  const [metrics, setMetrics] = useState(savedData.metrics);
-  const [npsData, setNpsData] = useState(savedData.npsData);
-  const [satisfactionData, setSatisfactionData] = useState(savedData.satisfactionData);
-  const [jiraData, setJiraData] = useState(savedData.jiraData);
-  const [adhocData, setAdhocData] = useState(savedData.adhocData);
-  const [hasUploadedData, setHasUploadedData] = useState(hasSavedData());
+  const [metrics, setMetrics] = useState(defaultData.metrics);
+  const [npsData, setNpsData] = useState(defaultData.npsData);
+  const [satisfactionData, setSatisfactionData] = useState(defaultData.satisfactionData);
+  const [jiraData, setJiraData] = useState(defaultData.jiraData);
+  const [adhocData, setAdhocData] = useState(defaultData.adhocData);
+  const [hasUploadedData, setHasUploadedData] = useState(false);
   const [selectedCard, setSelectedCard] = useState<{
     type: 'nps' | 'jira' | 'project' | 'adhoc';
     title: string;
@@ -82,6 +98,82 @@ const Index = () => {
   } | null>(null);
   const [focusedCard, setFocusedCard] = useState<string>('nps');
   const [showAdvancedCharts, setShowAdvancedCharts] = useState(false);
+
+  // Authentication effect
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // User logged in, load their data
+          setTimeout(() => {
+            loadUserData();
+          }, 0);
+        } else {
+          // User logged out, redirect to auth
+          navigate('/auth');
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        loadUserData();
+      } else {
+        navigate('/auth');
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  // Load user data from Supabase
+  const loadUserData = async () => {
+    try {
+      const userData = await loadDashboardDataFromSupabase(defaultData);
+      const hasData = await hasSavedDataInSupabase();
+      
+      setMetrics(userData.metrics);
+      setNpsData(userData.npsData);
+      setSatisfactionData(userData.satisfactionData);
+      setJiraData(userData.jiraData);
+      setAdhocData(userData.adhocData);
+      setHasUploadedData(hasData);
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      toast({
+        title: "Error loading data",
+        description: "Using default values. Your data will be saved when you upload new data.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Save data to Supabase
+  const saveUserData = async (data: DashboardData) => {
+    try {
+      await saveDashboardDataToSupabase(data);
+      toast({
+        title: "Data saved",
+        description: "Your dashboard data has been saved to the cloud.",
+      });
+    } catch (error) {
+      console.error('Error saving data:', error);
+      toast({
+        title: "Error saving data", 
+        description: "There was a problem saving your data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const processUploadedData = (data: any[][]) => {
     console.log("processUploadedData called with:", data);
@@ -137,17 +229,18 @@ const Index = () => {
     if (newSatisfactionData.length > 0) setSatisfactionData(newSatisfactionData);
     if (newAdhocData.length > 0) setAdhocData(newAdhocData);
 
-    // Save all data to localStorage
-    saveDashboardData({
+    // Save all data to Supabase
+    const dataToSave: DashboardData = {
       metrics: newMetrics,
-      npsData: newNpsData.length > 0 ? newNpsData : savedData.npsData,
-      jiraData: newJiraData.length > 0 ? newJiraData : savedData.jiraData,
-      satisfactionData: newSatisfactionData.length > 0 ? newSatisfactionData : savedData.satisfactionData,
-      adhocData: newAdhocData.length > 0 ? newAdhocData : savedData.adhocData,
-    });
+      npsData: newNpsData.length > 0 ? newNpsData : npsData,
+      jiraData: newJiraData.length > 0 ? newJiraData : jiraData,
+      satisfactionData: newSatisfactionData.length > 0 ? newSatisfactionData : satisfactionData,
+      adhocData: newAdhocData.length > 0 ? newAdhocData : adhocData,
+    };
 
+    saveUserData(dataToSave);
     setHasUploadedData(true);
-    console.log("Dashboard data saved to localStorage");
+    console.log("Dashboard data saved to Supabase");
   };
 
   // Dynamic rotation effect
@@ -167,16 +260,57 @@ const Index = () => {
     setSelectedCard({ type, title, currentScore, target, maxScore, trend, respondents });
   };
 
-  const handleResetData = () => {
-    clearDashboardData();
-    setMetrics(defaultMetrics);
-    setNpsData(defaultNpsData);
-    setSatisfactionData(defaultSatisfactionData);
-    setJiraData(defaultJiraData);
-    setAdhocData(defaultAdhocData);
-    setHasUploadedData(false);
-    console.log("Dashboard data reset to defaults");
+  const handleResetData = async () => {
+    try {
+      await clearDashboardDataFromSupabase();
+      setMetrics(defaultMetrics);
+      setNpsData(defaultNpsData);
+      setSatisfactionData(defaultSatisfactionData);
+      setJiraData(defaultJiraData);
+      setAdhocData(defaultAdhocData);
+      setHasUploadedData(false);
+      toast({
+        title: "Data reset",
+        description: "Dashboard has been reset to default values.",
+      });
+      console.log("Dashboard data reset to defaults");
+    } catch (error) {
+      console.error('Error resetting data:', error);
+      toast({
+        title: "Error resetting data",
+        description: "There was a problem resetting your data.",
+        variant: "destructive",
+      });
+    }
   };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing you out.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Show loading spinner while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-light/20 via-background to-secondary-light/20 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <BarChart3 className="h-12 w-12 text-primary mx-auto animate-pulse" />
+          <p className="text-muted-foreground">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light/20 via-background to-secondary-light/20">
       <div className="container mx-auto p-4 space-y-4">
@@ -223,6 +357,15 @@ const Index = () => {
                   Reset to Defaults
                 </Button>
               )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="text-xs px-3 py-1 h-auto"
+              >
+                <LogOut className="h-3 w-3 mr-1" />
+                Sign Out
+              </Button>
             </div>
           </div>
         </div>
