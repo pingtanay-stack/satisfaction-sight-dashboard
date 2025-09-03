@@ -61,16 +61,16 @@ export function DataUploadSection({ onDataUpdate }: DataUploadSectionProps = {})
   };
 
   const downloadTemplate = () => {
-    // Create simplified Excel template for monthly surveys
+    // Create template that matches the exact processing logic
     const templateData = [
       ['Month', 'NPS Score', 'NPS Respondents', 'Jira Score', 'Jira Respondents', 'Project Satisfaction Score', 'Project Respondents', 'Ad-hoc Score', 'Ad-hoc Respondents', 'NPS Comments'],
-      ['Jan', '25', '120', '3.2', '75', '3.1', '35', '3.5', '18', 'System is slow during peak hours, needs performance improvement'],
-      ['Feb', '32', '135', '3.4', '82', '3.3', '40', '3.3', '20', 'Mobile app needs improvement, overall good experience'],
-      ['Mar', '38', '156', '3.6', '89', '3.6', '45', '3.1', '23', 'Love the new dashboard features, very intuitive'],
-      ['Apr', '42', '167', '3.7', '95', '3.8', '48', '3.0', '25', 'Excellent performance improvements, great support'],
-      ['May', '45', '172', '3.8', '102', '3.9', '52', '3.1', '28', 'API documentation is comprehensive, security is robust'],
-      ['Jun', '48', '180', '3.8', '108', '4.2', '55', '3.2', '30', 'Best customer service experience, training materials helpful'],
-      ['Jul', '', '', '', '', '', '', '', '', ''],
+      ['Jan', 25, 120, 3.2, 75, 3.1, 35, 3.5, 18, 'System is slow during peak hours, needs performance improvement'],
+      ['Feb', 32, 135, 3.4, 82, 3.3, 40, 3.3, 20, 'Mobile app needs improvement, overall good experience'],
+      ['Mar', 38, 156, 3.6, 89, 3.6, 45, 3.1, 23, 'Love the new dashboard features, very intuitive'],
+      ['Apr', 42, 167, 3.7, 95, 3.8, 48, 3.0, 25, 'Excellent performance improvements, great support'],
+      ['May', 45, 172, 3.8, 102, 3.9, 52, 3.1, 28, 'API documentation is comprehensive, security is robust'],
+      ['Jun', 48, 180, 3.8, 108, 4.2, 55, 3.2, 30, 'Best customer service experience, training materials helpful'],
+      ['Jul', 70, 200, 5.0, 150, 5.0, 100, 4.0, 50, 'Excellent improvements across all areas'],
       ['Aug', '', '', '', '', '', '', '', '', ''],
       ['Sep', '', '', '', '', '', '', '', '', ''],
       ['Oct', '', '', '', '', '', '', '', '', ''],
@@ -78,8 +78,17 @@ export function DataUploadSection({ onDataUpdate }: DataUploadSectionProps = {})
       ['Dec', '', '', '', '', '', '', '', '', '']
     ];
 
-    // Convert to CSV format
-    const csvContent = templateData.map(row => row.join(',')).join('\n');
+    // Convert to CSV format with proper escaping
+    const csvContent = templateData.map(row => 
+      row.map(cell => {
+        const cellStr = String(cell);
+        // Escape cells with commas or quotes
+        if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+          return `"${cellStr.replace(/"/g, '""')}"`;
+        }
+        return cellStr;
+      }).join(',')
+    ).join('\n');
     
     // Create and download the file
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

@@ -96,7 +96,7 @@ const Index = () => {
     const newAdhocData: { month: string; score: number }[] = [];
     
     dataRows.forEach(row => {
-      if (row[0] && row[1] !== undefined) {
+      if (row[0] && row[1] !== undefined && row[1] !== '') {
         const month = row[0].toString();
         const npsScore = parseFloat(row[1]) || 0;
         const jiraScore = parseFloat(row[3]) || 0;
