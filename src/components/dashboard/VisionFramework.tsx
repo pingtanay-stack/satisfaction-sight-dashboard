@@ -71,11 +71,6 @@ export function VisionFramework({
                   <p className="text-xs text-muted-foreground mb-2">{pillar.description}</p>
                 </div>
                 
-                <div className="space-y-1">
-                  {pillar.metrics.map(metric => (
-                    <Badge key={metric} variant="outline" className="text-xs px-2 py-1">{metric}</Badge>
-                  ))}
-                </div>
               </div>)}
           </div>
 
