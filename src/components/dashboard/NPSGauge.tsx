@@ -192,16 +192,16 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
               </svg>
               
               {/* Center content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-end pb-2">
+              <div className="absolute inset-0 flex flex-col items-center justify-center pt-8">
                 <div className="text-center">
-                  <div className="text-3xl font-bold" style={{ color: needleColor }}>
+                  <div className="text-4xl font-bold mb-1" style={{ color: needleColor }}>
                     {currentScore}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-sm text-gray-600 font-medium">
                     Target: {target}
                   </div>
                   {respondents && (
-                    <div className="text-xs text-gray-400 mt-1">
+                    <div className="text-xs text-gray-500 mt-1">
                       {respondents.toLocaleString()} responses
                     </div>
                   )}
