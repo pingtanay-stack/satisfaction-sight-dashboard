@@ -143,15 +143,24 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
           {/* Enhanced scale labels */}
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="space-y-1">
-              <div className="text-xs font-semibold text-red-600">Detractors</div>
+              <div className="flex items-center justify-center gap-1">
+                <span className="text-lg">😠</span>
+                <div className="text-xs font-semibold text-red-600">Detractors</div>
+              </div>
               <div className="text-xs text-gray-500">-100 to 0</div>
             </div>
             <div className="space-y-1">
-              <div className="text-xs font-semibold text-yellow-600">Passives</div>
+              <div className="flex items-center justify-center gap-1">
+                <span className="text-lg">😐</span>
+                <div className="text-xs font-semibold text-yellow-600">Passives</div>
+              </div>
               <div className="text-xs text-gray-500">0 to 50</div>
             </div>
             <div className="space-y-1">
-              <div className="text-xs font-semibold text-green-600">Promoters</div>
+              <div className="flex items-center justify-center gap-1">
+                <span className="text-lg">😊</span>
+                <div className="text-xs font-semibold text-green-600">Promoters</div>
+              </div>
               <div className="text-xs text-gray-500">50 to 100</div>
             </div>
           </div>
