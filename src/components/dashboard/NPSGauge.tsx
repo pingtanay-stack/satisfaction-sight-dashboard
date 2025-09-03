@@ -17,35 +17,47 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
   const uniqueId = `gaugeGradient-${Math.random().toString(36).substr(2, 9)}`;
   
   // NPS ranges from -100 to 100, so we need to normalize for display
-  const normalizedScore = ((currentScore + 100) / 200) * 100; // Convert to 0-100 percentage
-  const normalizedTarget = ((target + 100) / 200) * 100;
+  const normalizedScore = Math.max(0, Math.min(100, ((currentScore + 100) / 200) * 100));
+  const normalizedTarget = Math.max(0, Math.min(100, ((target + 100) / 200) * 100));
   const isTargetMet = currentScore >= target;
   const isPositiveTrend = trend >= 0;
   
-  // Determine status color based on NPS ranges
-  let statusColor: "success" | "warning" | "destructive";
+  // Determine status color and styling
+  let statusColor: string;
   let statusText: string;
+  let gaugeColor: string;
   
   if (currentScore >= 70) {
-    statusColor = "success";
+    statusColor = "text-green-600 bg-green-100";
     statusText = "Excellent";
+    gaugeColor = "#22c55e";
   } else if (currentScore >= 50) {
-    statusColor = "success";
+    statusColor = "text-green-600 bg-green-100";
     statusText = "Great";
+    gaugeColor = "#22c55e";
   } else if (currentScore >= 30) {
-    statusColor = "warning";
+    statusColor = "text-yellow-600 bg-yellow-100";
     statusText = "Good";
+    gaugeColor = "#eab308";
   } else if (currentScore >= 0) {
-    statusColor = "warning";
+    statusColor = "text-yellow-600 bg-yellow-100";
     statusText = "Improving";
+    gaugeColor = "#eab308";
   } else {
-    statusColor = "destructive";
+    statusColor = "text-red-600 bg-red-100";
     statusText = "Needs Attention";
+    gaugeColor = "#ef4444";
   }
 
-  // Calculate the angle for the gauge (180 degrees total)
-  const gaugeAngle = (normalizedScore / 100) * 180;
-  const targetAngle = (normalizedTarget / 100) * 180;
+  // Calculate the percentage for the arc (0 to 1)
+  const arcPercentage = normalizedScore / 100;
+  const targetPercentage = normalizedTarget / 100;
+  
+  // SVG circle calculation: circumference of half circle (π * radius)
+  const radius = 70;
+  const circumference = Math.PI * radius;
+  const strokeDasharray = circumference;
+  const strokeDashoffset = circumference * (1 - arcPercentage);
   
   return (
     <Card 
@@ -64,13 +76,7 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
             </CardTitle>
           </div>
           <Badge 
-            variant={statusColor === "success" ? "default" : "secondary"}
-            className={cn(
-              "text-xs",
-              statusColor === "success" && "bg-success text-success-foreground",
-              statusColor === "warning" && "bg-warning text-warning-foreground",
-              statusColor === "destructive" && "bg-destructive text-destructive-foreground"
-            )}
+            className={cn("text-xs", statusColor)}
           >
             {statusText}
           </Badge>
@@ -83,45 +89,38 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
           <div className="relative flex items-center justify-center py-4">
             <div className="relative w-64 h-32">
               {/* Background arc */}
-              <svg className="w-full h-full" viewBox="0 0 200 110">
+              <svg className="w-full h-full" viewBox="0 0 200 110" style={{ transform: 'rotate(0deg)' }}>
+                {/* Background semicircle */}
                 <path
-                  d="M 20 85 A 80 80 0 0 1 180 85"
+                  d="M 30 85 A 70 70 0 0 1 170 85"
                   fill="none"
-                  stroke="hsl(var(--muted))"
-                  strokeWidth="8"
+                  stroke="#e5e7eb"
+                  strokeWidth="12"
                   strokeLinecap="round"
                 />
                 
                 {/* Progress arc */}
                 <path
-                  d="M 20 85 A 80 80 0 0 1 180 85"
+                  d="M 30 85 A 70 70 0 0 1 170 85"
                   fill="none"
-                  stroke={`url(#${uniqueId})`}
-                  strokeWidth="8"
+                  stroke={gaugeColor}
+                  strokeWidth="12"
                   strokeLinecap="round"
-                  strokeDasharray={`${(gaugeAngle / 180) * 251.33} 251.33`}
+                  strokeDasharray={strokeDasharray}
+                  strokeDashoffset={strokeDashoffset}
                   className="transition-all duration-1000 ease-out"
+                  style={{ transformOrigin: '100px 85px' }}
                 />
                 
                 {/* Target indicator */}
-                <line
-                  x1={100 + 70 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
-                  y1={85 - 70 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
-                  x2={100 + 85 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
-                  y2={85 - 85 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
-                  stroke="hsl(var(--warning))"
-                  strokeWidth="3"
-                  strokeLinecap="round"
+                <circle
+                  cx={30 + (170 - 30) * targetPercentage}
+                  cy={85 - Math.sin(Math.PI * targetPercentage) * 70}
+                  r="4"
+                  fill="#f59e0b"
+                  stroke="#fff"
+                  strokeWidth="2"
                 />
-                
-                {/* Gradient definition */}
-                <defs>
-                  <linearGradient id={uniqueId} x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="hsl(var(--destructive))" />
-                    <stop offset="50%" stopColor="hsl(var(--warning))" />
-                    <stop offset="100%" stopColor="hsl(var(--success))" />
-                  </linearGradient>
-                </defs>
               </svg>
               
               {/* Center score display */}
