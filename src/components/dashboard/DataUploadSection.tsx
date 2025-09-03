@@ -33,10 +33,15 @@ export function DataUploadSection({ onDataUpdate }: DataUploadSectionProps = {})
           const workbook = XLSX.read(data, { type: 'array' });
           const worksheet = workbook.Sheets[workbook.SheetNames[0]];
           const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          console.log("Parsed Excel data:", jsonData);
+          console.log("Number of rows:", jsonData.length);
           
           // Process the data and update dashboard
           if (onDataUpdate) {
+            console.log("Calling onDataUpdate with data");
             onDataUpdate(jsonData);
+          } else {
+            console.log("No onDataUpdate callback provided");
           }
           
           toast({

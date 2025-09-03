@@ -72,9 +72,11 @@ const Index = () => {
   const [showAdvancedCharts, setShowAdvancedCharts] = useState(false);
 
   const processUploadedData = (data: any[][]) => {
+    console.log("processUploadedData called with:", data);
     // Skip header row and filter valid rows
     // Template structure: ['Month', 'NPS Score', 'NPS Respondents', 'Jira Score', 'Jira Respondents', 'Project Satisfaction Score', 'Project Respondents', 'Ad-hoc Score', 'Ad-hoc Respondents', 'NPS Comments']
     const dataRows = data.slice(1).filter(row => row.length >= 9 && row[0] && row[1] !== "");
+    console.log("Filtered data rows:", dataRows);
     
     const newNpsData: { month: string; score: number }[] = [];
     const newJiraData: { month: string; score: number }[] = [];
@@ -108,12 +110,15 @@ const Index = () => {
     const projectRespondents = dataRows.reduce((sum, row) => sum + (parseInt(row[6]) || 0), 0);
     const adhocRespondents = dataRows.reduce((sum, row) => sum + (parseInt(row[8]) || 0), 0);
     
-    setMetrics({
+    const newMetrics = {
       nps: { current: latestNps, target: 30, respondents: npsRespondents || defaultMetrics.nps.respondents },
       jira: { current: latestJira, target: 3.5, respondents: jiraRespondents || defaultMetrics.jira.respondents },
       project: { current: latestProject, target: 3.5, respondents: projectRespondents || defaultMetrics.project.respondents },
       adhoc: { current: latestAdhoc, target: 3.5, respondents: adhocRespondents || defaultMetrics.adhoc.respondents }
-    });
+    };
+    
+    console.log("Updating metrics to:", newMetrics);
+    setMetrics(newMetrics);
     
     if (newNpsData.length > 0) setNpsData(newNpsData);
     if (newJiraData.length > 0) setJiraData(newJiraData);
