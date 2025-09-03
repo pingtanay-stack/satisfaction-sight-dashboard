@@ -179,7 +179,7 @@ export function AchievementNotification({
 
   return (
     <div className={cn(
-      "fixed top-4 right-4 z-50 p-4 rounded-lg border bg-card shadow-lg animate-bounce-in",
+      "p-4 rounded-lg border bg-card shadow-lg animate-bounce-in",
       config.bgColor,
       config.borderColor,
       className

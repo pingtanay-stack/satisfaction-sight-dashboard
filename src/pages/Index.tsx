@@ -671,21 +671,26 @@ const Index = () => {
           />
         )}
 
-        {/* Achievement Notification */}
-        {showAchievementNotification && achievements.length > 0 && (
-          <AchievementNotification
-            achievement={achievements[achievements.length - 1]}
-            onClose={dismissAchievementNotification}
-          />
-        )}
+        {/* Notification Stack */}
+        <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+          {/* Achievement Notification */}
+          {showAchievementNotification && achievements.length > 0 && (
+            <AchievementNotification
+              achievement={achievements[achievements.length - 1]}
+              onClose={dismissAchievementNotification}
+              className="relative top-0 right-0"
+            />
+          )}
 
-        {/* Alert Manager */}
-        <AlertManager
-          alerts={alerts}
-          onDismissAlert={dismissAlert}
-          onActionAlert={handleAlertAction}
-          maxVisible={3}
-        />
+          {/* Alert Manager */}
+          <AlertManager
+            alerts={alerts}
+            onDismissAlert={dismissAlert}
+            onActionAlert={handleAlertAction}
+            maxVisible={3}
+            className="relative top-0 right-0"
+          />
+        </div>
       </div>
     </div>
   );
