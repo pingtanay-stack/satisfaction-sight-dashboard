@@ -367,17 +367,26 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 space-y-6">
-        {/* Header with Traffic Light */}
+        {/* Header with Logo and Traffic Light */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex-1"></div>
+            {/* Sysmex Logo */}
+            <div className="flex-shrink-0">
+              <img 
+                src="/lovable-uploads/c2503f0e-4514-4e32-b540-b9ea2e9d0512.png" 
+                alt="Sysmex - Together for a better healthcare journey" 
+                className="h-12 w-auto object-contain"
+              />
+            </div>
+            
+            {/* Dashboard Title */}
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Customer Satisfaction Dashboard
             </h1>
-            <div className="flex-1 flex justify-end">
-              <div className="w-fit">
-                <OverallTrafficLight metrics={metrics} variant="horizontal" />
-              </div>
+            
+            {/* Traffic Light */}
+            <div className="flex-shrink-0">
+              <OverallTrafficLight metrics={metrics} variant="horizontal" />
             </div>
           </div>
           <div className="flex items-center justify-center gap-4 mt-4">

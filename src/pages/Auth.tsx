@@ -109,6 +109,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted flex items-center justify-center p-4">
+      {/* Logo */}
+      <div className="absolute top-6 left-6">
+        <img 
+          src="/lovable-uploads/c2503f0e-4514-4e32-b540-b9ea2e9d0512.png" 
+          alt="Sysmex - Together for a better healthcare journey" 
+          className="h-10 w-auto object-contain"
+        />
+      </div>
+
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-2 mb-4">
