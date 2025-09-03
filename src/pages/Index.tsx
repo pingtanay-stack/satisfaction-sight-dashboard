@@ -354,15 +354,20 @@ const Index = () => {
 
         {/* Main Dashboard Layout */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
-          {/* Expanded NPS Gauge */}
-          <div className="xl:col-span-6 flex items-center justify-center">
-            <div className="w-full max-w-lg">
+          {/* NPS Gauge - Aligned with metrics */}
+          <div className="xl:col-span-6 flex flex-col">
+            <div className="text-center mb-6">
+              <h3 className="text-lg font-semibold text-foreground mb-1">Net Promoter Score</h3>
+              <p className="text-sm text-muted-foreground">Click for detailed insights</p>
+            </div>
+            
+            <div className="flex-1 flex items-stretch">
               <NPSGauge
                 currentScore={metrics.nps.current}
                 target={metrics.nps.target}
                 trend={12.5}
                 respondents={metrics.nps.respondents}
-                className="w-full h-full"
+                className="w-full h-full flex-1"
                 onClick={() => handleCardClick('nps', 'Net Promoter Score', metrics.nps.current, metrics.nps.target, 100, 12.5, metrics.nps.respondents)}
               />
             </div>
