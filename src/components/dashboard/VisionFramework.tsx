@@ -39,7 +39,7 @@ export function VisionFramework({
         {/* Roof - Vision */}
         <div className="relative mb-0">
           <div className="w-0 h-0 border-l-[300px] border-r-[300px] border-b-[120px] border-l-transparent border-r-transparent border-b-primary/30 mx-auto"></div>
-          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-center z-10">
+          <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-center z-10">
             <h1 className="text-2xl font-bold text-primary mb-1">Our Vision</h1>
           </div>
           {/* Roof ridge line */}
