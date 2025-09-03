@@ -73,13 +73,6 @@ export function VisionFramework({
                 </div>
               </div>)}
           </div>
-
-          {/* Windows */}
-          <div className="absolute top-1/2 left-4 w-6 h-8 bg-primary/20 rounded border border-primary/30 shadow-inner"></div>
-          <div className="absolute top-1/2 right-4 w-6 h-8 bg-primary/20 rounded border border-primary/30 shadow-inner"></div>
-          
-          {/* Door */}
-          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-12 bg-primary/25 rounded-t border-t border-l border-r border-primary/40"></div>
         </div>
 
         {/* Foundation */}
