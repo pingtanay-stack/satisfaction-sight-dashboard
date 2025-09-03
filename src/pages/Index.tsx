@@ -377,20 +377,16 @@ const Index = () => {
           {showVisionMode ? (
             // Vision Mode Layout - Organized by Pillars
             <>
-              {/* People Pillar */}
-              <div className="space-y-4">
-                <div className="text-center p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                  <h3 className="font-semibold text-blue-700 dark:text-blue-300">People</h3>
-                </div>
-                <NPSGauge
-                  currentScore={metrics.nps.current}
-                  target={metrics.nps.target}
-                  trend={12.5}
-                  respondents={metrics.nps.respondents}
-                  className="w-full h-48"
-                  onClick={() => handleCardClick('nps', 'Net Promoter Score', metrics.nps.current, metrics.nps.target, 100, 12.5, metrics.nps.respondents)}
-                />
+            {/* People Pillar */}
+            <div className="space-y-4">
+              <div className="text-center p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                <h3 className="font-semibold text-blue-700 dark:text-blue-300">People</h3>
               </div>
+              <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-sm text-blue-600 dark:text-blue-400">Customer Experience Focus</p>
+                <p className="text-xs text-muted-foreground mt-1">NPS tracking available in standard view</p>
+              </div>
+            </div>
 
               {/* Innovate Pillar */}
               <div className="space-y-4">

@@ -40,51 +40,66 @@ export function VisionFramework({ className }: VisionFrameworkProps) {
 
   return (
     <Card className={`p-8 mb-8 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 ${className}`}>
-      {/* Vision Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Our Vision</h1>
-        <p className="text-lg text-muted-foreground">Driving Excellence Through Strategic Focus</p>
-      </div>
-
-      {/* Core Values */}
-      <div className="text-center mb-8">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Core Values</h2>
-        <div className="flex justify-center gap-4 flex-wrap">
-          <Badge variant="secondary" className="px-4 py-2">Excellence</Badge>
-          <Badge variant="secondary" className="px-4 py-2">Innovation</Badge>
-          <Badge variant="secondary" className="px-4 py-2">Integrity</Badge>
-          <Badge variant="secondary" className="px-4 py-2">Collaboration</Badge>
+      {/* House Structure */}
+      <div className="relative max-w-4xl mx-auto">
+        
+        {/* Roof - Vision */}
+        <div className="relative">
+          <div className="w-0 h-0 border-l-[200px] border-r-[200px] border-b-[80px] border-l-transparent border-r-transparent border-b-primary/20 mx-auto"></div>
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-center z-10">
+            <h1 className="text-2xl font-bold text-primary mb-1">Our Vision</h1>
+            <p className="text-sm text-muted-foreground">Excellence Through Strategic Focus</p>
+          </div>
         </div>
-      </div>
 
-      {/* Four Pillars */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {pillars.map((pillar) => (
-          <div key={pillar.title} className="text-center group">
-            <div className="mb-4">
-              <div className={`w-16 h-16 rounded-full ${pillar.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-200`}>
-                <pillar.icon className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">{pillar.title}</h3>
-              <p className="text-sm text-muted-foreground mb-3">{pillar.description}</p>
-            </div>
-            
-            <div className="space-y-1">
-              {pillar.metrics.map((metric) => (
-                <div key={metric} className="text-xs bg-secondary/50 rounded px-2 py-1">
-                  {metric}
-                </div>
-              ))}
+        {/* House Body */}
+        <div className="bg-gradient-to-b from-background to-secondary/5 border-2 border-primary/20 rounded-b-lg relative">
+          
+          {/* Core Values - Second Floor */}
+          <div className="text-center py-6 border-b border-border/50">
+            <h2 className="text-lg font-semibold text-foreground mb-4">Core Values</h2>
+            <div className="flex justify-center gap-3 flex-wrap">
+              <Badge variant="secondary" className="px-3 py-1 text-xs">Excellence</Badge>
+              <Badge variant="secondary" className="px-3 py-1 text-xs">Innovation</Badge>
+              <Badge variant="secondary" className="px-3 py-1 text-xs">Integrity</Badge>
+              <Badge variant="secondary" className="px-3 py-1 text-xs">Collaboration</Badge>
             </div>
           </div>
-        ))}
-      </div>
 
-      {/* Key Focus Areas Footer */}
-      <div className="text-center mt-8 pt-6 border-t border-border">
-        <p className="text-sm text-muted-foreground">
-          <strong>Key Focus Areas:</strong> Customer Satisfaction • Innovation Excellence • Quality Protection • Strategic Growth
-        </p>
+          {/* Four Pillars - Main Floor */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-6">
+            {pillars.map((pillar) => (
+              <div key={pillar.title} className="text-center group bg-background/50 rounded-lg p-4 border border-border/30 hover:border-primary/30 transition-all duration-200">
+                <div className="mb-3">
+                  <div className={`w-12 h-12 rounded-full ${pillar.color} flex items-center justify-center mx-auto mb-2 group-hover:scale-105 transition-transform duration-200 shadow-lg`}>
+                    <pillar.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-foreground mb-1">{pillar.title}</h3>
+                  <p className="text-xs text-muted-foreground mb-2">{pillar.description}</p>
+                </div>
+                
+                <div className="space-y-1">
+                  {pillar.metrics.map((metric) => (
+                    <div key={metric} className="text-xs bg-secondary/30 rounded px-2 py-1 text-muted-foreground">
+                      {metric}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Foundation - Key Focus Areas */}
+          <div className="text-center py-4 bg-secondary/10 rounded-b-lg border-t border-border/50">
+            <p className="text-xs text-muted-foreground">
+              <strong className="text-foreground">Foundation:</strong> Customer Satisfaction • Innovation Excellence • Quality Protection • Strategic Growth
+            </p>
+          </div>
+
+          {/* House Details */}
+          <div className="absolute top-1/2 left-4 w-6 h-8 bg-primary/30 rounded border border-primary/40"></div>
+          <div className="absolute top-1/2 right-4 w-6 h-8 bg-primary/30 rounded border border-primary/40"></div>
+        </div>
       </div>
     </Card>
   );
