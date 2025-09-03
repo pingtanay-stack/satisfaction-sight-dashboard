@@ -7,12 +7,17 @@ import { DetailModal } from "@/components/dashboard/DetailModal";
 import { AdvancedCharts } from "@/components/dashboard/AdvancedCharts";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { VisionFramework } from "@/components/dashboard/VisionFramework";
-import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, RotateCcw, LogOut, Building } from "lucide-react";
+import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, RotateCcw, LogOut, Building, Trophy } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useEngagement } from "@/hooks/useEngagement";
+import { PerformanceScore } from "@/components/ui/performance-score";
+import { AchievementNotification } from "@/components/ui/achievement-badge";
+import { AlertManager } from "@/components/ui/alert-notification";
+import { InsightsSection } from "@/components/ui/insight-card";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { 
@@ -101,6 +106,21 @@ const Index = () => {
   const [showAdvancedCharts, setShowAdvancedCharts] = useState(false);
   const [showVisionMode, setShowVisionMode] = useState(false);
 
+  // Initialize engagement system
+  const {
+    achievements,
+    insights,
+    alerts,
+    performanceScore,
+    showAchievementNotification,
+    updateEngagement,
+    dismissAchievementNotification,
+    dismissAlert,
+    dismissInsight,
+    handleAlertAction,
+    handleInsightAction
+  } = useEngagement();
+
   // Authentication effect
   useEffect(() => {
     // Set up auth state listener
@@ -177,6 +197,48 @@ const Index = () => {
     }
   };
 
+  // Convert metrics to engagement format and update
+  const updateEngagementData = (metricsData: typeof metrics) => {
+    const engagementMetrics = [
+      {
+        title: "Net Promoter Score",
+        currentScore: metricsData.nps.current,
+        target: metricsData.nps.target,
+        maxScore: 100,
+        trend: 12.5
+      },
+      {
+        title: "Jira Tickets",
+        currentScore: metricsData.jira.current,
+        target: metricsData.jira.target,
+        maxScore: 5,
+        trend: 5.6
+      },
+      {
+        title: "Project Satisfaction",
+        currentScore: metricsData.project.current,
+        target: metricsData.project.target,
+        maxScore: 5,
+        trend: 16.7
+      },
+      {
+        title: "Ad-hoc Feedback",
+        currentScore: metricsData.adhoc.current,
+        target: metricsData.adhoc.target,
+        maxScore: 5,
+        trend: -8.6
+      }
+    ];
+    updateEngagement(engagementMetrics);
+  };
+
+  // Update engagement when component loads
+  useEffect(() => {
+    if (metrics) {
+      updateEngagementData(metrics);
+    }
+  }, [metrics, updateEngagement]);
+
   const processUploadedData = (data: any[][]) => {
     console.log("processUploadedData called with:", data);
     // Skip header row and filter valid rows
@@ -230,6 +292,9 @@ const Index = () => {
     if (newJiraData.length > 0) setJiraData(newJiraData);
     if (newSatisfactionData.length > 0) setSatisfactionData(newSatisfactionData);
     if (newAdhocData.length > 0) setAdhocData(newAdhocData);
+
+    // Update engagement system with new metrics
+    updateEngagementData(newMetrics);
 
     // Save all data to Supabase
     const dataToSave: DashboardData = {
@@ -318,9 +383,21 @@ const Index = () => {
             </div>
           </div>
           <div className="flex items-center justify-center gap-4 mt-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <p className="text-sm text-muted-foreground">Real-time insights</p>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <p className="text-sm text-muted-foreground">Real-time insights</p>
+              </div>
+              <PerformanceScore 
+                score={performanceScore} 
+                size="sm"
+                label="Health Score"
+                showTrend={false}
+              />
+              <div className="flex items-center gap-2 bg-secondary/20 rounded-full px-3 py-1">
+                <Trophy className="h-3 w-3 text-primary" />
+                <span className="text-xs font-medium">{achievements.length} Achievements</span>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
@@ -515,6 +592,18 @@ const Index = () => {
           )}
         </div>
 
+        {/* Insights Section */}
+        {insights.length > 0 && (
+          <div className="animate-fade-in">
+            <InsightsSection
+              insights={insights}
+              onDismissInsight={dismissInsight}
+              onActionInsight={handleInsightAction}
+              maxVisible={3}
+            />
+          </div>
+        )}
+
         {/* Charts Section */}
         {showAdvancedCharts ? (
           <AdvancedCharts 
@@ -588,6 +677,22 @@ const Index = () => {
             type={selectedCard.type}
           />
         )}
+
+        {/* Achievement Notification */}
+        {showAchievementNotification && achievements.length > 0 && (
+          <AchievementNotification
+            achievement={achievements[achievements.length - 1]}
+            onClose={dismissAchievementNotification}
+          />
+        )}
+
+        {/* Alert Manager */}
+        <AlertManager
+          alerts={alerts}
+          onDismissAlert={dismissAlert}
+          onActionAlert={handleAlertAction}
+          maxVisible={3}
+        />
       </div>
     </div>
   );
