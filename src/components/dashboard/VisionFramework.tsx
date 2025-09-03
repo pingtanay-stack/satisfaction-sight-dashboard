@@ -53,7 +53,7 @@ export function VisionFramework({
             <h2 className="text-lg font-semibold text-foreground mb-4">Core Values</h2>
             <div className="flex justify-center gap-3 flex-wrap">
               <Badge variant="secondary" className="px-3 py-1 text-xs">Driving Innovation</Badge>
-              <Badge variant="secondary" className="px-3 py-1 text-xs">ignite purpose in our work</Badge>
+              <Badge variant="secondary" className="px-3 py-1 text-xs">Ignite purpose in our work</Badge>
               <Badge variant="secondary" className="px-3 py-1 text-xs">Developing Trusted Relationship</Badge>
               <Badge variant="secondary" className="px-3 py-1 text-xs">Building Customer Confidence</Badge>
               <Badge variant="secondary" className="px-3 py-1 text-xs">Upholding Ethical Standards</Badge>
