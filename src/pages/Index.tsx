@@ -384,7 +384,12 @@ const Index = () => {
               </div>
               <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
                 <p className="text-sm text-blue-600 dark:text-blue-400">Customer Experience Focus</p>
-                <p className="text-xs text-muted-foreground mt-1">NPS tracking available in standard view</p>
+                <div className="mt-2">
+                  <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                    {npsData.length > 0 ? Math.round(npsData[npsData.length - 1]?.score || 65) : 65}
+                  </div>
+                  <p className="text-xs text-muted-foreground">NPS Score</p>
+                </div>
               </div>
             </div>
 
