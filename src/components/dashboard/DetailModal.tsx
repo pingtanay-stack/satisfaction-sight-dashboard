@@ -81,7 +81,7 @@ export function DetailModal({ isOpen, onClose, title, currentScore, target, maxS
   const percentage = (currentScore / maxScore) * 100;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
