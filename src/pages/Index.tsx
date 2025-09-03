@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useEngagement } from "@/hooks/useEngagement";
 import { AchievementNotification } from "@/components/ui/achievement-badge";
-import { AlertManager } from "@/components/ui/alert-notification";
+import { AlertManager, AlertNotification } from "@/components/ui/alert-notification";
 import { InsightsSection } from "@/components/ui/insight-card";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
@@ -672,24 +672,27 @@ const Index = () => {
         )}
 
         {/* Notification Stack */}
-        <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+        <div className="fixed top-4 left-4 z-50 space-y-3 max-w-sm">
           {/* Achievement Notification */}
           {showAchievementNotification && achievements.length > 0 && (
             <AchievementNotification
               achievement={achievements[achievements.length - 1]}
               onClose={dismissAchievementNotification}
-              className="relative top-0 right-0"
+              className="w-full"
             />
           )}
 
           {/* Alert Manager */}
-          <AlertManager
-            alerts={alerts}
-            onDismissAlert={dismissAlert}
-            onActionAlert={handleAlertAction}
-            maxVisible={3}
-            className="relative top-0 right-0"
-          />
+          {alerts.map((alert, index) => (
+            <AlertNotification
+              key={alert.id}
+              alert={alert}
+              onDismiss={dismissAlert}
+              onAction={handleAlertAction}
+              position="top-left"
+              className="w-full"
+            />
+          ))}
         </div>
       </div>
     </div>
