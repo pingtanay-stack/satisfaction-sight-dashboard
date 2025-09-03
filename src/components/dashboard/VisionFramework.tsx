@@ -41,7 +41,6 @@ export function VisionFramework({
           <div className="w-0 h-0 border-l-[200px] border-r-[200px] border-b-[80px] border-l-transparent border-r-transparent border-b-primary/20 mx-auto"></div>
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-center z-10">
             <h1 className="text-2xl font-bold text-primary mb-1">Our Vision</h1>
-            <p className="text-sm text-muted-foreground">Excellence Through Strategic Focus</p>
           </div>
         </div>
 
