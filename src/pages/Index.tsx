@@ -7,7 +7,7 @@ import { DetailModal } from "@/components/dashboard/DetailModal";
 import { AdvancedCharts } from "@/components/dashboard/AdvancedCharts";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { VisionFramework } from "@/components/dashboard/VisionFramework";
-import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, RotateCcw, LogOut, Building, Save } from "lucide-react";
+import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, RotateCcw, LogOut, Building } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -339,24 +339,6 @@ const Index = () => {
               >
                 {showAdvancedCharts ? 'Simple View' : 'Advanced Analytics'}
               </button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const dataToSave: DashboardData = {
-                    metrics,
-                    npsData,
-                    jiraData,
-                    satisfactionData,
-                    adhocData,
-                  };
-                  saveUserData(dataToSave);
-                }}
-                className="text-xs px-3 py-2 h-auto"
-              >
-                <Save className="h-3 w-3 mr-1" />
-                Save Changes
-              </Button>
               {hasUploadedData && (
                 <Button
                   variant="outline"
