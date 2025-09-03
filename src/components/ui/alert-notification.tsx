@@ -125,104 +125,97 @@ export function AlertNotification({
   return (
     <div 
       className={cn(
-        "fixed z-50 w-80 animate-bounce-in",
-        positionConfig[position],
+        "w-80 animate-bounce-in bg-card border rounded-lg shadow-lg p-4",
+        config.bgColor,
+        config.borderColor,
         className
       )}
       style={style}
     >
-      <Card className={cn(
-        "border shadow-lg",
-        config.bgColor,
-        config.borderColor
-      )}>
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                <Icon className={cn("h-5 w-5 flex-shrink-0", config.color)} />
-                <div>
-                  <h4 className="font-semibold text-foreground text-sm leading-tight">
-                    {alert.title}
-                  </h4>
-                  {alert.metric && (
-                    <p className="text-xs text-muted-foreground">
-                      {alert.metric}
-                    </p>
-                  )}
-                </div>
-              </div>
-              
-              {onDismiss && (
-                <button 
-                  onClick={() => onDismiss(alert.id)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-
-            {/* Message */}
-            <p className="text-sm text-foreground leading-relaxed">
-              {alert.message}
-            </p>
-
-            {/* Metric Values */}
-            {(alert.currentValue !== undefined || alert.threshold !== undefined) && (
-              <div className="flex items-center gap-4 text-xs p-2 rounded-md bg-muted/30">
-                {alert.currentValue !== undefined && (
-                  <div>
-                    <span className="text-muted-foreground">Current: </span>
-                    <span className="font-medium text-foreground">
-                      {alert.currentValue.toFixed(1)}
-                    </span>
-                  </div>
-                )}
-                {alert.threshold !== undefined && (
-                  <div>
-                    <span className="text-muted-foreground">Threshold: </span>
-                    <span className="font-medium text-foreground">
-                      {alert.threshold.toFixed(1)}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Footer */}
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center gap-2">
-                <Badge 
-                  variant="outline"
-                  className={cn("text-xs border", severityStyle.color)}
-                >
-                  {severityStyle.label}
-                </Badge>
-                
-                <span className="text-xs text-muted-foreground">
-                  {formatTimeAgo(alert.createdAt)}
-                </span>
-              </div>
-
-              {alert.actionable && onAction && (
-                <button
-                  onClick={() => onAction(alert)}
-                  className={cn(
-                    "text-xs px-3 py-1.5 rounded-md transition-colors font-medium",
-                    config.bgColor,
-                    config.color,
-                    "hover:opacity-80"
-                  )}
-                >
-                  Take Action
-                </button>
+      <div className="space-y-3">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-2">
+            <Icon className={cn("h-5 w-5 flex-shrink-0", config.color)} />
+            <div>
+              <h4 className="font-semibold text-foreground text-sm leading-tight">
+                {alert.title}
+              </h4>
+              {alert.metric && (
+                <p className="text-xs text-muted-foreground">
+                  {alert.metric}
+                </p>
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+          
+          {onDismiss && (
+            <button 
+              onClick={() => onDismiss(alert.id)}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Message */}
+        <p className="text-sm text-foreground leading-relaxed">
+          {alert.message}
+        </p>
+
+        {/* Metric Values */}
+        {(alert.currentValue !== undefined || alert.threshold !== undefined) && (
+          <div className="flex items-center gap-4 text-xs p-2 rounded-md bg-muted/30">
+            {alert.currentValue !== undefined && (
+              <div>
+                <span className="text-muted-foreground">Current: </span>
+                <span className="font-medium text-foreground">
+                  {alert.currentValue.toFixed(1)}
+                </span>
+              </div>
+            )}
+            {alert.threshold !== undefined && (
+              <div>
+                <span className="text-muted-foreground">Threshold: </span>
+                <span className="font-medium text-foreground">
+                  {alert.threshold.toFixed(1)}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center gap-2">
+            <Badge 
+              variant="outline"
+              className={cn("text-xs border", severityStyle.color)}
+            >
+              {severityStyle.label}
+            </Badge>
+            
+            <span className="text-xs text-muted-foreground">
+              {formatTimeAgo(alert.createdAt)}
+            </span>
+          </div>
+
+          {alert.actionable && onAction && (
+            <button
+              onClick={() => onAction(alert)}
+              className={cn(
+                "text-xs px-3 py-1.5 rounded-md transition-colors font-medium",
+                config.bgColor,
+                config.color,
+                "hover:opacity-80"
+              )}
+            >
+              Take Action
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -241,25 +234,27 @@ export function AlertManager({
   onDismissAlert,
   onActionAlert,
   maxVisible = 3,
-  position = "top-right",
+  position = "top-left",
   className
 }: AlertManagerProps) {
   const visibleAlerts = alerts.slice(0, maxVisible);
-
+  
   return (
-    <div className={className}>
+    <div className={cn("space-y-3", className)}>
       {visibleAlerts.map((alert, index) => (
-        <AlertNotification
+        <div 
           key={alert.id}
-          alert={alert}
-          onDismiss={onDismissAlert}
-          onAction={onActionAlert}
-          position={position}
-          style={{ 
-            marginTop: `${index * 90}px`,
-            animationDelay: `${index * 100}ms`
-          }}
-        />
+          className="relative w-80 animate-fade-in"
+          style={{ animationDelay: `${index * 100}ms` }}
+        >
+          <AlertNotification
+            alert={alert}
+            onDismiss={onDismissAlert}
+            onAction={onActionAlert}
+            position={position}
+            className="relative top-0 left-0 w-full"
+          />
+        </div>
       ))}
     </div>
   );

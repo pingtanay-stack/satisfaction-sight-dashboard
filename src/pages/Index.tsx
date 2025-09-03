@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useEngagement } from "@/hooks/useEngagement";
 import { AchievementNotification } from "@/components/ui/achievement-badge";
-import { AlertManager, AlertNotification } from "@/components/ui/alert-notification";
+import { AlertManager } from "@/components/ui/alert-notification";
 import { InsightsSection } from "@/components/ui/insight-card";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
@@ -671,28 +671,26 @@ const Index = () => {
           />
         )}
 
-        {/* Notification Stack */}
-        <div className="fixed top-4 left-4 z-50 space-y-3 max-w-sm">
-          {/* Achievement Notification */}
-          {showAchievementNotification && achievements.length > 0 && (
+        {/* Notification Stack - Left Side */}
+        {showAchievementNotification && achievements.length > 0 && (
+          <div className="fixed top-4 left-4 z-50 max-w-sm">
             <AchievementNotification
               achievement={achievements[achievements.length - 1]}
               onClose={dismissAchievementNotification}
               className="w-full"
             />
-          )}
+          </div>
+        )}
 
-          {/* Alert Manager */}
-          {alerts.map((alert, index) => (
-            <AlertNotification
-              key={alert.id}
-              alert={alert}
-              onDismiss={dismissAlert}
-              onAction={handleAlertAction}
-              position="top-left"
-              className="w-full"
-            />
-          ))}
+        {/* Alert Manager - Left Side, below achievements */}
+        <div className="fixed top-24 left-4 z-40 max-w-sm">
+          <AlertManager
+            alerts={alerts}
+            onDismissAlert={dismissAlert}
+            onActionAlert={handleAlertAction}
+            maxVisible={3}
+            position="top-left"
+          />
         </div>
       </div>
     </div>
