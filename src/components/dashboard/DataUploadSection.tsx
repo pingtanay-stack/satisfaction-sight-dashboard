@@ -61,7 +61,7 @@ export function DataUploadSection({ onDataUpdate }: DataUploadSectionProps = {})
   };
 
   const downloadTemplate = () => {
-    // Create simplified Excel template for monthly surveys
+    // Create Google Sheets-friendly template
     const templateData = [
       ['Month', 'NPS Score', 'NPS Respondents', 'Jira Score', 'Jira Respondents', 'Project Satisfaction Score', 'Project Respondents', 'Ad-hoc Score', 'Ad-hoc Respondents', 'NPS Comments'],
       ['Jan', '25', '120', '3.2', '75', '3.1', '35', '3.5', '18', 'System is slow during peak hours, needs performance improvement'],
@@ -91,6 +91,11 @@ export function DataUploadSection({ onDataUpdate }: DataUploadSectionProps = {})
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    toast({
+      title: "Template Downloaded",
+      description: "Open the CSV in Google Sheets, update your data, then download as Excel to upload here.",
+    });
   };
 
   const connectToService = (service: string, url: string) => {
@@ -207,26 +212,19 @@ export function DataUploadSection({ onDataUpdate }: DataUploadSectionProps = {})
             <Badge variant="secondary" className="text-xs">Microsoft 365</Badge>
           </div>
           
-          {/* Google Sheets */}
-          <div className="space-y-2">
-            <Label htmlFor="googlesheets-url" className="text-sm font-medium">Google Sheets URL</Label>
-            <div className="flex gap-2">
-              <Input
-                id="googlesheets-url"
-                placeholder="https://docs.google.com/spreadsheets/..."
-                value={cloudUrls.googlesheets}
-                onChange={(e) => setCloudUrls(prev => ({ ...prev, googlesheets: e.target.value }))}
-                className="flex-1"
-              />
-              <Button 
-                variant="outline"
-                onClick={() => connectToService('Google Sheets', cloudUrls.googlesheets)}
-              >
-                <Link className="h-4 w-4 mr-2" />
-                Connect
-              </Button>
-            </div>
-            <Badge variant="secondary" className="text-xs">Real-time sync</Badge>
+          {/* Google Sheets Instructions */}
+          <div className="bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h5 className="font-medium text-blue-900 dark:text-blue-100 mb-2">📊 Using Google Sheets (Simple Process)</h5>
+            <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside">
+              <li>Download the template above</li>
+              <li>Open it in Google Sheets (File → Import)</li>
+              <li>Update your data in the Google Sheet</li>
+              <li>Download as Excel (File → Download → Microsoft Excel)</li>
+              <li>Upload the Excel file back here</li>
+            </ol>
+            <p className="text-xs text-blue-600 dark:text-blue-300 mt-2">
+              💡 This way you can use Google Sheets to edit but don't need any API setup!
+            </p>
           </div>
         </div>
         
