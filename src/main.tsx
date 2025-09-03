@@ -3,7 +3,6 @@ import { StrictMode } from 'react'
 import App from './App.tsx'
 import './index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
 const queryClient = new QueryClient()
@@ -17,9 +16,7 @@ createRoot(document.getElementById("root")!).render(
         enableSystem
         disableTransitionOnChange
       >
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <App />
       </ThemeProvider>
     </QueryClientProvider>
   </StrictMode>
