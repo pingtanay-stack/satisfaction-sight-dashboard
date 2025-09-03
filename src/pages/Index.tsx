@@ -140,11 +140,19 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light/20 via-background to-secondary-light/20">
       <div className="container mx-auto p-4 space-y-4">
-        {/* Header */}
+        {/* Header with Traffic Light */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Customer Satisfaction Dashboard
-          </h1>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1"></div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Customer Satisfaction Dashboard
+            </h1>
+            <div className="flex-1 flex justify-end">
+              <div className="w-fit">
+                <OverallTrafficLight metrics={metrics} variant="horizontal" />
+              </div>
+            </div>
+          </div>
           <div className="flex items-center justify-center gap-4 mt-2">
             <div className="flex items-center gap-1">
               <Sparkles className="h-4 w-4 text-primary" />
@@ -166,18 +174,11 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Main Dashboard Layout - Perfectly Aligned */}
+        {/* Main Dashboard Layout - Redesigned */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
-          {/* Traffic Light - Left Aligned */}
-          <div className="xl:col-span-3 flex items-center justify-center">
-            <div className={`w-full max-w-xs transform transition-all duration-500 ${focusedCard === 'traffic' ? 'scale-110 ring-2 ring-primary/20' : 'scale-100'}`}>
-              <OverallTrafficLight metrics={metrics} />
-            </div>
-          </div>
-          
-          {/* NPS Gauge - Center Aligned */}
-          <div className="xl:col-span-3 flex items-center justify-center">
-            <div className={`w-full max-w-xs transform transition-all duration-500 ${focusedCard === 'nps' ? 'scale-110 ring-2 ring-primary/20' : 'scale-105'}`}>
+          {/* Expanded NPS Gauge - Left Aligned and Larger */}
+          <div className="xl:col-span-6 flex items-center justify-center">
+            <div className={`w-full max-w-lg transform transition-all duration-500 ${focusedCard === 'nps' ? 'scale-110 ring-2 ring-primary/20' : 'scale-105'}`}>
               <NPSGauge
                 currentScore={metrics.nps.current}
                 target={metrics.nps.target}

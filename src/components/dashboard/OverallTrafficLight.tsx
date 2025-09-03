@@ -9,9 +9,10 @@ interface OverallTrafficLightProps {
     project: { current: number; target: number };
     adhoc: { current: number; target: number };
   };
+  variant?: "vertical" | "horizontal";
 }
 
-export function OverallTrafficLight({ metrics }: OverallTrafficLightProps) {
+export function OverallTrafficLight({ metrics, variant = "vertical" }: OverallTrafficLightProps) {
   // Calculate how many targets are met
   const targetsMetCount = Object.values(metrics).filter(
     metric => metric.current >= metric.target
@@ -41,6 +42,73 @@ export function OverallTrafficLight({ metrics }: OverallTrafficLightProps) {
     status = "danger";
     emoji = "😞";
     message = "Critical Issues";
+  }
+
+  if (variant === "horizontal") {
+    return (
+      <Card className="animate-scale-in shadow-elegant bg-gradient-to-br from-card via-card/95 to-card/90 border border-border/50 backdrop-blur-sm">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            {/* Horizontal Traffic Light */}
+            <div className="relative w-32 h-16 bg-gradient-to-r from-gray-900 to-black rounded-2xl shadow-xl border-2 border-gray-700">
+              {/* Traffic Light Background */}
+              <div className="absolute inset-2 bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl">
+                {/* Light Slots */}
+                <div className="flex items-center justify-center h-full gap-2 px-2">
+                  {/* Red Light */}
+                  <div className={cn(
+                    "w-8 h-8 rounded-full transition-all duration-500 border-2",
+                    status === "danger" 
+                      ? "bg-red-500 border-red-300 shadow-[0_0_20px_rgba(239,68,68,0.9),inset_0_2px_6px_rgba(255,255,255,0.3)] animate-pulse" 
+                      : "bg-gray-700 border-gray-600 shadow-inner"
+                  )} />
+                  
+                  {/* Yellow Light */}
+                  <div className={cn(
+                    "w-8 h-8 rounded-full transition-all duration-500 border-2",
+                    status === "warning" 
+                      ? "bg-yellow-400 border-yellow-200 shadow-[0_0_20px_rgba(234,179,8,0.9),inset_0_2px_6px_rgba(255,255,255,0.3)] animate-pulse" 
+                      : "bg-gray-700 border-gray-600 shadow-inner"
+                  )} />
+                  
+                  {/* Green Light */}
+                  <div className={cn(
+                    "w-8 h-8 rounded-full transition-all duration-500 border-2",
+                    status === "success" 
+                      ? "bg-green-500 border-green-300 shadow-[0_0_20px_rgba(34,197,94,0.9),inset_0_2px_6px_rgba(255,255,255,0.3)] animate-pulse" 
+                      : "bg-gray-700 border-gray-600 shadow-inner"
+                  )} />
+                </div>
+              </div>
+            </div>
+            
+            {/* Status Content */}
+            <div className="flex items-center gap-3">
+              <div className="text-xl">{emoji}</div>
+              <div>
+                <h3 className="text-sm font-bold text-foreground">{message}</h3>
+                <div className="flex items-center gap-1 mt-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={cn(
+                        "h-2.5 w-2.5 transition-all duration-300",
+                        i < Math.ceil((percentage / 100) * 5) 
+                          ? "text-yellow-400 fill-yellow-400" 
+                          : "text-muted-foreground/50"
+                      )} 
+                    />
+                  ))}
+                  <span className="text-xs text-muted-foreground ml-2">
+                    {targetsMetCount}/{totalTargets}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

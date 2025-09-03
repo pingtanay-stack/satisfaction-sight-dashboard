@@ -76,9 +76,9 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
       
       <CardContent className="pt-2">
         <div className="space-y-4">
-          {/* Gauge Visualization */}
-          <div className="relative flex items-center justify-center py-4">
-            <div className="relative w-48 h-28">
+            {/* Gauge Visualization */}
+            <div className="relative flex items-center justify-center py-6">
+              <div className="relative w-64 h-36">
               {/* Background arc */}
               <svg className="w-full h-full" viewBox="0 0 200 110">
                 <path
@@ -121,20 +121,20 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
                 </defs>
               </svg>
               
-              {/* Center score display */}
-              <div className="absolute inset-0 flex flex-col items-center justify-end pb-4">
-                <span className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  {currentScore}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  Target: {target}
-                </span>
-                {respondents && (
-                  <span className="text-xs text-muted-foreground mt-1">
-                    {respondents} responses
+                {/* Center score display */}
+                <div className="absolute inset-0 flex flex-col items-center justify-end pb-6">
+                  <span className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    {currentScore}
                   </span>
-                )}
-              </div>
+                  <span className="text-sm text-muted-foreground">
+                    Target: {target}
+                  </span>
+                  {respondents && (
+                    <span className="text-sm text-muted-foreground mt-1">
+                      {respondents} responses
+                    </span>
+                  )}
+                </div>
             </div>
           </div>
           
