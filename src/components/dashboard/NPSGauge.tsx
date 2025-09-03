@@ -13,163 +13,168 @@ interface NPSGaugeProps {
 }
 
 export function NPSGauge({ currentScore, target, trend, respondents, className, onClick }: NPSGaugeProps) {
-  // Generate unique ID for this component instance to avoid gradient conflicts
-  const uniqueId = `gaugeGradient-${Math.random().toString(36).substr(2, 9)}`;
-  
-  // NPS ranges from -100 to 100, so we need to normalize for display
-  const normalizedScore = Math.max(0, Math.min(100, ((currentScore + 100) / 200) * 100));
-  const normalizedTarget = Math.max(0, Math.min(100, ((target + 100) / 200) * 100));
   const isTargetMet = currentScore >= target;
   const isPositiveTrend = trend >= 0;
   
-  // Determine status color and styling
-  let statusColor: string;
+  // Normalize NPS score from -100/100 to 0-100 for display
+  const normalizedScore = Math.max(0, Math.min(100, ((currentScore + 100) / 200) * 100));
+  const normalizedTarget = Math.max(0, Math.min(100, ((target + 100) / 200) * 100));
+  
+  // Determine status and colors
   let statusText: string;
-  let gaugeColor: string;
+  let statusBadgeClass: string;
+  let progressColor: string;
   
   if (currentScore >= 70) {
-    statusColor = "text-green-600 bg-green-100";
     statusText = "Excellent";
-    gaugeColor = "#22c55e";
+    statusBadgeClass = "bg-green-100 text-green-800 border-green-200";
+    progressColor = "#22c55e";
   } else if (currentScore >= 50) {
-    statusColor = "text-green-600 bg-green-100";
     statusText = "Great";
-    gaugeColor = "#22c55e";
+    statusBadgeClass = "bg-green-100 text-green-800 border-green-200";
+    progressColor = "#22c55e";
   } else if (currentScore >= 30) {
-    statusColor = "text-yellow-600 bg-yellow-100";
     statusText = "Good";
-    gaugeColor = "#eab308";
+    statusBadgeClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
+    progressColor = "#eab308";
   } else if (currentScore >= 0) {
-    statusColor = "text-yellow-600 bg-yellow-100";
     statusText = "Improving";
-    gaugeColor = "#eab308";
+    statusBadgeClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
+    progressColor = "#eab308";
   } else {
-    statusColor = "text-red-600 bg-red-100";
     statusText = "Needs Attention";
-    gaugeColor = "#ef4444";
+    statusBadgeClass = "bg-red-100 text-red-800 border-red-200";
+    progressColor = "#ef4444";
   }
-
-  // Calculate the percentage for the arc (0 to 1)
-  const arcPercentage = normalizedScore / 100;
-  const targetPercentage = normalizedTarget / 100;
   
-  // SVG circle calculation: circumference of half circle (π * radius)
-  const radius = 70;
-  const circumference = Math.PI * radius;
+  // Calculate circular progress (0 to 75% of full circle)
+  const progressPercentage = normalizedScore * 0.75; // Max 75% of circle
+  const targetPercentage = normalizedTarget * 0.75;
+  
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
   const strokeDasharray = circumference;
-  const strokeDashoffset = circumference * (1 - arcPercentage);
+  const strokeDashoffset = circumference - (progressPercentage / 100) * circumference;
   
   return (
     <Card 
       className={cn(
-        "hover-lift card-shadow hover:card-shadow-hover transition-all duration-300 animate-fade-in cursor-pointer hover:scale-105",
+        "hover:shadow-lg transition-all duration-300 cursor-pointer border",
         className
       )}
       onClick={onClick}
     >
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-primary" />
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Net Promoter Score (NPS)
+            <Target className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-gray-700">
+              Net Promoter Score
             </CardTitle>
           </div>
           <Badge 
-            className={cn("text-xs", statusColor)}
+            variant="outline"
+            className={cn("text-xs font-medium", statusBadgeClass)}
           >
             {statusText}
           </Badge>
         </div>
       </CardHeader>
       
-      <CardContent className="pt-2">
-        <div className="space-y-4">
-          {/* Gauge Visualization */}
-          <div className="relative flex items-center justify-center py-4">
-            <div className="relative w-64 h-32">
-              {/* Background arc */}
-              <svg className="w-full h-full" viewBox="0 0 200 110" style={{ transform: 'rotate(0deg)' }}>
-                {/* Background semicircle */}
-                <path
-                  d="M 30 85 A 70 70 0 0 1 170 85"
+      <CardContent className="pt-0">
+        <div className="space-y-6">
+          {/* Circular Progress Gauge */}
+          <div className="relative flex items-center justify-center">
+            <div className="relative w-36 h-36">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                {/* Background circle */}
+                <circle
+                  cx="50"
+                  cy="50"
+                  r={radius}
                   fill="none"
                   stroke="#e5e7eb"
-                  strokeWidth="12"
-                  strokeLinecap="round"
+                  strokeWidth="6"
                 />
                 
-                {/* Progress arc */}
-                <path
-                  d="M 30 85 A 70 70 0 0 1 170 85"
+                {/* Progress circle */}
+                <circle
+                  cx="50"
+                  cy="50"
+                  r={radius}
                   fill="none"
-                  stroke={gaugeColor}
-                  strokeWidth="12"
+                  stroke={progressColor}
+                  strokeWidth="6"
                   strokeLinecap="round"
                   strokeDasharray={strokeDasharray}
                   strokeDashoffset={strokeDashoffset}
                   className="transition-all duration-1000 ease-out"
-                  style={{ transformOrigin: '100px 85px' }}
                 />
                 
-                {/* Target indicator */}
-                <circle
-                  cx={30 + (170 - 30) * targetPercentage}
-                  cy={85 - Math.sin(Math.PI * targetPercentage) * 70}
-                  r="4"
-                  fill="#f59e0b"
-                  stroke="#fff"
-                  strokeWidth="2"
-                />
+                {/* Target marker */}
+                {target !== currentScore && (
+                  <circle
+                    cx={50 + radius * Math.cos((targetPercentage / 100) * 2 * Math.PI - Math.PI / 2)}
+                    cy={50 + radius * Math.sin((targetPercentage / 100) * 2 * Math.PI - Math.PI / 2)}
+                    r="3"
+                    fill="#f59e0b"
+                    stroke="white"
+                    strokeWidth="2"
+                  />
+                )}
               </svg>
               
-              {/* Center score display */}
-              <div className="absolute inset-0 flex flex-col items-center justify-end pb-4">
-                <span className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  {currentScore}
-                </span>
-                <span className="text-sm text-muted-foreground font-medium">
-                  Target: {target}
-                </span>
-                {respondents && (
-                  <span className="text-sm text-muted-foreground mt-1">
-                    {respondents} responses
-                  </span>
-                )}
+              {/* Center content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <div className="text-center">
+                  <div className="text-3xl font-bold" style={{ color: progressColor }}>
+                    {currentScore}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Target: {target}
+                  </div>
+                  {respondents && (
+                    <div className="text-xs text-gray-400 mt-1">
+                      {respondents.toLocaleString()} responses
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
           
-          {/* Score ranges */}
-          <div className="grid grid-cols-3 gap-2 text-center">
+          {/* Score interpretation */}
+          <div className="grid grid-cols-3 gap-3 text-center text-xs">
             <div className="space-y-1">
-              <div className="text-xs font-medium text-destructive">Detractors</div>
-              <div className="text-xs text-muted-foreground">-100 to 0</div>
+              <div className="font-medium text-red-600">Detractors</div>
+              <div className="text-gray-500">-100 to 0</div>
             </div>
             <div className="space-y-1">
-              <div className="text-xs font-medium text-warning">Passives</div>
-              <div className="text-xs text-muted-foreground">0 to 50</div>
+              <div className="font-medium text-yellow-600">Passives</div>
+              <div className="text-gray-500">0 to 50</div>
             </div>
             <div className="space-y-1">
-              <div className="text-xs font-medium text-success">Promoters</div>
-              <div className="text-xs text-muted-foreground">50 to 100</div>
+              <div className="font-medium text-green-600">Promoters</div>
+              <div className="text-gray-500">50 to 100</div>
             </div>
           </div>
           
-          {/* Trend */}
-          <div className="flex items-center justify-center gap-1">
-            {isPositiveTrend ? (
-              <TrendingUp className="h-4 w-4 text-success" />
-            ) : (
-              <TrendingDown className="h-4 w-4 text-destructive" />
-            )}
-            <span className={cn(
-              "text-sm font-medium",
-              isPositiveTrend ? "text-success" : "text-destructive"
-            )}>
-              {isPositiveTrend ? "+" : ""}{trend.toFixed(1)}%
-            </span>
-            <span className="text-xs text-muted-foreground">vs last month</span>
+          {/* Trend indicator */}
+          <div className="flex items-center justify-center gap-2 pt-2 border-t">
+            <div className="flex items-center gap-1">
+              {isPositiveTrend ? (
+                <TrendingUp className="h-4 w-4 text-green-600" />
+              ) : (
+                <TrendingDown className="h-4 w-4 text-red-600" />
+              )}
+              <span className={cn(
+                "text-sm font-medium",
+                isPositiveTrend ? "text-green-600" : "text-red-600"
+              )}>
+                {isPositiveTrend ? "+" : ""}{Math.abs(trend).toFixed(1)}%
+              </span>
+            </div>
+            <span className="text-xs text-gray-500">vs last month</span>
           </div>
         </div>
       </CardContent>
