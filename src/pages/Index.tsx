@@ -5,9 +5,11 @@ import { TrendChart } from "@/components/dashboard/TrendChart";
 import { DataUploadSection } from "@/components/dashboard/DataUploadSection";
 import { DetailModal } from "@/components/dashboard/DetailModal";
 import { AdvancedCharts } from "@/components/dashboard/AdvancedCharts";
-import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, Eye } from "lucide-react";
+import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, Eye, RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { saveDashboardData, loadDashboardData, clearDashboardData, hasSavedData } from "@/lib/localStorage";
 
 // Default mock data
 const defaultMetrics = {
@@ -54,11 +56,21 @@ const defaultAdhocData = [
 ];
 
 const Index = () => {
-  const [metrics, setMetrics] = useState(defaultMetrics);
-  const [npsData, setNpsData] = useState(defaultNpsData);
-  const [satisfactionData, setSatisfactionData] = useState(defaultSatisfactionData);
-  const [jiraData, setJiraData] = useState(defaultJiraData);
-  const [adhocData, setAdhocData] = useState(defaultAdhocData);
+  // Load data from localStorage or use defaults
+  const savedData = loadDashboardData({
+    metrics: defaultMetrics,
+    npsData: defaultNpsData,
+    satisfactionData: defaultSatisfactionData,
+    jiraData: defaultJiraData,
+    adhocData: defaultAdhocData,
+  });
+
+  const [metrics, setMetrics] = useState(savedData.metrics);
+  const [npsData, setNpsData] = useState(savedData.npsData);
+  const [satisfactionData, setSatisfactionData] = useState(savedData.satisfactionData);
+  const [jiraData, setJiraData] = useState(savedData.jiraData);
+  const [adhocData, setAdhocData] = useState(savedData.adhocData);
+  const [hasUploadedData, setHasUploadedData] = useState(hasSavedData());
   const [selectedCard, setSelectedCard] = useState<{
     type: 'nps' | 'jira' | 'project' | 'adhoc';
     title: string;
@@ -124,6 +136,18 @@ const Index = () => {
     if (newJiraData.length > 0) setJiraData(newJiraData);
     if (newSatisfactionData.length > 0) setSatisfactionData(newSatisfactionData);
     if (newAdhocData.length > 0) setAdhocData(newAdhocData);
+
+    // Save all data to localStorage
+    saveDashboardData({
+      metrics: newMetrics,
+      npsData: newNpsData.length > 0 ? newNpsData : savedData.npsData,
+      jiraData: newJiraData.length > 0 ? newJiraData : savedData.jiraData,
+      satisfactionData: newSatisfactionData.length > 0 ? newSatisfactionData : savedData.satisfactionData,
+      adhocData: newAdhocData.length > 0 ? newAdhocData : savedData.adhocData,
+    });
+
+    setHasUploadedData(true);
+    console.log("Dashboard data saved to localStorage");
   };
 
   // Dynamic rotation effect
@@ -141,6 +165,17 @@ const Index = () => {
 
   const handleCardClick = (type: 'nps' | 'jira' | 'project' | 'adhoc', title: string, currentScore: number, target: number, maxScore: number, trend: number, respondents?: number) => {
     setSelectedCard({ type, title, currentScore, target, maxScore, trend, respondents });
+  };
+
+  const handleResetData = () => {
+    clearDashboardData();
+    setMetrics(defaultMetrics);
+    setNpsData(defaultNpsData);
+    setSatisfactionData(defaultSatisfactionData);
+    setJiraData(defaultJiraData);
+    setAdhocData(defaultAdhocData);
+    setHasUploadedData(false);
+    console.log("Dashboard data reset to defaults");
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light/20 via-background to-secondary-light/20">
@@ -170,12 +205,25 @@ const Index = () => {
               <Eye className="h-3 w-3 mr-1" />
               Focus: {focusedCard.toUpperCase()}
             </Badge>
-            <button
-              onClick={() => setShowAdvancedCharts(!showAdvancedCharts)}
-              className="text-xs px-3 py-1 bg-secondary/20 hover:bg-secondary/40 rounded-full transition-colors"
-            >
-              {showAdvancedCharts ? 'Simple View' : 'Advanced Analytics'}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowAdvancedCharts(!showAdvancedCharts)}
+                className="text-xs px-3 py-1 bg-secondary/20 hover:bg-secondary/40 rounded-full transition-colors"
+              >
+                {showAdvancedCharts ? 'Simple View' : 'Advanced Analytics'}
+              </button>
+              {hasUploadedData && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResetData}
+                  className="text-xs px-3 py-1 h-auto"
+                >
+                  <RotateCcw className="h-3 w-3 mr-1" />
+                  Reset to Defaults
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
