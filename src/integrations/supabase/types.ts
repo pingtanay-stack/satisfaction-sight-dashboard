@@ -14,7 +14,127 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      customer_satisfaction_data: {
+        Row: {
+          connection_id: string
+          created_at: string
+          id: string
+          metric_name: string
+          metric_value: number
+          period_end: string
+          period_start: string
+          raw_data: Json | null
+          updated_at: string
+        }
+        Insert: {
+          connection_id: string
+          created_at?: string
+          id?: string
+          metric_name: string
+          metric_value: number
+          period_end: string
+          period_start: string
+          raw_data?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          connection_id?: string
+          created_at?: string
+          id?: string
+          metric_name?: string
+          metric_value?: number
+          period_end?: string
+          period_start?: string
+          raw_data?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_satisfaction_data_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "sharepoint_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      microsoft_tokens: {
+        Row: {
+          access_token: string
+          connection_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          refresh_token: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          connection_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          refresh_token?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          connection_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          refresh_token?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "microsoft_tokens_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "sharepoint_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sharepoint_connections: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          last_sync_at: string | null
+          name: string
+          sharepoint_url: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_sync_at?: string | null
+          name: string
+          sharepoint_url: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_sync_at?: string | null
+          name?: string
+          sharepoint_url?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
