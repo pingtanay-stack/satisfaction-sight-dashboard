@@ -14,7 +14,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useEngagement } from "@/hooks/useEngagement";
-import { PerformanceScore } from "@/components/ui/performance-score";
 import { AchievementNotification } from "@/components/ui/achievement-badge";
 import { AlertManager } from "@/components/ui/alert-notification";
 import { InsightsSection } from "@/components/ui/insight-card";
@@ -388,12 +387,6 @@ const Index = () => {
                 <Sparkles className="h-4 w-4 text-primary" />
                 <p className="text-sm text-muted-foreground">Real-time insights</p>
               </div>
-              <PerformanceScore 
-                score={performanceScore} 
-                size="sm"
-                label="Health Score"
-                showTrend={false}
-              />
               <div className="flex items-center gap-2 bg-secondary/20 rounded-full px-3 py-1">
                 <Trophy className="h-3 w-3 text-primary" />
                 <span className="text-xs font-medium">{achievements.length} Achievements</span>
