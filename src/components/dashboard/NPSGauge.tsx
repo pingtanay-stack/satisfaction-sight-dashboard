@@ -74,40 +74,40 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
         </div>
       </CardHeader>
       
-      <CardContent className="pt-2">
-        <div className="space-y-4">
-            {/* Gauge Visualization */}
-            <div className="relative flex items-center justify-center py-6">
-              <div className="relative w-64 h-36">
+      <CardContent className="pt-4">
+        <div className="space-y-6">
+          {/* Gauge Visualization */}
+          <div className="relative flex items-center justify-center py-8">
+            <div className="relative w-80 h-48">
               {/* Background arc */}
-              <svg className="w-full h-full" viewBox="0 0 200 110">
+              <svg className="w-full h-full" viewBox="0 0 240 140">
                 <path
-                  d="M 20 85 A 80 80 0 0 1 180 85"
+                  d="M 30 110 A 100 100 0 0 1 210 110"
                   fill="none"
                   stroke="hsl(var(--muted))"
-                  strokeWidth="8"
+                  strokeWidth="12"
                   strokeLinecap="round"
                 />
                 
                 {/* Progress arc */}
                 <path
-                  d="M 20 85 A 80 80 0 0 1 180 85"
+                  d="M 30 110 A 100 100 0 0 1 210 110"
                   fill="none"
                   stroke="url(#gaugeGradient)"
-                  strokeWidth="8"
+                  strokeWidth="12"
                   strokeLinecap="round"
-                  strokeDasharray={`${(gaugeAngle / 180) * 251.33} 251.33`}
+                  strokeDasharray={`${(gaugeAngle / 180) * 314.16} 314.16`}
                   className="transition-all duration-1000 ease-out"
                 />
                 
                 {/* Target indicator */}
                 <line
-                  x1={100 + 70 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
-                  y1={85 - 70 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
-                  x2={100 + 85 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
-                  y2={85 - 85 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
+                  x1={120 + 85 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
+                  y1={110 - 85 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
+                  x2={120 + 105 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
+                  y2={110 - 105 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
                   stroke="hsl(var(--warning))"
-                  strokeWidth="3"
+                  strokeWidth="4"
                   strokeLinecap="round"
                 />
                 
@@ -121,53 +121,53 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
                 </defs>
               </svg>
               
-                {/* Center score display */}
-                <div className="absolute inset-0 flex flex-col items-center justify-end pb-6">
-                  <span className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    {currentScore}
+              {/* Center score display */}
+              <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
+                <span className="text-6xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  {currentScore}
+                </span>
+                <span className="text-base text-muted-foreground font-medium">
+                  Target: {target}
+                </span>
+                {respondents && (
+                  <span className="text-base text-muted-foreground mt-2">
+                    {respondents} responses
                   </span>
-                  <span className="text-sm text-muted-foreground">
-                    Target: {target}
-                  </span>
-                  {respondents && (
-                    <span className="text-sm text-muted-foreground mt-1">
-                      {respondents} responses
-                    </span>
-                  )}
-                </div>
+                )}
+              </div>
             </div>
           </div>
           
           {/* Score ranges */}
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-destructive">Detractors</div>
-              <div className="text-xs text-muted-foreground">-100 to 0</div>
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="space-y-2">
+              <div className="text-sm font-semibold text-destructive">Detractors</div>
+              <div className="text-sm text-muted-foreground">-100 to 0</div>
             </div>
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-warning">Passives</div>
-              <div className="text-xs text-muted-foreground">0 to 50</div>
+            <div className="space-y-2">
+              <div className="text-sm font-semibold text-warning">Passives</div>
+              <div className="text-sm text-muted-foreground">0 to 50</div>
             </div>
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-success">Promoters</div>
-              <div className="text-xs text-muted-foreground">50 to 100</div>
+            <div className="space-y-2">
+              <div className="text-sm font-semibold text-success">Promoters</div>
+              <div className="text-sm text-muted-foreground">50 to 100</div>
             </div>
           </div>
           
           {/* Trend */}
-          <div className="flex items-center justify-center gap-1">
+          <div className="flex items-center justify-center gap-2 pt-4">
             {isPositiveTrend ? (
-              <TrendingUp className="h-4 w-4 text-success" />
+              <TrendingUp className="h-5 w-5 text-success" />
             ) : (
-              <TrendingDown className="h-4 w-4 text-destructive" />
+              <TrendingDown className="h-5 w-5 text-destructive" />
             )}
             <span className={cn(
-              "text-sm font-medium",
+              "text-base font-semibold",
               isPositiveTrend ? "text-success" : "text-destructive"
             )}>
               {isPositiveTrend ? "+" : ""}{trend.toFixed(1)}%
             </span>
-            <span className="text-xs text-muted-foreground">vs last month</span>
+            <span className="text-sm text-muted-foreground">vs last month</span>
           </div>
         </div>
       </CardContent>
