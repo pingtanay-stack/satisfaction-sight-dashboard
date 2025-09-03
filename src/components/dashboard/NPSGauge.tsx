@@ -13,6 +13,9 @@ interface NPSGaugeProps {
 }
 
 export function NPSGauge({ currentScore, target, trend, respondents, className, onClick }: NPSGaugeProps) {
+  // Generate unique ID for this component instance to avoid gradient conflicts
+  const uniqueId = `gaugeGradient-${Math.random().toString(36).substr(2, 9)}`;
+  
   // NPS ranges from -100 to 100, so we need to normalize for display
   const normalizedScore = ((currentScore + 100) / 200) * 100; // Convert to 0-100 percentage
   const normalizedTarget = ((target + 100) / 200) * 100;
@@ -74,46 +77,46 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
         </div>
       </CardHeader>
       
-      <CardContent className="pt-4">
-        <div className="space-y-6">
+      <CardContent className="pt-2">
+        <div className="space-y-4">
           {/* Gauge Visualization */}
-          <div className="relative flex items-center justify-center py-8">
-            <div className="relative w-80 h-48">
+          <div className="relative flex items-center justify-center py-4">
+            <div className="relative w-64 h-32">
               {/* Background arc */}
-              <svg className="w-full h-full" viewBox="0 0 240 140">
+              <svg className="w-full h-full" viewBox="0 0 200 110">
                 <path
-                  d="M 30 110 A 100 100 0 0 1 210 110"
+                  d="M 20 85 A 80 80 0 0 1 180 85"
                   fill="none"
                   stroke="hsl(var(--muted))"
-                  strokeWidth="12"
+                  strokeWidth="8"
                   strokeLinecap="round"
                 />
                 
                 {/* Progress arc */}
                 <path
-                  d="M 30 110 A 100 100 0 0 1 210 110"
+                  d="M 20 85 A 80 80 0 0 1 180 85"
                   fill="none"
-                  stroke="url(#gaugeGradient)"
-                  strokeWidth="12"
+                  stroke={`url(#${uniqueId})`}
+                  strokeWidth="8"
                   strokeLinecap="round"
-                  strokeDasharray={`${(gaugeAngle / 180) * 314.16} 314.16`}
+                  strokeDasharray={`${(gaugeAngle / 180) * 251.33} 251.33`}
                   className="transition-all duration-1000 ease-out"
                 />
                 
                 {/* Target indicator */}
                 <line
-                  x1={120 + 85 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
-                  y1={110 - 85 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
-                  x2={120 + 105 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
-                  y2={110 - 105 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
+                  x1={100 + 70 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
+                  y1={85 - 70 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
+                  x2={100 + 85 * Math.cos((Math.PI * (180 - targetAngle)) / 180)}
+                  y2={85 - 85 * Math.sin((Math.PI * (180 - targetAngle)) / 180)}
                   stroke="hsl(var(--warning))"
-                  strokeWidth="4"
+                  strokeWidth="3"
                   strokeLinecap="round"
                 />
                 
                 {/* Gradient definition */}
                 <defs>
-                  <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <linearGradient id={uniqueId} x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="hsl(var(--destructive))" />
                     <stop offset="50%" stopColor="hsl(var(--warning))" />
                     <stop offset="100%" stopColor="hsl(var(--success))" />
@@ -122,15 +125,15 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
               </svg>
               
               {/* Center score display */}
-              <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
-                <span className="text-6xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <div className="absolute inset-0 flex flex-col items-center justify-end pb-4">
+                <span className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                   {currentScore}
                 </span>
-                <span className="text-base text-muted-foreground font-medium">
+                <span className="text-sm text-muted-foreground font-medium">
                   Target: {target}
                 </span>
                 {respondents && (
-                  <span className="text-base text-muted-foreground mt-2">
+                  <span className="text-sm text-muted-foreground mt-1">
                     {respondents} responses
                   </span>
                 )}
@@ -139,35 +142,35 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
           </div>
           
           {/* Score ranges */}
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="space-y-2">
-              <div className="text-sm font-semibold text-destructive">Detractors</div>
-              <div className="text-sm text-muted-foreground">-100 to 0</div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-destructive">Detractors</div>
+              <div className="text-xs text-muted-foreground">-100 to 0</div>
             </div>
-            <div className="space-y-2">
-              <div className="text-sm font-semibold text-warning">Passives</div>
-              <div className="text-sm text-muted-foreground">0 to 50</div>
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-warning">Passives</div>
+              <div className="text-xs text-muted-foreground">0 to 50</div>
             </div>
-            <div className="space-y-2">
-              <div className="text-sm font-semibold text-success">Promoters</div>
-              <div className="text-sm text-muted-foreground">50 to 100</div>
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-success">Promoters</div>
+              <div className="text-xs text-muted-foreground">50 to 100</div>
             </div>
           </div>
           
           {/* Trend */}
-          <div className="flex items-center justify-center gap-2 pt-4">
+          <div className="flex items-center justify-center gap-1">
             {isPositiveTrend ? (
-              <TrendingUp className="h-5 w-5 text-success" />
+              <TrendingUp className="h-4 w-4 text-success" />
             ) : (
-              <TrendingDown className="h-5 w-5 text-destructive" />
+              <TrendingDown className="h-4 w-4 text-destructive" />
             )}
             <span className={cn(
-              "text-base font-semibold",
+              "text-sm font-medium",
               isPositiveTrend ? "text-success" : "text-destructive"
             )}>
               {isPositiveTrend ? "+" : ""}{trend.toFixed(1)}%
             </span>
-            <span className="text-sm text-muted-foreground">vs last month</span>
+            <span className="text-xs text-muted-foreground">vs last month</span>
           </div>
         </div>
       </CardContent>
