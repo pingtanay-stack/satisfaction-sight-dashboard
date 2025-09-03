@@ -14,8 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useEngagement } from "@/hooks/useEngagement";
-import { AchievementNotification } from "@/components/ui/achievement-badge";
-import { AlertManager } from "@/components/ui/alert-notification";
+import { NotificationQueue } from "@/components/ui/notification-queue";
 import { InsightsSection } from "@/components/ui/insight-card";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
@@ -671,27 +670,14 @@ const Index = () => {
           />
         )}
 
-        {/* Notification Stack - Left Side */}
-        {showAchievementNotification && achievements.length > 0 && (
-          <div className="fixed top-4 left-4 z-50 max-w-sm">
-            <AchievementNotification
-              achievement={achievements[achievements.length - 1]}
-              onClose={dismissAchievementNotification}
-              className="w-full"
-            />
-          </div>
-        )}
-
-        {/* Alert Manager - Left Side, below achievements */}
-        <div className="fixed top-24 left-4 z-40 max-w-sm">
-          <AlertManager
-            alerts={alerts}
-            onDismissAlert={dismissAlert}
-            onActionAlert={handleAlertAction}
-            maxVisible={3}
-            position="top-left"
-          />
-        </div>
+        {/* Single Notification System - Bottom Right */}
+        <NotificationQueue
+          achievement={showAchievementNotification ? achievements[achievements.length - 1] : null}
+          alerts={alerts}
+          onDismissAchievement={dismissAchievementNotification}
+          onDismissAlert={dismissAlert}
+          onActionAlert={handleAlertAction}
+        />
       </div>
     </div>
   );
