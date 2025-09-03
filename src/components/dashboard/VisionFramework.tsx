@@ -53,6 +53,7 @@ export function VisionFramework({
             <h2 className="text-lg font-semibold text-foreground mb-4">Core Values</h2>
             <div className="flex justify-center gap-3 flex-wrap">
               <Badge variant="secondary" className="px-3 py-1 text-xs">Driving Innovation</Badge>
+              <Badge variant="secondary" className="px-3 py-1 text-xs">Driving Innovation</Badge>
               <Badge variant="secondary" className="px-3 py-1 text-xs">Developing Trusted Relationship</Badge>
               <Badge variant="secondary" className="px-3 py-1 text-xs">Building Customer Confidence</Badge>
               <Badge variant="secondary" className="px-3 py-1 text-xs">Upholding Ethical Standards</Badge>
@@ -71,7 +72,9 @@ export function VisionFramework({
                 </div>
                 
                 <div className="space-y-1">
-                  {pillar.metrics.map(metric => {})}
+                  {pillar.metrics.map(metric => (
+                    <Badge key={metric} variant="outline" className="text-xs px-2 py-1">{metric}</Badge>
+                  ))}
                 </div>
               </div>)}
           </div>
