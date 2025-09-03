@@ -6,7 +6,8 @@ import { DataUploadSection } from "@/components/dashboard/DataUploadSection";
 import { DetailModal } from "@/components/dashboard/DetailModal";
 import { AdvancedCharts } from "@/components/dashboard/AdvancedCharts";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, RotateCcw, LogOut } from "lucide-react";
+import { VisionFramework } from "@/components/dashboard/VisionFramework";
+import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, RotateCcw, LogOut, Building } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -98,6 +99,7 @@ const Index = () => {
     respondents?: number;
   } | null>(null);
   const [showAdvancedCharts, setShowAdvancedCharts] = useState(false);
+  const [showVisionMode, setShowVisionMode] = useState(false);
 
   // Authentication effect
   useEffect(() => {
@@ -322,6 +324,15 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
+              <Button
+                variant={showVisionMode ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowVisionMode(!showVisionMode)}
+                className="text-xs px-3 py-2 h-auto"
+              >
+                <Building className="h-3 w-3 mr-1" />
+                Vision Mode
+              </Button>
               <button
                 onClick={() => setShowAdvancedCharts(!showAdvancedCharts)}
                 className="text-xs px-3 py-2 bg-secondary/20 hover:bg-secondary/40 rounded-full transition-colors"
@@ -352,69 +363,155 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Main Dashboard Layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
-          {/* NPS Gauge - Aligned with metrics */}
-          <div className="xl:col-span-6 flex flex-col">
-            <div className="text-center mb-6">
-              <h3 className="text-lg font-semibold text-foreground mb-1">Net Promoter Score</h3>
-              <p className="text-sm text-muted-foreground">Click for detailed insights</p>
-            </div>
-            
-            <div className="flex-1 flex items-stretch">
-              <NPSGauge
-                currentScore={metrics.nps.current}
-                target={metrics.nps.target}
-                trend={12.5}
-                respondents={metrics.nps.respondents}
-                className="w-full h-full flex-1"
-                onClick={() => handleCardClick('nps', 'Net Promoter Score', metrics.nps.current, metrics.nps.target, 100, 12.5, metrics.nps.respondents)}
-              />
-            </div>
-          </div>
+        {/* Vision Framework */}
+        {showVisionMode && (
+          <VisionFramework className="animate-fade-in" />
+        )}
 
-          {/* Survey Metrics */}
-          <div className="xl:col-span-6 flex flex-col">
-            <div className="text-center mb-6">
-              <h3 className="text-lg font-semibold text-foreground mb-1">Survey Metrics</h3>
-              <p className="text-sm text-muted-foreground">Click cards for detailed insights</p>
-            </div>
-            
-            <div className="flex-1 grid grid-rows-3 gap-4">
-              <CompactMetricCard
-                title="Jira Tickets"
-                currentScore={metrics.jira.current}
-                target={metrics.jira.target}
-                maxScore={5}
-                trend={5.6}
-                respondents={metrics.jira.respondents}
-                icon={<Ticket className="h-4 w-4" />}
-                onClick={() => handleCardClick('jira', 'Jira Tickets', metrics.jira.current, metrics.jira.target, 5, 5.6, metrics.jira.respondents)}
-              />
-              
-              <CompactMetricCard
-                title="Project Satisfaction"
-                currentScore={metrics.project.current}
-                target={metrics.project.target}
-                maxScore={5}
-                trend={16.7}
-                respondents={metrics.project.respondents}
-                icon={<FolderOpen className="h-4 w-4" />}
-                onClick={() => handleCardClick('project', 'Project Satisfaction', metrics.project.current, metrics.project.target, 5, 16.7, metrics.project.respondents)}
-              />
-              
-              <CompactMetricCard
-                title="Ad-hoc Feedback"
-                currentScore={metrics.adhoc.current}
-                target={metrics.adhoc.target}
-                maxScore={5}
-                trend={-8.6}
-                respondents={metrics.adhoc.respondents}
-                icon={<MessageSquare className="h-4 w-4" />}
-                onClick={() => handleCardClick('adhoc', 'Ad-hoc Feedback', metrics.adhoc.current, metrics.adhoc.target, 5, -8.6, metrics.adhoc.respondents)}
-              />
-            </div>
-          </div>
+        {/* Main Dashboard Layout */}
+        <div className={`grid gap-6 mb-8 transition-all duration-300 ${
+          showVisionMode 
+            ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4' 
+            : 'grid-cols-1 xl:grid-cols-12'
+        }`}>
+          {showVisionMode ? (
+            // Vision Mode Layout - Organized by Pillars
+            <>
+              {/* People Pillar */}
+              <div className="space-y-4">
+                <div className="text-center p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                  <h3 className="font-semibold text-blue-700 dark:text-blue-300">People</h3>
+                </div>
+                <NPSGauge
+                  currentScore={metrics.nps.current}
+                  target={metrics.nps.target}
+                  trend={12.5}
+                  respondents={metrics.nps.respondents}
+                  className="w-full h-48"
+                  onClick={() => handleCardClick('nps', 'Net Promoter Score', metrics.nps.current, metrics.nps.target, 100, 12.5, metrics.nps.respondents)}
+                />
+              </div>
+
+              {/* Innovate Pillar */}
+              <div className="space-y-4">
+                <div className="text-center p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                  <h3 className="font-semibold text-green-700 dark:text-green-300">Innovate</h3>
+                </div>
+                <CompactMetricCard
+                  title="Project Satisfaction"
+                  currentScore={metrics.project.current}
+                  target={metrics.project.target}
+                  maxScore={5}
+                  trend={16.7}
+                  respondents={metrics.project.respondents}
+                  icon={<FolderOpen className="h-4 w-4" />}
+                  onClick={() => handleCardClick('project', 'Project Satisfaction', metrics.project.current, metrics.project.target, 5, 16.7, metrics.project.respondents)}
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                />
+              </div>
+
+              {/* Protect Pillar */}
+              <div className="space-y-4">
+                <div className="text-center p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
+                  <h3 className="font-semibold text-orange-700 dark:text-orange-300">Protect</h3>
+                </div>
+                <CompactMetricCard
+                  title="Jira Tickets"
+                  currentScore={metrics.jira.current}
+                  target={metrics.jira.target}
+                  maxScore={5}
+                  trend={5.6}
+                  respondents={metrics.jira.respondents}
+                  icon={<Ticket className="h-4 w-4" />}
+                  onClick={() => handleCardClick('jira', 'Jira Tickets', metrics.jira.current, metrics.jira.target, 5, 5.6, metrics.jira.respondents)}
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                />
+              </div>
+
+              {/* Expand Pillar */}
+              <div className="space-y-4">
+                <div className="text-center p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                  <h3 className="font-semibold text-purple-700 dark:text-purple-300">Expand</h3>
+                </div>
+                <CompactMetricCard
+                  title="Ad-hoc Feedback"
+                  currentScore={metrics.adhoc.current}
+                  target={metrics.adhoc.target}
+                  maxScore={5}
+                  trend={-8.6}
+                  respondents={metrics.adhoc.respondents}
+                  icon={<MessageSquare className="h-4 w-4" />}
+                  onClick={() => handleCardClick('adhoc', 'Ad-hoc Feedback', metrics.adhoc.current, metrics.adhoc.target, 5, -8.6, metrics.adhoc.respondents)}
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                />
+              </div>
+            </>
+          ) : (
+            // Normal Layout
+            <>
+              {/* NPS Gauge - Aligned with metrics */}
+              <div className="xl:col-span-6 flex flex-col">
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-1">Net Promoter Score</h3>
+                  <p className="text-sm text-muted-foreground">Click for detailed insights</p>
+                </div>
+                
+                <div className="flex-1 flex items-stretch">
+                  <NPSGauge
+                    currentScore={metrics.nps.current}
+                    target={metrics.nps.target}
+                    trend={12.5}
+                    respondents={metrics.nps.respondents}
+                    className="w-full h-full flex-1"
+                    onClick={() => handleCardClick('nps', 'Net Promoter Score', metrics.nps.current, metrics.nps.target, 100, 12.5, metrics.nps.respondents)}
+                  />
+                </div>
+              </div>
+
+              {/* Survey Metrics */}
+              <div className="xl:col-span-6 flex flex-col">
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-1">Survey Metrics</h3>
+                  <p className="text-sm text-muted-foreground">Click cards for detailed insights</p>
+                </div>
+                
+                <div className="flex-1 grid grid-rows-3 gap-4">
+                  <CompactMetricCard
+                    title="Jira Tickets"
+                    currentScore={metrics.jira.current}
+                    target={metrics.jira.target}
+                    maxScore={5}
+                    trend={5.6}
+                    respondents={metrics.jira.respondents}
+                    icon={<Ticket className="h-4 w-4" />}
+                    onClick={() => handleCardClick('jira', 'Jira Tickets', metrics.jira.current, metrics.jira.target, 5, 5.6, metrics.jira.respondents)}
+                  />
+                  
+                  <CompactMetricCard
+                    title="Project Satisfaction"
+                    currentScore={metrics.project.current}
+                    target={metrics.project.target}
+                    maxScore={5}
+                    trend={16.7}
+                    respondents={metrics.project.respondents}
+                    icon={<FolderOpen className="h-4 w-4" />}
+                    onClick={() => handleCardClick('project', 'Project Satisfaction', metrics.project.current, metrics.project.target, 5, 16.7, metrics.project.respondents)}
+                  />
+                  
+                  <CompactMetricCard
+                    title="Ad-hoc Feedback"
+                    currentScore={metrics.adhoc.current}
+                    target={metrics.adhoc.target}
+                    maxScore={5}
+                    trend={-8.6}
+                    respondents={metrics.adhoc.respondents}
+                    icon={<MessageSquare className="h-4 w-4" />}
+                    onClick={() => handleCardClick('adhoc', 'Ad-hoc Feedback', metrics.adhoc.current, metrics.adhoc.target, 5, -8.6, metrics.adhoc.respondents)}
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Charts Section */}
