@@ -10,89 +10,70 @@ All colors MUST be HSL.
   :root {
     --background: 210 100% 98%;
     --foreground: 215 25% 27%;
-
     --card: 0 0% 100%;
     --card-foreground: 215 25% 27%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 27%;
-
     --primary: 210 100% 50%;
     --primary-foreground: 0 0% 100%;
     --primary-light: 210 100% 90%;
     --primary-dark: 210 100% 35%;
-
     --secondary: 158 64% 52%;
     --secondary-foreground: 0 0% 100%;
     --secondary-light: 158 64% 85%;
     --secondary-dark: 158 64% 35%;
-
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
-
     --accent: 195 100% 95%;
     --accent-foreground: 215 25% 27%;
-
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
     --warning: 45 93% 47%;
     --warning-foreground: 0 0% 100%;
-
     --success: 158 64% 52%;
     --success-foreground: 0 0% 100%;
-
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 210 100% 50%;
-
     --radius: 0.5rem;
-
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 220 26% 6%;
     --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
+    --card: 220 26% 8%;
     --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
+    --popover: 220 26% 8%;
     --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
+    --primary: 210 100% 60%;
+    --primary-foreground: 220 26% 6%;
+    --primary-light: 210 100% 80%;
+    --primary-dark: 210 100% 40%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
+    --secondary-light: 217.2 32.6% 25%;
+    --secondary-dark: 217.2 32.6% 10%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 100%;
+    --success: 158 64% 52%;
+    --success-foreground: 0 0% 100%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 210 100% 60%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -172,12 +153,8 @@ All colors MUST be HSL.
     to { transform: scale(1); opacity: 1; }
   }
   
-  /* Hover effects */
+  /* Hover effects - removed scaling */
   .hover-lift {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .hover-lift:hover {
-    transform: translateY(-2px);
   }
 }

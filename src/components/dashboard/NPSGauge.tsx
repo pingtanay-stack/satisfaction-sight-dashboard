@@ -56,7 +56,7 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
   return (
     <Card 
       className={cn(
-        "bg-white hover:shadow-lg transition-all duration-300 cursor-pointer animate-fade-in",
+        "card-shadow hover:card-shadow-hover transition-all duration-300 cursor-pointer h-full",
         className
       )}
       onClick={onClick}

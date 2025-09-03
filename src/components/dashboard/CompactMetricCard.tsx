@@ -47,7 +47,7 @@ export function CompactMetricCard({
   return (
     <Card 
       className={cn(
-        "hover-lift animate-fade-in card-shadow group hover:card-shadow-hover transition-all duration-300 cursor-pointer hover:scale-105",
+        "card-shadow hover:card-shadow-hover transition-all duration-300 cursor-pointer h-full",
         className
       )}
       onClick={onClick}
