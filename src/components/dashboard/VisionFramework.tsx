@@ -37,40 +37,15 @@ export function VisionFramework({
       <div className="relative max-w-4xl mx-auto">
         
         {/* Roof - Vision */}
-<div className="relative">
-  <svg 
-    viewBox="0 0 500 120" 
-    className="w-full max-w-lg mx-auto h-32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    {/* Main roof surface */}
-    <polygon 
-      points="50,120 250,20 450,120" 
-      fill="hsl(var(--primary))"
-      stroke="hsl(var(--primary))"
-      strokeWidth="2"
-      opacity="0.8"
-    />
-    {/* Roof ridge line */}
-    <line 
-      x1="250" y1="20" 
-      x2="250" y2="25" 
-      stroke="hsl(var(--primary))" 
-      strokeWidth="3"
-    />
-    {/* Roof texture lines */}
-    <g opacity="0.4">
-      <line x1="80" y1="105" x2="220" y2="35" stroke="hsl(var(--primary))" strokeWidth="1"/>
-      <line x1="110" y1="110" x2="250" y2="40" stroke="hsl(var(--primary))" strokeWidth="1"/>
-      <line x1="140" y1="115" x2="280" y2="45" stroke="hsl(var(--primary))" strokeWidth="1"/>
-      <line x1="280" y1="45" x2="420" y2="115" stroke="hsl(var(--primary))" strokeWidth="1"/>
-      <line x1="310" y1="50" x2="450" y2="120" stroke="hsl(var(--primary))" strokeWidth="1"/>
-    </g>
-  </svg>
-  <div className="absolute top-16 left-1/2 transform -translate-x-1/2 text-center z-10">
-    <h1 className="text-2xl font-bold text-primary mb-1">Our Vision</h1>
-  </div>
-</div>
+        <div className="relative">
+          <div className="w-96 h-16 mx-auto relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary to-transparent opacity-60 transform -skew-y-2 rounded-sm"></div>
+            <div className="absolute top-2 inset-x-4 h-0.5 bg-gradient-to-r from-transparent via-primary/80 to-transparent"></div>
+          </div>
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-center z-10">
+            <h1 className="text-2xl font-bold text-primary mb-1">Our Vision</h1>
+          </div>
+        </div>
 
         {/* House Body */}
         <div className="bg-gradient-to-b from-background to-secondary/5 border-2 border-primary/20 rounded-b-lg relative">
