@@ -16,6 +16,8 @@ interface DetailModalProps {
   trend: number;
   respondents?: number;
   type: 'nps' | 'jira' | 'project' | 'adhoc';
+  npsComments?: Array<{ month: string; score: number; comment: string; date: string }>;
+  hasRealData?: boolean;
 }
 
 const mockDetailData = {
@@ -75,10 +77,52 @@ const mockDetailData = {
   }
 };
 
-export function DetailModal({ isOpen, onClose, title, currentScore, target, maxScore, trend, respondents, type }: DetailModalProps) {
+export function DetailModal({ 
+  isOpen, 
+  onClose, 
+  title, 
+  currentScore, 
+  target, 
+  maxScore, 
+  trend, 
+  respondents, 
+  type, 
+  npsComments = [], 
+  hasRealData = false 
+}: DetailModalProps) {
   const data = mockDetailData[type];
   const isTargetMet = currentScore >= target;
   const percentage = (currentScore / maxScore) * 100;
+
+  // Generate real NPS breakdown based on actual score
+  const generateNpsBreakdown = (npsScore: number) => {
+    // NPS calculation: Promoters (9-10) - Detractors (0-6)
+    // Estimate breakdown based on actual NPS score
+    let promoters, passives, detractors;
+    
+    if (npsScore >= 50) {
+      promoters = 60 + (npsScore - 50) * 0.4;
+      detractors = Math.max(5, 25 - (npsScore - 50) * 0.3);
+      passives = 100 - promoters - detractors;
+    } else if (npsScore >= 0) {
+      promoters = 40 + npsScore * 0.4;
+      detractors = 35 - npsScore * 0.3;
+      passives = 100 - promoters - detractors;
+    } else {
+      promoters = Math.max(10, 30 + npsScore * 0.2);
+      detractors = Math.min(70, 45 - npsScore * 0.4);
+      passives = 100 - promoters - detractors;
+    }
+
+    return [
+      { name: 'Promoters', value: Math.round(promoters), color: 'hsl(var(--success))' },
+      { name: 'Passives', value: Math.round(passives), color: 'hsl(var(--warning))' },
+      { name: 'Detractors', value: Math.round(detractors), color: 'hsl(var(--destructive))' }
+    ];
+  };
+
+  // Use real data for NPS breakdown if available
+  const realNpsBreakdown = type === 'nps' && hasRealData ? generateNpsBreakdown(currentScore) : data.breakdown;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -165,7 +209,7 @@ export function DetailModal({ isOpen, onClose, title, currentScore, target, maxS
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={data.breakdown}
+                        data={realNpsBreakdown}
                         dataKey="value"
                         nameKey="name"
                         cx="50%"
@@ -173,7 +217,7 @@ export function DetailModal({ isOpen, onClose, title, currentScore, target, maxS
                         outerRadius={80}
                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
-                        {data.breakdown.map((entry, index) => (
+                        {realNpsBreakdown.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
@@ -191,40 +235,61 @@ export function DetailModal({ isOpen, onClose, title, currentScore, target, maxS
                   {type === 'nps' ? 'User Segments' : 
                    type === 'jira' ? 'Categories' : 
                    type === 'project' ? 'Project Phases' : 'Feedback Channels'}
+                  {!hasRealData && (
+                    <Badge variant="secondary" className="ml-2 text-xs">Demo Data</Badge>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={
-                      type === 'nps' ? (data as any).demographics :
-                      type === 'jira' ? (data as any).categories :
-                      type === 'project' ? (data as any).phases :
-                      (data as any).channels
-                    }>
-                      <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                      <XAxis 
-                        dataKey={type === 'nps' ? 'segment' : 
-                               type === 'jira' ? 'category' : 
-                               type === 'project' ? 'phase' : 'channel'} 
-                        className="text-xs"
-                        tick={{ fontSize: 10 }}
-                        angle={-45}
-                        textAnchor="end"
-                        height={60}
-                      />
-                      <YAxis className="text-xs" tick={{ fontSize: 10 }} />
-                      <Tooltip />
-                      <Bar 
-                        dataKey={type === 'nps' ? 'score' : 
-                               type === 'jira' ? 'satisfaction' : 
-                               type === 'project' ? 'satisfaction' : 'avgRating'} 
-                        fill="hsl(var(--primary))" 
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                {!hasRealData ? (
+                  <div className="space-y-3">
+                    <div className="border border-yellow-200 bg-yellow-50 rounded-lg p-3">
+                      <p className="text-sm text-yellow-800">
+                        <strong>Demo Mode:</strong> Segment analysis requires structured data not available in the current Excel template.
+                      </p>
+                    </div>
+                    <div className="h-64 opacity-60">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={
+                          type === 'nps' ? (data as any).demographics :
+                          type === 'jira' ? (data as any).categories :
+                          type === 'project' ? (data as any).phases :
+                          (data as any).channels
+                        }>
+                          <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                          <XAxis 
+                            dataKey={type === 'nps' ? 'segment' : 
+                                   type === 'jira' ? 'category' : 
+                                   type === 'project' ? 'phase' : 'channel'} 
+                            className="text-xs"
+                            tick={{ fontSize: 10 }}
+                            angle={-45}
+                            textAnchor="end"
+                            height={60}
+                          />
+                          <YAxis className="text-xs" tick={{ fontSize: 10 }} />
+                          <Tooltip />
+                          <Bar 
+                            dataKey={type === 'nps' ? 'score' : 
+                                   type === 'jira' ? 'satisfaction' : 
+                                   type === 'project' ? 'satisfaction' : 'avgRating'} 
+                            fill="hsl(var(--primary))" 
+                            radius={[4, 4, 0, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-64 text-center">
+                    <Users className="h-16 w-16 text-muted-foreground/30 mb-4" />
+                    <h3 className="text-lg font-medium mb-2">Detailed Segmentation Not Available</h3>
+                    <p className="text-sm text-muted-foreground max-w-md">
+                      Your Excel template contains aggregated data. For detailed user segments, demographic breakdowns, 
+                      or category analysis, additional data structure would be needed.
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -236,35 +301,70 @@ export function DetailModal({ isOpen, onClose, title, currentScore, target, maxS
                 <CardTitle className="text-lg flex items-center gap-2">
                   <MessageSquare className="h-4 w-4" />
                   Recent Feedback
+                  {hasRealData && npsComments.length > 0 && (
+                    <Badge variant="default" className="ml-2">From Your Excel</Badge>
+                  )}
+                  {!hasRealData && (
+                    <Badge variant="secondary" className="ml-2">Demo Data</Badge>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {mockDetailData.nps.comments.map((comment, index) => (
-                    <div key={index} className="border-l-4 border-primary/20 pl-4 py-2">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              className={cn(
-                                "h-3 w-3",
-                                i < comment.rating ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground/30"
-                              )} 
-                            />
-                          ))}
+                {hasRealData && npsComments.length > 0 ? (
+                  <div className="space-y-4">
+                    {npsComments.slice(-5).map((comment, index) => (
+                      <div key={index} className="border-l-4 border-primary/20 pl-4 py-2">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline" className="text-xs">
+                            NPS: {comment.score}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {comment.month}
+                          </span>
                         </div>
-                        <Badge variant="outline" className="text-xs">
-                          {comment.rating}/10
-                        </Badge>
-                        <span className="text-xs text-muted-foreground ml-auto">
-                          {comment.date}
-                        </span>
+                        <p className="text-sm text-muted-foreground">{comment.comment}</p>
                       </div>
-                      <p className="text-sm text-muted-foreground">{comment.comment}</p>
+                    ))}
+                  </div>
+                ) : hasRealData ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm">No comments found in your Excel data.</p>
+                    <p className="text-xs mt-1">Add comments in Column J to see them here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="border border-yellow-200 bg-yellow-50 rounded-lg p-3">
+                      <p className="text-sm text-yellow-800">
+                        <strong>Demo Mode:</strong> The comments below are examples. Upload your Excel file to see real customer feedback.
+                      </p>
                     </div>
-                  ))}
-                </div>
+                    {mockDetailData.nps.comments.map((comment, index) => (
+                      <div key={index} className="border-l-4 border-primary/20 pl-4 py-2 opacity-60">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i} 
+                                className={cn(
+                                  "h-3 w-3",
+                                  i < comment.rating ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground/30"
+                                )} 
+                              />
+                            ))}
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {comment.rating}/10
+                          </Badge>
+                          <span className="text-xs text-muted-foreground ml-auto">
+                            {comment.date}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{comment.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

@@ -11,6 +11,7 @@ export interface DashboardData {
   satisfactionData: { month: string; score: number }[];
   jiraData: { month: string; score: number }[];
   adhocData: { month: string; score: number }[];
+  npsComments?: Array<{ month: string; score: number; comment: string; date: string }>;
 }
 
 export const saveDashboardDataToSupabase = async (data: DashboardData): Promise<void> => {

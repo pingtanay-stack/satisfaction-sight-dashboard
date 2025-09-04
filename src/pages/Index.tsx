@@ -95,6 +95,7 @@ const Index = () => {
   const [adhocData, setAdhocData] = useState(defaultData.adhocData);
   const [hasUploadedData, setHasUploadedData] = useState(false);
   const [lastUploadDate, setLastUploadDate] = useState<Date | null>(null);
+  const [npsComments, setNpsComments] = useState<Array<{ month: string; score: number; comment: string; date: string }>>([]);
   const [selectedCard, setSelectedCard] = useState<{
     type: 'nps' | 'jira' | 'project' | 'adhoc';
     title: string;
@@ -170,6 +171,11 @@ const Index = () => {
       setJiraData(userData.jiraData);
       setAdhocData(userData.adhocData);
       setHasUploadedData(hasData);
+      
+      // Load NPS comments if available
+      if ((userData as any).npsComments) {
+        setNpsComments((userData as any).npsComments);
+      }
     } catch (error) {
       console.error('Error loading user data:', error);
       toast({
@@ -271,6 +277,7 @@ const Index = () => {
     const newJiraData: { month: string; score: number }[] = [];
     const newSatisfactionData: { month: string; score: number }[] = [];
     const newAdhocData: { month: string; score: number }[] = [];
+    const npsComments: { month: string; score: number; comment: string; date: string }[] = [];
     
     dataRows.forEach(row => {
       if (row[0] && row[1] !== undefined && row[1] !== '') {
@@ -279,11 +286,22 @@ const Index = () => {
         const jiraScore = parseFloat(row[3]) || 0;
         const projectScore = parseFloat(row[5]) || 0;
         const adhocScore = parseFloat(row[7]) || 0;
+        const npsComment = row[9] ? row[9].toString().trim() : '';
         
         if (npsScore > 0) newNpsData.push({ month, score: npsScore });
         if (jiraScore > 0) newJiraData.push({ month, score: jiraScore });
         if (projectScore > 0) newSatisfactionData.push({ month, score: projectScore });
         if (adhocScore > 0) newAdhocData.push({ month, score: adhocScore });
+        
+        // Collect NPS comments if available
+        if (npsComment) {
+          npsComments.push({
+            month,
+            score: npsScore,
+            comment: npsComment,
+            date: new Date().toISOString().split('T')[0] // Use current date as upload date
+          });
+        }
       }
     });
     
@@ -307,6 +325,7 @@ const Index = () => {
     };
     
     console.log("Updating metrics to:", newMetrics);
+    console.log("NPS Comments found:", npsComments);
     setMetrics(newMetrics);
     
     if (newNpsData.length > 0) setNpsData(newNpsData);
@@ -314,16 +333,22 @@ const Index = () => {
     if (newSatisfactionData.length > 0) setSatisfactionData(newSatisfactionData);
     if (newAdhocData.length > 0) setAdhocData(newAdhocData);
 
+    // Store NPS comments for detailed view
+    if (npsComments.length > 0) {
+      setNpsComments(npsComments);
+    }
+
     // Update engagement system with new metrics
     updateEngagementData(newMetrics);
 
     // Save all data to Supabase
-    const dataToSave: DashboardData = {
+    const dataToSave: DashboardData & { npsComments?: typeof npsComments } = {
       metrics: newMetrics,
       npsData: newNpsData.length > 0 ? newNpsData : npsData,
       jiraData: newJiraData.length > 0 ? newJiraData : jiraData,
       satisfactionData: newSatisfactionData.length > 0 ? newSatisfactionData : satisfactionData,
       adhocData: newAdhocData.length > 0 ? newAdhocData : adhocData,
+      npsComments: npsComments
     };
 
     saveUserData(dataToSave);
@@ -357,6 +382,7 @@ const Index = () => {
       setSatisfactionData(defaultSatisfactionData);
       setJiraData(defaultJiraData);
       setAdhocData(defaultAdhocData);
+      setNpsComments([]); // Clear comments too
       setHasUploadedData(false);
       toast({
         title: "Data reset",
@@ -762,6 +788,8 @@ const Index = () => {
             trend={selectedCard.trend}
             respondents={selectedCard.respondents}
             type={selectedCard.type}
+            npsComments={npsComments}
+            hasRealData={hasUploadedData}
           />
         )}
 
