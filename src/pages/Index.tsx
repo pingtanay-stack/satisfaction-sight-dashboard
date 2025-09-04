@@ -173,8 +173,8 @@ const Index = () => {
       setHasUploadedData(hasData);
       
       // Load NPS comments if available
-      if ((userData as any).npsComments) {
-        setNpsComments((userData as any).npsComments);
+      if (userData.npsComments && userData.npsComments.length > 0) {
+        setNpsComments(userData.npsComments);
       }
     } catch (error) {
       console.error('Error loading user data:', error);

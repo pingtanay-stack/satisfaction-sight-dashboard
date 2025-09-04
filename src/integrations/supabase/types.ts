@@ -142,6 +142,7 @@ export type Database = {
           id: string
           jira_data: Json
           metrics: Json
+          nps_comments: Json | null
           nps_data: Json
           satisfaction_data: Json
           updated_at: string
@@ -153,6 +154,7 @@ export type Database = {
           id?: string
           jira_data: Json
           metrics: Json
+          nps_comments?: Json | null
           nps_data: Json
           satisfaction_data: Json
           updated_at?: string
@@ -164,6 +166,7 @@ export type Database = {
           id?: string
           jira_data?: Json
           metrics?: Json
+          nps_comments?: Json | null
           nps_data?: Json
           satisfaction_data?: Json
           updated_at?: string

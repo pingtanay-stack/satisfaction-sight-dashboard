@@ -35,6 +35,7 @@ export const saveDashboardDataToSupabase = async (data: DashboardData): Promise<
         satisfaction_data: data.satisfactionData,
         jira_data: data.jiraData,
         adhoc_data: data.adhocData,
+        nps_comments: data.npsComments || [],
         updated_at: new Date().toISOString()
       })
       .eq('user_id', user.id);
@@ -50,7 +51,8 @@ export const saveDashboardDataToSupabase = async (data: DashboardData): Promise<
         nps_data: data.npsData,
         satisfaction_data: data.satisfactionData,
         jira_data: data.jiraData,
-        adhoc_data: data.adhocData
+        adhoc_data: data.adhocData,
+        nps_comments: data.npsComments || []
       });
 
     if (error) throw error;
@@ -77,7 +79,8 @@ export const loadDashboardDataFromSupabase = async (defaultData: DashboardData):
     npsData: savedData.nps_data as DashboardData['npsData'],
     satisfactionData: savedData.satisfaction_data as DashboardData['satisfactionData'],
     jiraData: savedData.jira_data as DashboardData['jiraData'],
-    adhocData: savedData.adhoc_data as DashboardData['adhocData']
+    adhocData: savedData.adhoc_data as DashboardData['adhocData'],
+    npsComments: (savedData.nps_comments as Array<{ month: string; score: number; comment: string; date: string }>) || []
   };
 };
 
