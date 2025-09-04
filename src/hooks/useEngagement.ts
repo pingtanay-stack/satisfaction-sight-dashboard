@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Achievement } from "@/components/ui/achievement-badge";
 import { Insight } from "@/components/ui/insight-card";
 import { Alert } from "@/components/ui/alert-notification";
+import { normalizeScore, getPerformanceLevel, METRIC_TYPES } from "@/utils/dataHelpers";
 
 interface EngagementState {
   achievements: Achievement[];
@@ -17,6 +18,8 @@ interface MetricData {
   maxScore: number;
   trend: number;
   title: string;
+  metricType: string;
+  isRealData?: boolean;
 }
 
 export function useEngagement() {
@@ -28,13 +31,13 @@ export function useEngagement() {
     showAchievementNotification: null
   });
 
-  // Calculate overall performance score
+  // Calculate overall performance score with proper normalization
   const calculatePerformanceScore = useCallback((metrics: MetricData[]) => {
     if (metrics.length === 0) return 0;
     
     const totalScore = metrics.reduce((sum, metric) => {
-      const percentage = (metric.currentScore / metric.maxScore) * 100;
-      return sum + percentage;
+      const normalizedScore = normalizeScore(metric.currentScore, metric.metricType);
+      return sum + normalizedScore;
     }, 0);
     
     return Math.round(totalScore / metrics.length);
@@ -46,8 +49,9 @@ export function useEngagement() {
     const now = new Date();
 
     metrics.forEach(metric => {
-      const percentage = (metric.currentScore / metric.maxScore) * 100;
+      const percentage = normalizeScore(metric.currentScore, metric.metricType);
       const isTargetMet = metric.currentScore >= metric.target;
+      const performanceLevel = getPerformanceLevel(metric.currentScore, metric.metricType);
       
       // Target achievement
       if (isTargetMet) {
@@ -60,13 +64,13 @@ export function useEngagement() {
         });
       }
 
-      // Excellence achievement
-      if (percentage >= 90) {
+      // Excellence achievement - use performance level
+      if (performanceLevel === 'excellent') {
         newAchievements.push({
           id: `excellence-${metric.title.toLowerCase().replace(/\s+/g, '-')}`,
           type: "excellence", 
           title: "Excellence Award",
-          description: `Achieved excellence in ${metric.title} (90%+)`,
+          description: `Achieved excellence in ${metric.title}`,
           earnedAt: now
         });
       }
@@ -103,7 +107,8 @@ export function useEngagement() {
     const now = new Date();
 
     metrics.forEach(metric => {
-      const percentage = (metric.currentScore / metric.maxScore) * 100;
+      const percentage = normalizeScore(metric.currentScore, metric.metricType);
+      const performanceLevel = getPerformanceLevel(metric.currentScore, metric.metricType);
       
       // Trend insights
       if (Math.abs(metric.trend) > 5) {
@@ -125,15 +130,18 @@ export function useEngagement() {
         });
       }
 
-      // Performance warnings
-      if (percentage < 60) {
+      // Performance warnings - use metric-specific thresholds
+      if (performanceLevel === 'critical' || performanceLevel === 'warning') {
+        const severity = performanceLevel === 'critical' ? 'critical' : 'warning';
+        const dataStatus = metric.isRealData ? '' : ' (using default data - upload Excel for accurate insights)';
+        
         newInsights.push({
           id: `warning-${metric.title.toLowerCase().replace(/\s+/g, '-')}`,
           type: "warning",
           title: `${metric.title} Needs Attention`,
-          description: `Current performance (${percentage.toFixed(1)}%) is below acceptable levels. Immediate action recommended.`,
-          confidence: 90,
-          impact: "high",
+          description: `Current performance is ${severity}. ${performanceLevel === 'critical' ? 'Immediate' : 'Prompt'} action recommended.${dataStatus}`,
+          confidence: metric.isRealData ? 90 : 50,
+          impact: performanceLevel === 'critical' ? 'high' : 'medium',
           metric: metric.title,
           value: metric.currentScore,
           actionable: true,
@@ -184,19 +192,22 @@ export function useEngagement() {
     const now = new Date();
 
     metrics.forEach(metric => {
-      const percentage = (metric.currentScore / metric.maxScore) * 100;
+      const percentage = normalizeScore(metric.currentScore, metric.metricType);
+      const performanceLevel = getPerformanceLevel(metric.currentScore, metric.metricType);
       
-      // Critical performance alerts
-      if (percentage < 50) {
+      // Critical performance alerts - use metric-specific thresholds
+      if (performanceLevel === 'critical') {
+        const dataStatus = metric.isRealData ? '' : ' Note: This alert is based on default data.';
+        
         newAlerts.push({
           id: `critical-${metric.title.toLowerCase().replace(/\s+/g, '-')}`,
           type: "error",
           title: "Critical Performance Alert",
-          message: `${metric.title} has dropped to critical levels (${percentage.toFixed(1)}%). Immediate intervention required.`,
+          message: `${metric.title} has dropped to critical levels. Immediate intervention required.${dataStatus}`,
           severity: "critical",
           metric: metric.title,
           currentValue: metric.currentScore,
-          threshold: metric.maxScore * 0.5,
+          threshold: METRIC_TYPES[metric.metricType]?.thresholds.critical || 0,
           actionable: true,
           autodismiss: false,
           createdAt: now

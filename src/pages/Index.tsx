@@ -25,6 +25,8 @@ import {
   hasSavedDataInSupabase,
   type DashboardData 
 } from "@/lib/supabaseStorage";
+import { calculateTrend, getDataSource } from "@/utils/dataHelpers";
+import { DataSourceBadge } from "@/components/ui/data-source-badge";
 
 // Default mock data
 const defaultMetrics = {
@@ -92,6 +94,7 @@ const Index = () => {
   const [jiraData, setJiraData] = useState(defaultData.jiraData);
   const [adhocData, setAdhocData] = useState(defaultData.adhocData);
   const [hasUploadedData, setHasUploadedData] = useState(false);
+  const [lastUploadDate, setLastUploadDate] = useState<Date | null>(null);
   const [selectedCard, setSelectedCard] = useState<{
     type: 'nps' | 'jira' | 'project' | 'adhoc';
     title: string;
@@ -195,36 +198,56 @@ const Index = () => {
     }
   };
 
-  // Convert metrics to engagement format and update
+  // Convert metrics to engagement format and update with calculated trends
   const updateEngagementData = (metricsData: typeof metrics) => {
+    // Calculate real trends from historical data
+    const npsTrend = calculateTrend(npsData);
+    const jiraTrend = calculateTrend(jiraData);
+    const projectTrend = calculateTrend(satisfactionData);
+    const adhocTrend = calculateTrend(adhocData);
+    
+    // Get data source info
+    const npsSource = getDataSource(hasUploadedData, metricsData.nps.current, defaultMetrics.nps.current);
+    const jiraSource = getDataSource(hasUploadedData, metricsData.jira.current, defaultMetrics.jira.current);
+    const projectSource = getDataSource(hasUploadedData, metricsData.project.current, defaultMetrics.project.current);
+    const adhocSource = getDataSource(hasUploadedData, metricsData.adhoc.current, defaultMetrics.adhoc.current);
+    
     const engagementMetrics = [
       {
         title: "Net Promoter Score",
         currentScore: metricsData.nps.current,
         target: metricsData.nps.target,
         maxScore: 100,
-        trend: 12.5
+        trend: npsTrend,
+        metricType: "nps",
+        isRealData: npsSource.isReal
       },
       {
         title: "Jira Tickets",
         currentScore: metricsData.jira.current,
         target: metricsData.jira.target,
         maxScore: 5,
-        trend: 5.6
+        trend: jiraTrend,
+        metricType: "jira",
+        isRealData: jiraSource.isReal
       },
       {
         title: "Project Satisfaction",
         currentScore: metricsData.project.current,
         target: metricsData.project.target,
         maxScore: 5,
-        trend: 16.7
+        trend: projectTrend,
+        metricType: "satisfaction",
+        isRealData: projectSource.isReal
       },
       {
         title: "Ad-hoc Feedback",
         currentScore: metricsData.adhoc.current,
         target: metricsData.adhoc.target,
         maxScore: 5,
-        trend: -8.6
+        trend: adhocTrend,
+        metricType: "adhoc",
+        isRealData: adhocSource.isReal
       }
     ];
     updateEngagement(engagementMetrics);
@@ -305,6 +328,7 @@ const Index = () => {
 
     saveUserData(dataToSave);
     setHasUploadedData(true);
+    setLastUploadDate(new Date());
     console.log("Dashboard data saved to Supabase");
   };
 
@@ -312,6 +336,18 @@ const Index = () => {
   const handleCardClick = (type: 'nps' | 'jira' | 'project' | 'adhoc', title: string, currentScore: number, target: number, maxScore: number, trend: number, respondents?: number) => {
     setSelectedCard({ type, title, currentScore, target, maxScore, trend, respondents });
   };
+
+  // Calculate trends for display
+  const npsTrend = calculateTrend(npsData);
+  const jiraTrend = calculateTrend(jiraData);
+  const projectTrend = calculateTrend(satisfactionData);
+  const adhocTrend = calculateTrend(adhocData);
+
+  // Get data sources for badges
+  const npsSource = getDataSource(hasUploadedData, metrics.nps.current, defaultMetrics.nps.current);
+  const jiraSource = getDataSource(hasUploadedData, metrics.jira.current, defaultMetrics.jira.current);
+  const projectSource = getDataSource(hasUploadedData, metrics.project.current, defaultMetrics.project.current);
+  const adhocSource = getDataSource(hasUploadedData, metrics.adhoc.current, defaultMetrics.adhoc.current);
 
   const handleResetData = async () => {
     try {
@@ -481,10 +517,10 @@ const Index = () => {
                   currentScore={metrics.project.current}
                   target={metrics.project.target}
                   maxScore={5}
-                  trend={16.7}
+                  trend={projectTrend}
                   respondents={metrics.project.respondents}
                   icon={<FolderOpen className="h-4 w-4" />}
-                  onClick={() => handleCardClick('project', 'Project Satisfaction', metrics.project.current, metrics.project.target, 5, 16.7, metrics.project.respondents)}
+                  onClick={() => handleCardClick('project', 'Project Satisfaction', metrics.project.current, metrics.project.target, 5, projectTrend, metrics.project.respondents)}
                   className="cursor-pointer hover:shadow-lg transition-shadow"
                 />
               </div>
@@ -499,10 +535,10 @@ const Index = () => {
                   currentScore={metrics.jira.current}
                   target={metrics.jira.target}
                   maxScore={5}
-                  trend={5.6}
+                  trend={jiraTrend}
                   respondents={metrics.jira.respondents}
                   icon={<Ticket className="h-4 w-4" />}
-                  onClick={() => handleCardClick('jira', 'Jira Tickets', metrics.jira.current, metrics.jira.target, 5, 5.6, metrics.jira.respondents)}
+                  onClick={() => handleCardClick('jira', 'Jira Tickets', metrics.jira.current, metrics.jira.target, 5, jiraTrend, metrics.jira.respondents)}
                   className="cursor-pointer hover:shadow-lg transition-shadow"
                 />
               </div>
@@ -517,10 +553,10 @@ const Index = () => {
                   currentScore={metrics.adhoc.current}
                   target={metrics.adhoc.target}
                   maxScore={5}
-                  trend={-8.6}
+                  trend={adhocTrend}
                   respondents={metrics.adhoc.respondents}
                   icon={<MessageSquare className="h-4 w-4" />}
-                  onClick={() => handleCardClick('adhoc', 'Ad-hoc Feedback', metrics.adhoc.current, metrics.adhoc.target, 5, -8.6, metrics.adhoc.respondents)}
+                  onClick={() => handleCardClick('adhoc', 'Ad-hoc Feedback', metrics.adhoc.current, metrics.adhoc.target, 5, adhocTrend, metrics.adhoc.respondents)}
                   className="cursor-pointer hover:shadow-lg transition-shadow"
                 />
               </div>
@@ -539,10 +575,10 @@ const Index = () => {
                   <NPSGauge
                     currentScore={metrics.nps.current}
                     target={metrics.nps.target}
-                    trend={12.5}
+                    trend={npsTrend}
                     respondents={metrics.nps.respondents}
                     className="w-full h-full flex-1"
-                    onClick={() => handleCardClick('nps', 'Net Promoter Score', metrics.nps.current, metrics.nps.target, 100, 12.5, metrics.nps.respondents)}
+                    onClick={() => handleCardClick('nps', 'Net Promoter Score', metrics.nps.current, metrics.nps.target, 100, npsTrend, metrics.nps.respondents)}
                   />
                 </div>
               </div>
@@ -560,10 +596,10 @@ const Index = () => {
                     currentScore={metrics.jira.current}
                     target={metrics.jira.target}
                     maxScore={5}
-                    trend={5.6}
+                    trend={jiraTrend}
                     respondents={metrics.jira.respondents}
                     icon={<Ticket className="h-4 w-4" />}
-                    onClick={() => handleCardClick('jira', 'Jira Tickets', metrics.jira.current, metrics.jira.target, 5, 5.6, metrics.jira.respondents)}
+                    onClick={() => handleCardClick('jira', 'Jira Tickets', metrics.jira.current, metrics.jira.target, 5, jiraTrend, metrics.jira.respondents)}
                   />
                   
                   <CompactMetricCard
@@ -571,10 +607,10 @@ const Index = () => {
                     currentScore={metrics.project.current}
                     target={metrics.project.target}
                     maxScore={5}
-                    trend={16.7}
+                    trend={projectTrend}
                     respondents={metrics.project.respondents}
                     icon={<FolderOpen className="h-4 w-4" />}
-                    onClick={() => handleCardClick('project', 'Project Satisfaction', metrics.project.current, metrics.project.target, 5, 16.7, metrics.project.respondents)}
+                    onClick={() => handleCardClick('project', 'Project Satisfaction', metrics.project.current, metrics.project.target, 5, projectTrend, metrics.project.respondents)}
                   />
                   
                   <CompactMetricCard
@@ -582,10 +618,10 @@ const Index = () => {
                     currentScore={metrics.adhoc.current}
                     target={metrics.adhoc.target}
                     maxScore={5}
-                    trend={-8.6}
+                    trend={adhocTrend}
                     respondents={metrics.adhoc.respondents}
                     icon={<MessageSquare className="h-4 w-4" />}
-                    onClick={() => handleCardClick('adhoc', 'Ad-hoc Feedback', metrics.adhoc.current, metrics.adhoc.target, 5, -8.6, metrics.adhoc.respondents)}
+                    onClick={() => handleCardClick('adhoc', 'Ad-hoc Feedback', metrics.adhoc.current, metrics.adhoc.target, 5, adhocTrend, metrics.adhoc.respondents)}
                   />
                 </div>
               </div>
@@ -651,6 +687,56 @@ const Index = () => {
 
         {/* Data Upload Section */}
         <DataUploadSection onDataUpdate={processUploadedData} />
+
+        {/* Data Source Information */}
+        <div className="bg-muted/30 rounded-lg p-4">
+          <h3 className="text-sm font-semibold mb-3 text-center">Data Sources & Freshness</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className="text-xs font-medium mb-1">NPS</p>
+              <DataSourceBadge 
+                source={npsSource.source} 
+                isReal={npsSource.isReal} 
+                lastUpdated={lastUploadDate || undefined}
+                className="justify-center"
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-xs font-medium mb-1">Jira Tickets</p>
+              <DataSourceBadge 
+                source={jiraSource.source} 
+                isReal={jiraSource.isReal} 
+                lastUpdated={lastUploadDate || undefined}
+                className="justify-center"
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-xs font-medium mb-1">Project Satisfaction</p>
+              <DataSourceBadge 
+                source={projectSource.source} 
+                isReal={projectSource.isReal} 
+                lastUpdated={lastUploadDate || undefined}
+                className="justify-center"
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-xs font-medium mb-1">Ad-hoc Feedback</p>
+              <DataSourceBadge 
+                source={adhocSource.source} 
+                isReal={adhocSource.isReal} 
+                lastUpdated={lastUploadDate || undefined}
+                className="justify-center"
+              />
+            </div>
+          </div>
+          {!hasUploadedData && (
+            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+              <p className="text-sm text-yellow-800">
+                <strong>Note:</strong> You're viewing default demo data. Upload an Excel file above to see your real customer satisfaction metrics and get accurate insights.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Interactive Footer */}
         <div className="text-center py-4">
