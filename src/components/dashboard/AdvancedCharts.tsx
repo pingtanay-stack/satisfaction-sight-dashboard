@@ -14,30 +14,7 @@ interface AdvancedChartsProps {
   adhocData: Array<{ month: string; score: number }>;
 }
 
-const radarData = [
-  { metric: 'NPS', score: 45, fullMark: 100 },
-  { metric: 'Jira', score: 76, fullMark: 100 },
-  { metric: 'Projects', score: 84, fullMark: 100 },
-  { metric: 'Ad-hoc', score: 64, fullMark: 100 },
-  { metric: 'Support', score: 72, fullMark: 100 },
-  { metric: 'Quality', score: 88, fullMark: 100 }
-];
-
-const correlationData = [
-  { nps: 25, satisfaction: 3.1, month: 'Jan' },
-  { nps: 32, satisfaction: 3.3, month: 'Feb' },
-  { nps: 38, satisfaction: 3.6, month: 'Mar' },
-  { nps: 42, satisfaction: 3.8, month: 'Apr' },
-  { nps: 45, satisfaction: 3.9, month: 'May' },
-  { nps: 48, satisfaction: 4.2, month: 'Jun' }
-];
-
-const weeklyTrendData = [
-  { week: 'W1', nps: 42, jira: 3.6, project: 4.0, adhoc: 3.1 },
-  { week: 'W2', nps: 44, jira: 3.7, project: 4.1, adhoc: 3.2 },
-  { week: 'W3', nps: 43, jira: 3.8, project: 4.2, adhoc: 3.0 },
-  { week: 'W4', nps: 47, jira: 3.9, project: 4.3, adhoc: 3.3 }
-];
+// All data is now generated from real user data - no more hardcoded values!
 
 export function AdvancedCharts({ npsData, satisfactionData, jiraData, adhocData }: AdvancedChartsProps) {
   // Combine all data for comprehensive analysis
@@ -48,6 +25,42 @@ export function AdvancedCharts({ npsData, satisfactionData, jiraData, adhocData 
     jira: jiraData[index]?.score || 0,
     adhoc: adhocData[index]?.score || 0
   }));
+
+  // Generate real radar data from actual metrics
+  const latestData = combinedData[combinedData.length - 1] || { nps: 0, satisfaction: 0, jira: 0, adhoc: 0 };
+  const realRadarData = [
+    { metric: 'NPS', score: latestData.nps > 0 ? ((latestData.nps + 100) / 200) * 100 : 0, fullMark: 100 },
+    { metric: 'Jira', score: (latestData.jira / 5) * 100, fullMark: 100 },
+    { metric: 'Project Satisfaction', score: (latestData.satisfaction / 5) * 100, fullMark: 100 },
+    { metric: 'Ad-hoc Feedback', score: (latestData.adhoc / 5) * 100, fullMark: 100 }
+  ];
+
+  // Generate real correlation data from actual data
+  const realCorrelationData = combinedData.map(item => ({
+    nps: item.nps,
+    satisfaction: item.satisfaction,
+    month: item.month
+  }));
+
+  // Calculate real correlation coefficient
+  const calculateCorrelation = (data: typeof realCorrelationData) => {
+    if (data.length < 2) return 0;
+    
+    const n = data.length;
+    const sumX = data.reduce((sum, item) => sum + item.nps, 0);
+    const sumY = data.reduce((sum, item) => sum + item.satisfaction, 0);
+    const sumXY = data.reduce((sum, item) => sum + item.nps * item.satisfaction, 0);
+    const sumX2 = data.reduce((sum, item) => sum + item.nps * item.nps, 0);
+    const sumY2 = data.reduce((sum, item) => sum + item.satisfaction * item.satisfaction, 0);
+    
+    const numerator = n * sumXY - sumX * sumY;
+    const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+    
+    return denominator === 0 ? 0 : numerator / denominator;
+  };
+
+  const correlationCoefficient = calculateCorrelation(realCorrelationData);
+  const rSquared = correlationCoefficient * correlationCoefficient;
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
@@ -65,7 +78,7 @@ export function AdvancedCharts({ npsData, satisfactionData, jiraData, adhocData 
         <CardContent>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={radarData}>
+              <RadarChart data={realRadarData}>
                 <PolarGrid />
                 <PolarAngleAxis dataKey="metric" tick={{ fontSize: 12 }} />
                 <PolarRadiusAxis 
@@ -96,13 +109,13 @@ export function AdvancedCharts({ npsData, satisfactionData, jiraData, adhocData 
               <Activity className="h-5 w-5 text-secondary" />
               NPS-Satisfaction Correlation
             </CardTitle>
-            <Badge variant="outline">R² = 0.89</Badge>
+            <Badge variant="outline">R² = {rSquared.toFixed(2)}</Badge>
           </div>
         </CardHeader>
         <CardContent>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart data={correlationData}>
+              <ScatterChart data={realCorrelationData}>
                 <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                 <XAxis 
                   type="number" 
@@ -196,7 +209,7 @@ export function AdvancedCharts({ npsData, satisfactionData, jiraData, adhocData 
         </CardContent>
       </Card>
 
-      {/* Weekly Performance */}
+      {/* Data Availability Notice */}
       <Card className="animate-fade-in">
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -204,23 +217,22 @@ export function AdvancedCharts({ npsData, satisfactionData, jiraData, adhocData 
               <BarChart3 className="h-5 w-5 text-warning" />
               Weekly Performance
             </CardTitle>
-            <Badge variant="outline">Last 4 Weeks</Badge>
+            <Badge variant="secondary">Monthly Data Only</Badge>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={weeklyTrendData}>
-                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis dataKey="week" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="nps" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="jira" fill="hsl(var(--secondary))" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="project" fill="hsl(var(--success))" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="adhoc" fill="hsl(var(--warning))" radius={[2, 2, 0, 0]} />
-              </ComposedChart>
-            </ResponsiveContainer>
+          <div className="flex flex-col items-center justify-center h-80 text-center space-y-4">
+            <div className="text-muted-foreground">
+              <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" />
+              <h3 className="text-lg font-medium mb-2">Weekly Data Not Available</h3>
+              <p className="text-sm max-w-md">
+                Your Excel template contains monthly data. To see weekly performance trends, 
+                include weekly breakdown data in your Excel sheet.
+              </p>
+            </div>
+            <Badge variant="outline" className="mt-4">
+              Currently showing: Monthly aggregated data
+            </Badge>
           </div>
         </CardContent>
       </Card>
