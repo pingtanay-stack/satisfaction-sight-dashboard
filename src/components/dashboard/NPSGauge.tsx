@@ -28,27 +28,27 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
   
   if (currentScore >= 70) {
     statusText = "Excellent";
-    statusColor = "bg-emerald-100 text-emerald-800 border-emerald-200";
+    statusColor = "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800";
     progressColor = "bg-emerald-500";
     iconColor = "text-emerald-600";
   } else if (currentScore >= 50) {
     statusText = "Great";
-    statusColor = "bg-green-100 text-green-800 border-green-200";
+    statusColor = "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800";
     progressColor = "bg-green-500";
     iconColor = "text-green-600";
   } else if (currentScore >= 30) {
     statusText = "Good";
-    statusColor = "bg-yellow-100 text-yellow-800 border-yellow-200";
+    statusColor = "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800";
     progressColor = "bg-yellow-500";
     iconColor = "text-yellow-600";
   } else if (currentScore >= 0) {
     statusText = "Improving";
-    statusColor = "bg-orange-100 text-orange-800 border-orange-200";
+    statusColor = "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800";
     progressColor = "bg-orange-500";
     iconColor = "text-orange-600";
   } else {
     statusText = "Needs Focus";
-    statusColor = "bg-red-100 text-red-800 border-red-200";
+    statusColor = "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800";
     progressColor = "bg-red-500";
     iconColor = "text-red-600";
   }
@@ -64,14 +64,14 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className={cn("p-2 rounded-lg bg-blue-50", iconColor)}>
+            <div className={cn("p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20", iconColor)}>
               <Target className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-base font-semibold text-gray-900">
+              <CardTitle className="text-base font-semibold text-foreground">
                 Net Promoter Score
               </CardTitle>
-              <p className="text-xs text-gray-500 mt-0.5">Customer Satisfaction</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Customer Satisfaction</p>
             </div>
           </div>
           <Badge className={cn("text-xs font-medium", statusColor)}>
@@ -95,13 +95,13 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
           </div>
           <div className="flex items-center justify-center gap-4 text-sm">
             <div className="text-center">
-              <div className="text-gray-900 font-semibold">{target}</div>
-              <div className="text-gray-500 text-xs">Target</div>
+              <div className="text-foreground font-semibold">{target}</div>
+              <div className="text-muted-foreground text-xs">Target</div>
             </div>
             {respondents && (
               <div className="text-center">
-                <div className="text-gray-900 font-semibold">{respondents.toLocaleString()}</div>
-                <div className="text-gray-500 text-xs">Responses</div>
+                <div className="text-foreground font-semibold">{respondents.toLocaleString()}</div>
+                <div className="text-muted-foreground text-xs">Responses</div>
               </div>
             )}
           </div>
@@ -109,7 +109,7 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
 
         {/* Enhanced Progress Bar Gauge */}
         <div className="space-y-4">
-          <div className="flex justify-between text-xs text-gray-600 font-medium">
+          <div className="flex justify-between text-xs text-muted-foreground font-medium">
             <span>-100</span>
             <span>0</span>
             <span>+100</span>
@@ -117,7 +117,7 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
           
           <div className="relative">
             {/* Background track with gradient */}
-            <div className="w-full h-6 bg-gradient-to-r from-red-100 via-yellow-100 to-green-100 rounded-full overflow-hidden border border-gray-200">
+            <div className="w-full h-6 bg-gradient-to-r from-red-100 via-yellow-100 to-green-100 rounded-full overflow-hidden border border-border dark:from-red-900/20 dark:via-yellow-900/20 dark:to-green-900/20">
               {/* Progress indicator with animation */}
               <div 
                 className={`absolute top-0 left-0 h-full ${progressColor} transition-all duration-1000 ease-out rounded-full shadow-lg`}
@@ -125,16 +125,16 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
               />
               
               {/* Center line marker for 0 */}
-              <div className="absolute top-0 left-1/2 w-0.5 h-full bg-gray-400 transform -translate-x-0.5" />
+              <div className="absolute top-0 left-1/2 w-0.5 h-full bg-muted-foreground transform -translate-x-0.5" />
             </div>
             
             {/* Target marker with enhanced design */}
             <div 
-              className="absolute -top-1 w-3 h-8 bg-amber-500 rounded-sm shadow-md transform -translate-x-1.5 border-2 border-white"
+              className="absolute -top-1 w-3 h-8 bg-amber-500 rounded-sm shadow-md transform -translate-x-1.5 border-2 border-card"
               style={{ left: `${normalizedTarget}%` }}
               title={`Target: ${target}`}
             >
-              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-amber-700 font-medium whitespace-nowrap">
+              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-amber-700 dark:text-amber-300 font-medium whitespace-nowrap">
                 Target
               </div>
             </div>
@@ -147,32 +147,32 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
                 <span className="text-lg">😠</span>
                 <div className="text-xs font-semibold text-red-600">Detractors</div>
               </div>
-              <div className="text-xs text-gray-500">-100 to 0</div>
+              <div className="text-xs text-muted-foreground">-100 to 0</div>
             </div>
             <div className="space-y-1">
               <div className="flex items-center justify-center gap-1">
                 <span className="text-lg">😐</span>
                 <div className="text-xs font-semibold text-yellow-600">Passives</div>
               </div>
-              <div className="text-xs text-gray-500">0 to 50</div>
+              <div className="text-xs text-muted-foreground">0 to 50</div>
             </div>
             <div className="space-y-1">
               <div className="flex items-center justify-center gap-1">
                 <span className="text-lg">😊</span>
                 <div className="text-xs font-semibold text-green-600">Promoters</div>
               </div>
-              <div className="text-xs text-gray-500">50 to 100</div>
+              <div className="text-xs text-muted-foreground">50 to 100</div>
             </div>
           </div>
         </div>
 
         {/* Enhanced Trend Indicator */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between pt-4 border-t border-border">
           <div className="flex items-center gap-2">
-            <div className={cn(
-              "p-1.5 rounded-full",
-              isPositiveTrend ? "bg-emerald-100" : "bg-red-100"
-            )}>
+              <div className={cn(
+                "p-1.5 rounded-full",
+                isPositiveTrend ? "bg-emerald-100 dark:bg-emerald-900/20" : "bg-red-100 dark:bg-red-900/20"
+              )}>
               {isPositiveTrend ? (
                 <TrendingUp className="h-4 w-4 text-emerald-600" />
               ) : (
@@ -186,14 +186,14 @@ export function NPSGauge({ currentScore, target, trend, respondents, className, 
               )}>
                 {isPositiveTrend ? "+" : ""}{trend.toFixed(1)}%
               </div>
-              <div className="text-xs text-gray-500">vs last month</div>
+              <div className="text-xs text-muted-foreground">vs last month</div>
             </div>
           </div>
           
           {isTargetMet && (
-            <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1 rounded-full">
+            <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">
               <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-xs text-emerald-700 font-medium">Target Achieved</span>
+              <span className="text-xs text-emerald-700 dark:text-emerald-300 font-medium">Target Achieved</span>
             </div>
           )}
         </div>
