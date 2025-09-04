@@ -92,7 +92,22 @@ export function DetailModal({
 }: DetailModalProps) {
   const data = mockDetailData[type];
   const isTargetMet = currentScore >= target;
-  const percentage = (currentScore / maxScore) * 100;
+  
+  // Calculate progress percentage based on metric type
+  const getProgressPercentage = () => {
+    if (type === 'nps') {
+      // NPS scale: -100 to +100, show progress from min to target
+      const minScore = -100;
+      const progressRange = target - minScore;
+      const currentProgress = currentScore - minScore;
+      return Math.min(100, Math.max(0, (currentProgress / progressRange) * 100));
+    } else {
+      // Satisfaction scales: 0 to maxScore, show progress to target
+      return Math.min(100, Math.max(0, (currentScore / target) * 100));
+    }
+  };
+  
+  const percentage = getProgressPercentage();
 
   // Generate real NPS breakdown based on actual score
   const generateNpsBreakdown = (npsScore: number) => {
@@ -228,7 +243,7 @@ export function DetailModal({
                 </div>
                 <Progress value={percentage} className="h-3" />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>0</span>
+                  <span>{type === 'nps' ? '-100' : '0'}</span>
                   <span>Target: {target}</span>
                   <span>{maxScore}</span>
                 </div>
