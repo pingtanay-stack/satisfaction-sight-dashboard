@@ -121,8 +121,47 @@ export function DetailModal({
     ];
   };
 
-  // Use real data for NPS breakdown if available
-  const realNpsBreakdown = type === 'nps' && hasRealData ? generateNpsBreakdown(currentScore) : data.breakdown;
+  // Generate real satisfaction breakdown based on actual score
+  const generateSatisfactionBreakdown = (satisfactionScore: number) => {
+    // Satisfaction scale: 0-5, convert to Positive/Neutral/Negative percentages
+    let positive, neutral, negative;
+    
+    if (satisfactionScore >= 4.0) {
+      positive = 60 + (satisfactionScore - 4.0) * 20;
+      negative = Math.max(5, 20 - (satisfactionScore - 4.0) * 10);
+      neutral = 100 - positive - negative;
+    } else if (satisfactionScore >= 3.0) {
+      positive = 40 + (satisfactionScore - 3.0) * 20;
+      negative = 35 - (satisfactionScore - 3.0) * 10;
+      neutral = 100 - positive - negative;
+    } else if (satisfactionScore >= 2.0) {
+      positive = Math.max(10, 30 - (3.0 - satisfactionScore) * 10);
+      negative = 45 + (3.0 - satisfactionScore) * 10;
+      neutral = 100 - positive - negative;
+    } else {
+      positive = Math.max(5, 15 - (2.0 - satisfactionScore) * 5);
+      negative = Math.min(80, 60 + (2.0 - satisfactionScore) * 10);
+      neutral = 100 - positive - negative;
+    }
+
+    return [
+      { name: 'Positive', value: Math.round(positive), color: 'hsl(var(--success))' },
+      { name: 'Neutral', value: Math.round(neutral), color: 'hsl(var(--warning))' },
+      { name: 'Negative', value: Math.round(negative), color: 'hsl(var(--destructive))' }
+    ];
+  };
+
+  // Use real data for breakdown if available
+  const getBreakdownData = () => {
+    if (type === 'nps' && hasRealData) {
+      return generateNpsBreakdown(currentScore);
+    } else if ((type === 'project' || type === 'jira' || type === 'adhoc') && hasRealData) {
+      return generateSatisfactionBreakdown(currentScore);
+    }
+    return data.breakdown;
+  };
+
+  const realBreakdown = getBreakdownData();
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -209,7 +248,7 @@ export function DetailModal({
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={realNpsBreakdown}
+                        data={realBreakdown}
                         dataKey="value"
                         nameKey="name"
                         cx="50%"
@@ -217,7 +256,7 @@ export function DetailModal({
                         outerRadius={80}
                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
-                        {realNpsBreakdown.map((entry, index) => (
+                        {realBreakdown.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
