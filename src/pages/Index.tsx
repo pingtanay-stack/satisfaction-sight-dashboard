@@ -427,7 +427,7 @@ const Index = () => {
     );
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 bg-[length:400%_400%] animate-gradient-shift">
+    <div className="min-h-screen bg-gradient-to-br from-primary/15 via-background to-secondary/15 bg-[length:400%_400%] animate-gradient-shift">
       <div className="container mx-auto p-4 space-y-6">
         {/* Header with Logo and Traffic Light */}
         <div className="text-center mb-8">
