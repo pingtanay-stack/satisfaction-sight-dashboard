@@ -418,7 +418,7 @@ const Index = () => {
   // Show loading spinner while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-light/20 via-background to-secondary-light/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-primary-light/8 via-background to-secondary-light/6 flex items-center justify-center">
         <div className="text-center space-y-4">
           <BarChart3 className="h-12 w-12 text-primary mx-auto animate-pulse" />
           <p className="text-muted-foreground">Loading your dashboard...</p>
@@ -427,7 +427,7 @@ const Index = () => {
     );
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/25 via-background to-secondary/25 bg-[length:400%_400%] animate-gradient-shift">
+    <div className="min-h-screen bg-gradient-to-br from-primary/8 via-background to-secondary/6 bg-[length:400%_400%] animate-gradient-shift">
       <div className="container mx-auto p-4 space-y-6">
         {/* Header with Logo and Traffic Light */}
         <div className="text-center mb-8">

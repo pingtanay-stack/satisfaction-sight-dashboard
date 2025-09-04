@@ -231,7 +231,7 @@ export default {
 				'progress-fill': 'progress-fill 1s cubic-bezier(0.4, 0, 0.2, 1)',
 				'celebrate': 'celebrate 0.6s ease-in-out',
 				'badge-pop': 'badge-pop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-				'gradient-shift': 'gradient-shift 15s ease-in-out infinite',
+				'gradient-shift': 'gradient-shift 25s ease-in-out infinite',
 				'float': 'float 6s ease-in-out infinite',
 				'glow': 'glow 2s ease-in-out infinite alternate',
 				'shimmer': 'shimmer 2s infinite'
