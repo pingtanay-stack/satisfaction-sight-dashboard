@@ -47,59 +47,59 @@ export function OverallTrafficLight({ metrics, variant = "vertical" }: OverallTr
   if (variant === "horizontal") {
     return (
       <Card className="animate-scale-in shadow-elegant bg-gradient-to-br from-card via-card/95 to-card/90 border border-border/50 backdrop-blur-sm">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-4">
+        <CardContent className="p-3">
+          <div className="flex items-center gap-3">
             {/* Horizontal Traffic Light */}
-            <div className="relative w-32 h-16 bg-gradient-to-r from-gray-900 to-black rounded-2xl shadow-xl border-2 border-gray-700">
+            <div className="relative w-24 h-12 bg-gradient-to-r from-muted to-muted-foreground/20 rounded-xl shadow-lg border border-border">
               {/* Traffic Light Background */}
-              <div className="absolute inset-2 bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl">
+              <div className="absolute inset-1.5 bg-gradient-to-r from-background to-muted/50 rounded-lg">
                 {/* Light Slots */}
-                <div className="flex items-center justify-center h-full gap-2 px-2">
+                <div className="flex items-center justify-center h-full gap-1.5 px-1.5">
                   {/* Red Light */}
                   <div className={cn(
-                    "w-8 h-8 rounded-full transition-all duration-500 border-2",
+                    "w-6 h-6 rounded-full transition-all duration-500 border",
                     status === "danger" 
-                      ? "bg-red-500 border-red-300 shadow-[0_0_20px_rgba(239,68,68,0.9),inset_0_2px_6px_rgba(255,255,255,0.3)] animate-pulse" 
-                      : "bg-gray-700 border-gray-600 shadow-inner"
+                      ? "bg-destructive border-destructive/50 shadow-lg shadow-destructive/50" 
+                      : "bg-muted border-border"
                   )} />
                   
                   {/* Yellow Light */}
                   <div className={cn(
-                    "w-8 h-8 rounded-full transition-all duration-500 border-2",
+                    "w-6 h-6 rounded-full transition-all duration-500 border",
                     status === "warning" 
-                      ? "bg-yellow-400 border-yellow-200 shadow-[0_0_20px_rgba(234,179,8,0.9),inset_0_2px_6px_rgba(255,255,255,0.3)] animate-pulse" 
-                      : "bg-gray-700 border-gray-600 shadow-inner"
+                      ? "bg-yellow-500 border-yellow-400 shadow-lg shadow-yellow-500/50" 
+                      : "bg-muted border-border"
                   )} />
                   
                   {/* Green Light */}
                   <div className={cn(
-                    "w-8 h-8 rounded-full transition-all duration-500 border-2",
+                    "w-6 h-6 rounded-full transition-all duration-500 border",
                     status === "success" 
-                      ? "bg-green-500 border-green-300 shadow-[0_0_20px_rgba(34,197,94,0.9),inset_0_2px_6px_rgba(255,255,255,0.3)] animate-pulse" 
-                      : "bg-gray-700 border-gray-600 shadow-inner"
+                      ? "bg-green-500 border-green-400 shadow-lg shadow-green-500/50" 
+                      : "bg-muted border-border"
                   )} />
                 </div>
               </div>
             </div>
             
             {/* Status Content */}
-            <div className="flex items-center gap-3">
-              <div className="text-xl">{emoji}</div>
+            <div className="flex items-center gap-2">
+              <div className="text-lg">{emoji}</div>
               <div>
-                <h3 className="text-sm font-bold text-foreground">{message}</h3>
-                <div className="flex items-center gap-1 mt-1">
+                <h3 className="text-sm font-semibold text-foreground">{message}</h3>
+                <div className="flex items-center gap-1 mt-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star 
                       key={i} 
                       className={cn(
                         "h-2.5 w-2.5 transition-all duration-300",
                         i < Math.ceil((percentage / 100) * 5) 
-                          ? "text-yellow-400 fill-yellow-400" 
-                          : "text-muted-foreground/50"
+                          ? "text-yellow-500 fill-yellow-500" 
+                          : "text-muted-foreground/40"
                       )} 
                     />
                   ))}
-                  <span className="text-xs text-muted-foreground ml-2">
+                  <span className="text-xs text-muted-foreground ml-1.5">
                     {targetsMetCount}/{totalTargets}
                   </span>
                 </div>
@@ -113,57 +113,57 @@ export function OverallTrafficLight({ metrics, variant = "vertical" }: OverallTr
 
   return (
     <Card className="animate-scale-in shadow-elegant bg-gradient-to-br from-card via-card/95 to-card/90 border border-border/50 backdrop-blur-sm">
-      <CardContent className="p-6">
-        <div className="text-center space-y-4">
+      <CardContent className="p-4">
+        <div className="text-center space-y-3">
           {/* Modern Traffic Light */}
-          <div className="relative mx-auto w-24 h-40 bg-gradient-to-b from-gray-900 to-black rounded-3xl shadow-2xl border-2 border-gray-700">
+          <div className="relative mx-auto w-16 h-28 bg-gradient-to-b from-muted to-muted-foreground/20 rounded-2xl shadow-lg border border-border">
             {/* Traffic Light Background */}
-            <div className="absolute inset-3 bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl">
+            <div className="absolute inset-2 bg-gradient-to-b from-background to-muted/50 rounded-xl">
               {/* Light Slots */}
-              <div className="flex flex-col items-center justify-center h-full gap-3 py-3">
+              <div className="flex flex-col items-center justify-center h-full gap-2 py-2">
                 {/* Red Light */}
                 <div className={cn(
-                  "w-12 h-12 rounded-full transition-all duration-500 border-2",
+                  "w-8 h-8 rounded-full transition-all duration-500 border",
                   status === "danger" 
-                    ? "bg-red-500 border-red-300 shadow-[0_0_25px_rgba(239,68,68,0.9),inset_0_2px_8px_rgba(255,255,255,0.3)] animate-pulse" 
-                    : "bg-gray-700 border-gray-600 shadow-inner"
+                    ? "bg-destructive border-destructive/50 shadow-lg shadow-destructive/50" 
+                    : "bg-muted border-border"
                 )} />
                 
                 {/* Yellow Light */}
                 <div className={cn(
-                  "w-12 h-12 rounded-full transition-all duration-500 border-2",
+                  "w-8 h-8 rounded-full transition-all duration-500 border",
                   status === "warning" 
-                    ? "bg-yellow-400 border-yellow-200 shadow-[0_0_25px_rgba(234,179,8,0.9),inset_0_2px_8px_rgba(255,255,255,0.3)] animate-pulse" 
-                    : "bg-gray-700 border-gray-600 shadow-inner"
+                    ? "bg-yellow-500 border-yellow-400 shadow-lg shadow-yellow-500/50" 
+                    : "bg-muted border-border"
                 )} />
                 
                 {/* Green Light */}
                 <div className={cn(
-                  "w-12 h-12 rounded-full transition-all duration-500 border-2",
+                  "w-8 h-8 rounded-full transition-all duration-500 border",
                   status === "success" 
-                    ? "bg-green-500 border-green-300 shadow-[0_0_25px_rgba(34,197,94,0.9),inset_0_2px_8px_rgba(255,255,255,0.3)] animate-pulse" 
-                    : "bg-gray-700 border-gray-600 shadow-inner"
+                    ? "bg-green-500 border-green-400 shadow-lg shadow-green-500/50" 
+                    : "bg-muted border-border"
                 )} />
               </div>
             </div>
             
             {/* Post */}
-            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-4 h-6 bg-gradient-to-b from-gray-700 to-black rounded-b-md"></div>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-3 h-4 bg-gradient-to-b from-muted to-muted-foreground/40 rounded-b-md border-x border-border"></div>
           </div>
           
           {/* Status Content */}
-          <div className="space-y-2">
-            <div className="text-2xl animate-bounce">{emoji}</div>
-            <h3 className="text-lg font-bold text-foreground">{message}</h3>
+          <div className="space-y-1.5">
+            <div className="text-xl">{emoji}</div>
+            <h3 className="text-sm font-semibold text-foreground">{message}</h3>
             <div className="flex items-center justify-center gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star 
                   key={i} 
                   className={cn(
-                    "h-3 w-3 transition-all duration-300",
+                    "h-2.5 w-2.5 transition-all duration-300",
                     i < Math.ceil((percentage / 100) * 5) 
-                      ? "text-yellow-400 fill-yellow-400" 
-                      : "text-muted-foreground/50"
+                      ? "text-yellow-500 fill-yellow-500" 
+                      : "text-muted-foreground/40"
                   )} 
                 />
               ))}
