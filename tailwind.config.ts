@@ -186,6 +186,14 @@ export default {
 						transform: 'scale(1) rotate(0deg)',
 						opacity: '1'
 					}
+				},
+				'gradient-shift': {
+					'0%, 100%': {
+						backgroundPosition: '0% 50%'
+					},
+					'50%': {
+						backgroundPosition: '100% 50%'
+					}
 				}
 			},
 			animation: {
@@ -198,7 +206,8 @@ export default {
 				'number-roll': 'number-roll 0.5s ease-out',
 				'progress-fill': 'progress-fill 1s cubic-bezier(0.4, 0, 0.2, 1)',
 				'celebrate': 'celebrate 0.6s ease-in-out',
-				'badge-pop': 'badge-pop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+				'badge-pop': 'badge-pop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+				'gradient-shift': 'gradient-shift 15s ease-in-out infinite'
 			}
 		}
 	},
