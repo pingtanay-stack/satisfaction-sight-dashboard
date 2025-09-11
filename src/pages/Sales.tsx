@@ -287,18 +287,39 @@ const Sales = () => {
         <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Link to="/">
-                  <Button variant="ghost" size="sm">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Customer Dashboard
-                  </Button>
-                </Link>
-                <div>
+              <div className="flex items-center gap-6">
+                {/* Sysmex Logo */}
+                <div className="flex-shrink-0">
+                  <img 
+                    src="/lovable-uploads/c2503f0e-4514-4e32-b540-b9ea2e9d0512.png" 
+                    alt="Sysmex - Together for a better healthcare journey" 
+                    className="h-10 w-auto object-contain"
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-2">
                   <h1 className="text-2xl font-bold text-foreground">Sales Performance Dashboard</h1>
-                  <p className="text-sm text-muted-foreground">Track sales performance and company trip progress</p>
+                  
+                  {/* Navigation Bar */}
+                  <div className="flex items-center gap-2 p-1 bg-muted/30 rounded-lg border">
+                    <Link to="/">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="text-sm">Customer Satisfaction</span>
+                      </Button>
+                    </Link>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 border border-primary/20 rounded-md">
+                      <Trophy className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium text-primary">Sales Performance</span>
+                    </div>
+                  </div>
                 </div>
               </div>
+              
               <div className="flex items-center gap-2">
                 <DataSourceBadge source={isUsingRealData ? 'excel' : 'default'} isReal={isUsingRealData} lastUpdated={lastUpdated} />
               </div>

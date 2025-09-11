@@ -429,7 +429,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/8 via-background to-secondary/6 bg-[length:400%_400%] animate-gradient-shift">
       <div className="container mx-auto p-4 space-y-6">
-        {/* Header with Logo and Traffic Light */}
+        {/* Header with Logo, Navigation and Traffic Light */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-between mb-6">
             {/* Sysmex Logo */}
@@ -442,20 +442,28 @@ const Index = () => {
             </div>
             
             {/* Dashboard Title and Navigation */}
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-3">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Customer Satisfaction Dashboard
               </h1>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/sales')}
-                className="text-xs px-4 py-2 h-auto glass-card"
-              >
-                <Trophy className="h-3 w-3 mr-2" />
-                Sales Performance Dashboard
-                <ArrowRight className="h-3 w-3 ml-2" />
-              </Button>
+              
+              {/* Navigation Bar */}
+              <div className="flex items-center gap-2 p-1 bg-muted/30 rounded-lg border">
+                <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 border border-primary/20 rounded-md">
+                  <BarChart3 className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-primary">Customer Satisfaction</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/sales')}
+                  className="px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
+                >
+                  <Trophy className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <span className="text-sm">Sales Performance</span>
+                  <ArrowRight className="h-4 w-4 ml-2 text-muted-foreground" />
+                </Button>
+              </div>
             </div>
             
             {/* Traffic Light */}
