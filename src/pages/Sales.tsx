@@ -286,9 +286,9 @@ const Sales = () => {
       <div className="relative z-10">
         <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                {/* Sysmex Logo */}
+            <div className="grid grid-cols-3 items-center">
+              {/* Left: Logo and Navigation */}
+              <div className="flex items-center gap-4">
                 <div className="flex-shrink-0">
                   <img 
                     src="/lovable-uploads/c2503f0e-4514-4e32-b540-b9ea2e9d0512.png" 
@@ -297,30 +297,32 @@ const Sales = () => {
                   />
                 </div>
                 
-                <div className="flex flex-col gap-2">
-                  <h1 className="text-2xl font-bold text-foreground">Sales Performance Dashboard</h1>
-                  
-                  {/* Navigation Bar */}
-                  <div className="flex items-center gap-2 p-1 bg-muted/30 rounded-lg border">
-                    <Link to="/">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
-                      >
-                        <ArrowLeft className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span className="text-sm">Customer Satisfaction</span>
-                      </Button>
-                    </Link>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 border border-primary/20 rounded-md">
-                      <Trophy className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium text-primary">Sales Performance</span>
-                    </div>
+                {/* Navigation Bar */}
+                <div className="flex items-center gap-2 p-1 bg-muted/30 rounded-lg border">
+                  <Link to="/">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-2 text-muted-foreground" />
+                      <span className="text-sm">Customer Satisfaction</span>
+                    </Button>
+                  </Link>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 border border-primary/20 rounded-md">
+                    <Trophy className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-primary">Sales Performance</span>
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
+              {/* Center: Dashboard Title */}
+              <div className="text-center">
+                <h1 className="text-2xl font-bold text-foreground">Sales Performance Dashboard</h1>
+              </div>
+              
+              {/* Right: Data Source Badge */}
+              <div className="flex items-center justify-end">
                 <DataSourceBadge source={isUsingRealData ? 'excel' : 'default'} isReal={isUsingRealData} lastUpdated={lastUpdated} />
               </div>
             </div>
