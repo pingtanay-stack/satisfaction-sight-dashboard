@@ -180,6 +180,7 @@ export type Database = {
           created_at: string
           id: string
           monthly_data: Json
+          monthly_targets: Json | null
           sales_metrics: Json
           updated_at: string
           user_id: string
@@ -189,6 +190,7 @@ export type Database = {
           created_at?: string
           id?: string
           monthly_data?: Json
+          monthly_targets?: Json | null
           sales_metrics?: Json
           updated_at?: string
           user_id: string
@@ -198,6 +200,7 @@ export type Database = {
           created_at?: string
           id?: string
           monthly_data?: Json
+          monthly_targets?: Json | null
           sales_metrics?: Json
           updated_at?: string
           user_id?: string

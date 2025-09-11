@@ -68,12 +68,12 @@ export const saveSalesDataToSupabase = async (data: SalesData): Promise<void> =>
     const { error } = await supabase
       .from('user_sales_data')
       .update({
-        sales_metrics: data.salesMetrics,
-        monthly_data: data.monthlyData,
-        monthly_targets: data.monthlyTargets,
-        company_trip_progress: data.companyTripProgress,
+        sales_metrics: data.salesMetrics as any,
+        monthly_data: data.monthlyData as any,
+        monthly_targets: data.monthlyTargets as any,
+        company_trip_progress: data.companyTripProgress as any,
         updated_at: new Date().toISOString()
-      })
+      } as any)
       .eq('user_id', user.id);
 
     if (error) throw error;
@@ -82,11 +82,11 @@ export const saveSalesDataToSupabase = async (data: SalesData): Promise<void> =>
       .from('user_sales_data')
       .insert({
         user_id: user.id,
-        sales_metrics: data.salesMetrics,
-        monthly_data: data.monthlyData,
-        monthly_targets: data.monthlyTargets,
-        company_trip_progress: data.companyTripProgress
-      });
+        sales_metrics: data.salesMetrics as any,
+        monthly_data: data.monthlyData as any,
+        monthly_targets: data.monthlyTargets as any,
+        company_trip_progress: data.companyTripProgress as any
+      } as any);
 
     if (error) throw error;
   }
@@ -110,7 +110,7 @@ export const loadSalesDataFromSupabase = async (defaultData: SalesData): Promise
   return {
     salesMetrics: savedData.sales_metrics as SalesData['salesMetrics'],
     monthlyData: savedData.monthly_data as SalesData['monthlyData'],
-    monthlyTargets: savedData.monthly_targets as SalesData['monthlyTargets'] || {},
+    monthlyTargets: (savedData as any).monthly_targets as SalesData['monthlyTargets'] || {},
     companyTripProgress: savedData.company_trip_progress as SalesData['companyTripProgress']
   };
 };
