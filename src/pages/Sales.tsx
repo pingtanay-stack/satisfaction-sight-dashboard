@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Download, Upload, Trophy, Monitor, TestTube, Building, Microscope, Beaker, Wrench, Headphones } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MetricCard } from '@/components/dashboard/MetricCard';
-import { EnhancedCompanyTripProgress } from '@/components/dashboard/EnhancedCompanyTripProgress';
+import { IsometricAdventureProgress } from '@/components/dashboard/IsometricAdventureProgress';
 import { SalesTrendChart } from '@/components/dashboard/SalesTrendChart';
 import { ProductDetailModal } from '@/components/dashboard/ProductDetailModal';
 import { DataSourceBadge } from '@/components/ui/data-source-badge';
@@ -385,7 +385,7 @@ const Sales = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <EnhancedCompanyTripProgress currentProgress={companyTripPercentage} target={salesData.companyTripProgress.target} achieved={salesData.companyTripProgress.achieved} requiredForTrip={salesData.companyTripProgress.requiredForTrip} />
+              <IsometricAdventureProgress currentProgress={companyTripPercentage} target={salesData.companyTripProgress.target} achieved={salesData.companyTripProgress.achieved} requiredForTrip={salesData.companyTripProgress.requiredForTrip} />
             </CardContent>
           </Card>
 
