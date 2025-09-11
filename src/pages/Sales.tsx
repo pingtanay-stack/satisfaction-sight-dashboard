@@ -4,6 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Download, Upload, Trophy, Monitor, TestTube, Building, Microscope, Beaker, Wrench, Headphones } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MetricCard } from '@/components/dashboard/MetricCard';
+import { RadialMetricCard } from '@/components/dashboard/RadialMetricCard';
+import { AchievementMetricCard } from '@/components/dashboard/AchievementMetricCard';
+import { GaugeMetricCard } from '@/components/dashboard/GaugeMetricCard';
 import { IsometricAdventureProgress } from '@/components/dashboard/IsometricAdventureProgress';
 import { SalesTrendChart } from '@/components/dashboard/SalesTrendChart';
 import { ProductDetailModal } from '@/components/dashboard/ProductDetailModal';
@@ -399,10 +402,10 @@ const Sales = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <MetricCard title="Eclair" currentScore={salesData.salesMetrics.eclair.achieved} target={100} maxScore={100} trend={2.5} icon={<Monitor className="h-4 w-4" />} />
-                <MetricCard title="Delphic AP" currentScore={salesData.salesMetrics.delphicAP.achieved} target={100} maxScore={100} trend={1.8} icon={<Microscope className="h-4 w-4" />} />
-                <MetricCard title="Delphic LIS" currentScore={salesData.salesMetrics.delphicLIS.achieved} target={100} maxScore={100} trend={3.1} icon={<TestTube className="h-4 w-4" />} />
-                <MetricCard title="HCLAB External" currentScore={salesData.salesMetrics.hclabExternal.achieved} target={100} maxScore={100} trend={4.2} icon={<Building className="h-4 w-4" />} />
+                <RadialMetricCard title="Eclair" currentScore={salesData.salesMetrics.eclair.achieved} target={100} maxScore={100} trend={2.5} icon={<Monitor className="h-4 w-4" />} />
+                <RadialMetricCard title="Delphic AP" currentScore={salesData.salesMetrics.delphicAP.achieved} target={100} maxScore={100} trend={1.8} icon={<Microscope className="h-4 w-4" />} />
+                <RadialMetricCard title="Delphic LIS" currentScore={salesData.salesMetrics.delphicLIS.achieved} target={100} maxScore={100} trend={3.1} icon={<TestTube className="h-4 w-4" />} />
+                <RadialMetricCard title="HCLAB External" currentScore={salesData.salesMetrics.hclabExternal.achieved} target={100} maxScore={100} trend={4.2} icon={<Building className="h-4 w-4" />} />
               </div>
             </CardContent>
           </Card>
@@ -417,7 +420,7 @@ const Sales = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <MetricCard 
+                <AchievementMetricCard 
                   title="Urinalysis" 
                   currentScore={salesData.salesMetrics.urinalysis.total.achieved} 
                   target={100} 
@@ -426,8 +429,8 @@ const Sales = () => {
                   icon={<Beaker className="h-4 w-4" />} 
                   onClick={() => handleProductClick('urinalysis')}
                 />
-                <MetricCard title="OGT" currentScore={salesData.salesMetrics.ogt.achieved} target={100} maxScore={100} trend={5.5} icon={<TestTube className="h-4 w-4" />} />
-                <MetricCard 
+                <AchievementMetricCard title="OGT" currentScore={salesData.salesMetrics.ogt.achieved} target={100} maxScore={100} trend={5.5} icon={<TestTube className="h-4 w-4" />} />
+                <AchievementMetricCard 
                   title="FCM" 
                   currentScore={salesData.salesMetrics.fcm.total.achieved} 
                   target={100} 
@@ -450,8 +453,8 @@ const Sales = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <MetricCard title="HCLAB Internal" currentScore={salesData.salesMetrics.hclabInternal.achieved} target={100} maxScore={100} trend={6.1} icon={<Building className="h-4 w-4" />} />
-                <MetricCard title="SNZ Service" currentScore={salesData.salesMetrics.snzService.achieved} target={100} maxScore={100} trend={4.7} icon={<Headphones className="h-4 w-4" />} />
+                <GaugeMetricCard title="HCLAB Internal" currentScore={salesData.salesMetrics.hclabInternal.achieved} target={100} maxScore={100} trend={6.1} icon={<Building className="h-4 w-4" />} />
+                <GaugeMetricCard title="SNZ Service" currentScore={salesData.salesMetrics.snzService.achieved} target={100} maxScore={100} trend={4.7} icon={<Headphones className="h-4 w-4" />} />
               </div>
             </CardContent>
           </Card>
