@@ -294,12 +294,14 @@ export function IsometricAdventureProgress({
                   const WaypointIcon = waypoint.icon;
                   const reached = progressCapped >= waypoint.progress;
                   const isDestination = waypoint.progress === 100;
+                  // Adjust positioning so 100% waypoint is visible (map 0-100% to 8-92% of container)
+                  const position = 8 + (waypoint.progress / 100) * 84;
                   
                   return (
                     <div
                       key={waypoint.progress}
                       className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 z-15 transition-all duration-500"
-                      style={{ left: `${waypoint.progress}%` }}
+                      style={{ left: `${position}%` }}
                     >
                       <div className={cn(
                         "relative transition-all duration-300",
