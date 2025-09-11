@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import { EnhancedCompanyTripProgress } from '@/components/dashboard/EnhancedCompanyTripProgress';
 import { SalesTrendChart } from '@/components/dashboard/SalesTrendChart';
+import { ProductDetailModal } from '@/components/dashboard/ProductDetailModal';
 import { DataSourceBadge } from '@/components/ui/data-source-badge';
 import { toast } from 'sonner';
 import { SalesData, MonthlyTargetData, saveSalesDataToSupabase, loadSalesDataFromSupabase, hasSavedSalesDataInSupabase } from '@/lib/salesStorage';
@@ -198,6 +199,8 @@ const Sales = () => {
   const [salesData, setSalesData] = useState<SalesData>(defaultSalesData);
   const [isUsingRealData, setIsUsingRealData] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | undefined>();
+  const [selectedProduct, setSelectedProduct] = useState<'urinalysis' | 'fcm' | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -279,6 +282,47 @@ const Sales = () => {
     XLSX.writeFile(workbook, 'sales_template.xlsx');
     toast.success('12-month template downloaded successfully!');
   };
+  const handleProductClick = (productType: 'urinalysis' | 'fcm') => {
+    setSelectedProduct(productType);
+    setModalOpen(true);
+  };
+
+  const getProductModalData = () => {
+    if (!selectedProduct) return null;
+
+    const productData = salesData.salesMetrics[selectedProduct];
+    const productName = selectedProduct === 'urinalysis' ? 'Urinalysis' : 'FCM';
+    
+    // Generate monthly data for the modal
+    const monthlyData = salesData.monthlyData.external_ivd.map(item => ({
+      month: item.month,
+      instruments: selectedProduct === 'urinalysis' 
+        ? Number(item.urinalysis) * 0.33 // Approximate breakdown
+        : Number(item.fcm) * 0.36,
+      reagents: selectedProduct === 'urinalysis' 
+        ? Number(item.urinalysis) * 0.50 
+        : Number(item.fcm) * 0.51,
+      service: selectedProduct === 'urinalysis' 
+        ? Number(item.urinalysis) * 0.17 
+        : Number(item.fcm) * 0.13,
+      total: selectedProduct === 'urinalysis' ? Number(item.urinalysis) : Number(item.fcm)
+    }));
+
+    return {
+      productName,
+      productType: selectedProduct,
+      totalSales: productData.total.current,
+      target: productData.total.target,
+      breakdown: {
+        instruments: productData.breakdown.instrument?.current || 0,
+        reagents: productData.breakdown.reagents?.current || 0,
+        service: productData.breakdown.service?.current || 0,
+      },
+      monthlyData,
+      trend: 3.5 // Default trend value
+    };
+  };
+
   const companyTripPercentage = Math.min(salesData.companyTripProgress.achieved / salesData.companyTripProgress.requiredForTrip * 100, 100);
   return <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/95">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 animate-pulse-slow" />
@@ -286,9 +330,9 @@ const Sales = () => {
       <div className="relative z-10">
         <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-4">
-            <div className="grid grid-cols-3 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-3 items-center gap-4">
               {/* Left: Logo and Navigation */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 justify-start">
                 <div className="flex-shrink-0">
                   <img 
                     src="/lovable-uploads/c2503f0e-4514-4e32-b540-b9ea2e9d0512.png" 
@@ -317,12 +361,14 @@ const Sales = () => {
               </div>
               
               {/* Center: Dashboard Title */}
-              <div className="text-center">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Sales Performance Dashboard</h1>
+              <div className="text-center lg:col-start-2">
+                <h1 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent whitespace-nowrap">
+                  Sales Performance Dashboard
+                </h1>
               </div>
               
               {/* Right: Data Source Badge */}
-              <div className="flex items-center justify-end">
+              <div className="flex items-center justify-end lg:col-start-3">
                 <DataSourceBadge source={isUsingRealData ? 'excel' : 'default'} isReal={isUsingRealData} lastUpdated={lastUpdated} />
               </div>
             </div>
@@ -371,9 +417,25 @@ const Sales = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <MetricCard title="Urinalysis" currentScore={salesData.salesMetrics.urinalysis.total.achieved} target={100} maxScore={100} trend={3.8} icon={<Beaker className="h-4 w-4" />} />
+                <MetricCard 
+                  title="Urinalysis" 
+                  currentScore={salesData.salesMetrics.urinalysis.total.achieved} 
+                  target={100} 
+                  maxScore={100} 
+                  trend={3.8} 
+                  icon={<Beaker className="h-4 w-4" />} 
+                  onClick={() => handleProductClick('urinalysis')}
+                />
                 <MetricCard title="OGT" currentScore={salesData.salesMetrics.ogt.achieved} target={100} maxScore={100} trend={5.5} icon={<TestTube className="h-4 w-4" />} />
-                <MetricCard title="FCM" currentScore={salesData.salesMetrics.fcm.total.achieved} target={100} maxScore={100} trend={2.9} icon={<Microscope className="h-4 w-4" />} />
+                <MetricCard 
+                  title="FCM" 
+                  currentScore={salesData.salesMetrics.fcm.total.achieved} 
+                  target={100} 
+                  maxScore={100} 
+                  trend={2.9} 
+                  icon={<Microscope className="h-4 w-4" />}
+                  onClick={() => handleProductClick('fcm')}
+                />
               </div>
             </CardContent>
           </Card>
@@ -458,6 +520,15 @@ const Sales = () => {
             </CardContent>
           </Card>
         </main>
+
+        {/* Product Detail Modal */}
+        {modalOpen && selectedProduct && getProductModalData() && (
+          <ProductDetailModal
+            open={modalOpen}
+            onOpenChange={setModalOpen}
+            {...getProductModalData()!}
+          />
+        )}
       </div>
     </div>;
 };
