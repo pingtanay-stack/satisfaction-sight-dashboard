@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Download, Upload, Trophy, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MetricCard } from '@/components/dashboard/MetricCard';
-import { NPSGauge } from '@/components/dashboard/NPSGauge';
+import { CompanyTripProgress } from '@/components/dashboard/CompanyTripProgress';
 import { SalesTrendChart } from '@/components/dashboard/SalesTrendChart';
 import { DataSourceBadge } from '@/components/ui/data-source-badge';
 import { toast } from 'sonner';
@@ -191,31 +191,12 @@ const Sales = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <NPSGauge 
-                  currentScore={companyTripPercentage}
-                  target={100}
-                  trend={5.2}
-                />
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Current Achievement</span>
-                      <span className="font-medium">${(salesData.companyTripProgress.achieved / 1000000).toFixed(1)}M</span>
-                    </div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Required for Trip</span>
-                      <span className="font-medium">${(salesData.companyTripProgress.requiredForTrip / 1000000).toFixed(1)}M</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Remaining</span>
-                      <span className="font-medium text-orange-600">
-                        ${((salesData.companyTripProgress.requiredForTrip - salesData.companyTripProgress.achieved) / 1000000).toFixed(1)}M
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <CompanyTripProgress 
+                currentProgress={companyTripPercentage}
+                target={salesData.companyTripProgress.target}
+                achieved={salesData.companyTripProgress.achieved}
+                requiredForTrip={salesData.companyTripProgress.requiredForTrip}
+              />
             </CardContent>
           </Card>
 
