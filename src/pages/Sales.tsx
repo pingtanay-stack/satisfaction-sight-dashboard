@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Download, Upload, Trophy, TrendingUp, Microscope, TestTube, Building, Beaker, Wrench, HeadphonesIcon } from 'lucide-react';
+import { ArrowLeft, Download, Upload, Trophy, Monitor, TestTube, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import { EnhancedCompanyTripProgress } from '@/components/dashboard/EnhancedCompanyTripProgress';
 import { SalesTrendChart } from '@/components/dashboard/SalesTrendChart';
 import { DataSourceBadge } from '@/components/ui/data-source-badge';
 import { toast } from 'sonner';
-import { SalesData, saveSalesDataToSupabase, loadSalesDataFromSupabase, hasSavedSalesDataInSupabase } from '@/lib/salesStorage';
+import { SalesData, MonthlyTargetData, saveSalesDataToSupabase, loadSalesDataFromSupabase, hasSavedSalesDataInSupabase } from '@/lib/salesStorage';
 import * as XLSX from 'xlsx';
 const defaultSalesData: SalesData = {
   salesMetrics: {
@@ -146,6 +146,47 @@ const defaultSalesData: SalesData = {
       snzService: 280000
     }]
   },
+  monthlyTargets: {
+    external_health_it: [{
+      month: 'Jan',
+      targets: { eclair: 83000, delphicAP: 67000, delphicLIS: 92000, hclabExternal: 75000 },
+      actuals: { eclair: 80000, delphicAP: 60000, delphicLIS: 85000, hclabExternal: 70000 }
+    }, {
+      month: 'Feb', 
+      targets: { eclair: 84000, delphicAP: 68000, delphicLIS: 93000, hclabExternal: 76000 },
+      actuals: { eclair: 82000, delphicAP: 62000, delphicLIS: 88000, hclabExternal: 72000 }
+    }, {
+      month: 'Mar',
+      targets: { eclair: 85000, delphicAP: 69000, delphicLIS: 94000, hclabExternal: 77000 },
+      actuals: { eclair: 85000, delphicAP: 65000, delphicLIS: 92000, hclabExternal: 78000 }
+    }],
+    external_ivd: [{
+      month: 'Jan',
+      targets: { urinalysis: 117000, ogt: 50000, fcm: 83000 },
+      actuals: { urinalysis: 110000, ogt: 50000, fcm: 80000 }
+    }, {
+      month: 'Feb',
+      targets: { urinalysis: 118000, ogt: 51000, fcm: 84000 },
+      actuals: { urinalysis: 115000, ogt: 52000, fcm: 84000 }
+    }, {
+      month: 'Mar',
+      targets: { urinalysis: 119000, ogt: 52000, fcm: 85000 },
+      actuals: { urinalysis: 120000, ogt: 55000, fcm: 89000 }
+    }],
+    internal: [{
+      month: 'Jan',
+      targets: { hclabInternal: 42000, snzService: 25000 },
+      actuals: { hclabInternal: 40000, snzService: 25000 }
+    }, {
+      month: 'Feb', 
+      targets: { hclabInternal: 43000, snzService: 26000 },
+      actuals: { hclabInternal: 42000, snzService: 26000 }
+    }, {
+      month: 'Mar',
+      targets: { hclabInternal: 44000, snzService: 27000 },
+      actuals: { hclabInternal: 45000, snzService: 28000 }
+    }]
+  },
   companyTripProgress: {
     overall: 87.2,
     target: 10000000,
@@ -196,40 +237,47 @@ const Sales = () => {
     }
   };
   const downloadTemplate = () => {
-    const templateData = [{
-      Month: 'March 2024',
-      'Eclair Current': 850000,
-      'Eclair Target': 1000000,
-      'Delphic AP Current': 650000,
-      'Delphic AP Target': 800000,
-      'Delphic LIS Current': 920000,
-      'Delphic LIS Target': 1100000,
-      'HCLAB External Current': 780000,
-      'HCLAB External Target': 900000,
-      'Urinalysis Instrument Current': 400000,
-      'Urinalysis Instrument Target': 500000,
-      'Urinalysis Reagents Current': 600000,
-      'Urinalysis Reagents Target': 700000,
-      'Urinalysis Service Current': 200000,
-      'Urinalysis Service Target': 200000,
-      'OGT Current': 550000,
-      'OGT Target': 600000,
-      'FCM Reagents Current': 450000,
-      'FCM Reagents Target': 500000,
-      'FCM Instrument Current': 320000,
-      'FCM Instrument Target': 350000,
-      'FCM Service Current': 120000,
-      'FCM Service Target': 150000,
-      'HCLAB Internal Current': 450000,
-      'HCLAB Internal Target': 500000,
-      'SNZ Service Current': 280000,
-      'SNZ Service Target': 300000
-    }];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const templateData = months.map(month => ({
+      Month: month,
+      // Health IT
+      'Eclair Target': 83333,
+      'Eclair Current': 0,
+      'Delphic AP Target': 66667,
+      'Delphic AP Current': 0,
+      'Delphic LIS Target': 91667,
+      'Delphic LIS Current': 0,
+      'HCLAB External Target': 75000,
+      'HCLAB External Current': 0,
+      // IVD
+      'Urinalysis Instrument Target': 41667,
+      'Urinalysis Instrument Current': 0,
+      'Urinalysis Reagents Target': 58333,
+      'Urinalysis Reagents Current': 0,
+      'Urinalysis Service Target': 16667,
+      'Urinalysis Service Current': 0,
+      'OGT Target': 50000,
+      'OGT Current': 0,
+      'FCM Reagents Target': 41667,
+      'FCM Reagents Current': 0,
+      'FCM Instrument Target': 29167,
+      'FCM Instrument Current': 0,
+      'FCM Service Target': 12500,
+      'FCM Service Current': 0,
+      // Internal
+      'HCLAB Internal Target': 41667,
+      'HCLAB Internal Current': 0,
+      'SNZ Service Target': 25000,
+      'SNZ Service Current': 0
+    }));
+    
     const worksheet = XLSX.utils.json_to_sheet(templateData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Template');
     XLSX.writeFile(workbook, 'sales_template.xlsx');
-    toast.success('Template downloaded successfully!');
+    toast.success('12-month template downloaded successfully!');
   };
   const companyTripPercentage = Math.min(salesData.companyTripProgress.achieved / salesData.companyTripProgress.requiredForTrip * 100, 100);
   return <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/95">
@@ -272,77 +320,53 @@ const Sales = () => {
             </CardContent>
           </Card>
 
-          {/* Data Upload Section */}
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Data Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button onClick={downloadTemplate} variant="outline" className="w-full">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Excel Template
-                </Button>
-                <div className="relative">
-                  <input type="file" accept=".xlsx,.xls" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                  <Button variant="default" className="w-full">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Sales Data
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* External Sales - Health IT with Icons */}
+          {/* External Sales - Health IT */}
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                
-                🔬 External Sales - Health IT
+                <Monitor className="h-5 w-5 text-blue-600" />
+                External Sales - Health IT
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <MetricCard title="💻 Eclair" currentScore={salesData.salesMetrics.eclair.achieved} target={100} maxScore={100} trend={2.5} icon={<Microscope className="h-4 w-4" />} />
-                <MetricCard title="📊 Delphic AP" currentScore={salesData.salesMetrics.delphicAP.achieved} target={100} maxScore={100} trend={1.8} icon={<TestTube className="h-4 w-4" />} />
-                <MetricCard title="🖥️ Delphic LIS" currentScore={salesData.salesMetrics.delphicLIS.achieved} target={100} maxScore={100} trend={3.1} icon={<Building className="h-4 w-4" />} />
-                <MetricCard title="🏥 HCLAB External" currentScore={salesData.salesMetrics.hclabExternal.achieved} target={100} maxScore={100} trend={4.2} icon={<Wrench className="h-4 w-4" />} />
+                <MetricCard title="Eclair" currentScore={salesData.salesMetrics.eclair.achieved} target={100} maxScore={100} trend={2.5} />
+                <MetricCard title="Delphic AP" currentScore={salesData.salesMetrics.delphicAP.achieved} target={100} maxScore={100} trend={1.8} />
+                <MetricCard title="Delphic LIS" currentScore={salesData.salesMetrics.delphicLIS.achieved} target={100} maxScore={100} trend={3.1} />
+                <MetricCard title="HCLAB External" currentScore={salesData.salesMetrics.hclabExternal.achieved} target={100} maxScore={100} trend={4.2} />
               </div>
             </CardContent>
           </Card>
 
-          {/* External Sales - IVD with Icons */}
+          {/* External Sales - IVD */}
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                
-                🧪 External Sales - IVD (In Vitro Diagnostics)
+                <TestTube className="h-5 w-5 text-green-600" />
+                External Sales - IVD
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <MetricCard title="🔬 Urinalysis" currentScore={salesData.salesMetrics.urinalysis.total.achieved} target={100} maxScore={100} trend={3.8} icon={<Microscope className="h-4 w-4" />} />
-                <MetricCard title="🧬 OGT" currentScore={salesData.salesMetrics.ogt.achieved} target={100} maxScore={100} trend={5.5} icon={<Beaker className="h-4 w-4" />} />
-                <MetricCard title="🩸 FCM" currentScore={salesData.salesMetrics.fcm.total.achieved} target={100} maxScore={100} trend={2.9} icon={<TestTube className="h-4 w-4" />} />
+                <MetricCard title="Urinalysis" currentScore={salesData.salesMetrics.urinalysis.total.achieved} target={100} maxScore={100} trend={3.8} />
+                <MetricCard title="OGT" currentScore={salesData.salesMetrics.ogt.achieved} target={100} maxScore={100} trend={5.5} />
+                <MetricCard title="FCM" currentScore={salesData.salesMetrics.fcm.total.achieved} target={100} maxScore={100} trend={2.9} />
               </div>
             </CardContent>
           </Card>
 
-          {/* Internal Sales with Icons */}
+          {/* Internal Sales */}
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-                  <Building className="h-5 w-5 text-purple-600" />
-                </div>
-                🏢 Internal Sales
+                <Building className="h-5 w-5 text-purple-600" />
+                Internal Sales
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <MetricCard title="🏥 HCLAB Internal" currentScore={salesData.salesMetrics.hclabInternal.achieved} target={100} maxScore={100} trend={6.1} icon={<Building className="h-4 w-4" />} />
-                <MetricCard title="🔧 SNZ Service" currentScore={salesData.salesMetrics.snzService.achieved} target={100} maxScore={100} trend={4.7} icon={<HeadphonesIcon className="h-4 w-4" />} />
+                <MetricCard title="HCLAB Internal" currentScore={salesData.salesMetrics.hclabInternal.achieved} target={100} maxScore={100} trend={6.1} />
+                <MetricCard title="SNZ Service" currentScore={salesData.salesMetrics.snzService.achieved} target={100} maxScore={100} trend={4.7} />
               </div>
             </CardContent>
           </Card>
@@ -352,8 +376,8 @@ const Sales = () => {
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Microscope className="h-4 w-4 text-blue-600" />
-                  🔬 Health IT Trends
+                  <Monitor className="h-4 w-4 text-blue-600" />
+                  Health IT Trends
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -365,7 +389,7 @@ const Sales = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TestTube className="h-4 w-4 text-green-600" />
-                  🧪 IVD Trends
+                  IVD Trends
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -377,7 +401,7 @@ const Sales = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building className="h-4 w-4 text-purple-600" />
-                  🏢 Internal Sales Trends
+                  Internal Sales Trends
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -385,6 +409,31 @@ const Sales = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Data Management Section - Moved to Bottom */}
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="h-5 w-5 text-primary" />
+                Data Management
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button onClick={downloadTemplate} variant="outline" className="w-full">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download 12-Month Template
+                </Button>
+                <div className="relative">
+                  <input type="file" accept=".xlsx,.xls" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                  <Button variant="default" className="w-full">
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Sales Data
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </main>
       </div>
     </div>;

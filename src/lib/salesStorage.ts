@@ -1,5 +1,11 @@
 import { supabase } from '@/integrations/supabase/client';
 
+export interface MonthlyTargetData {
+  month: string;
+  targets: { [productKey: string]: number };
+  actuals: { [productKey: string]: number };
+}
+
 export interface SalesData {
   salesMetrics: {
     // External Sales - Health IT
@@ -37,6 +43,9 @@ export interface SalesData {
       [productKey: string]: number | string;
     }[];
   };
+  monthlyTargets: {
+    [category: string]: MonthlyTargetData[];
+  };
   companyTripProgress: {
     overall: number;
     target: number;
@@ -61,6 +70,7 @@ export const saveSalesDataToSupabase = async (data: SalesData): Promise<void> =>
       .update({
         sales_metrics: data.salesMetrics,
         monthly_data: data.monthlyData,
+        monthly_targets: data.monthlyTargets,
         company_trip_progress: data.companyTripProgress,
         updated_at: new Date().toISOString()
       })
@@ -74,6 +84,7 @@ export const saveSalesDataToSupabase = async (data: SalesData): Promise<void> =>
         user_id: user.id,
         sales_metrics: data.salesMetrics,
         monthly_data: data.monthlyData,
+        monthly_targets: data.monthlyTargets,
         company_trip_progress: data.companyTripProgress
       });
 
@@ -99,6 +110,7 @@ export const loadSalesDataFromSupabase = async (defaultData: SalesData): Promise
   return {
     salesMetrics: savedData.sales_metrics as SalesData['salesMetrics'],
     monthlyData: savedData.monthly_data as SalesData['monthlyData'],
+    monthlyTargets: savedData.monthly_targets as SalesData['monthlyTargets'] || {},
     companyTripProgress: savedData.company_trip_progress as SalesData['companyTripProgress']
   };
 };
