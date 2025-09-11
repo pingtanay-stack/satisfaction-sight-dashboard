@@ -7,7 +7,7 @@ import { DetailModal } from "@/components/dashboard/DetailModal";
 import { AdvancedCharts } from "@/components/dashboard/AdvancedCharts";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { VisionFramework } from "@/components/dashboard/VisionFramework";
-import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, RotateCcw, LogOut, Building, Trophy } from "lucide-react";
+import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, RotateCcw, LogOut, Building, Trophy, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -441,10 +441,22 @@ const Index = () => {
               />
             </div>
             
-            {/* Dashboard Title */}
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Customer Satisfaction Dashboard
-            </h1>
+            {/* Dashboard Title and Navigation */}
+            <div className="flex flex-col items-center gap-2">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Customer Satisfaction Dashboard
+              </h1>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/sales')}
+                className="text-xs px-4 py-2 h-auto glass-card"
+              >
+                <Trophy className="h-3 w-3 mr-2" />
+                Sales Performance Dashboard
+                <ArrowRight className="h-3 w-3 ml-2" />
+              </Button>
+            </div>
             
             {/* Traffic Light */}
             <div className="flex-shrink-0">

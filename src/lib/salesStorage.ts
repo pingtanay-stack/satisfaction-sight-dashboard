@@ -1,0 +1,129 @@
+import { supabase } from '@/integrations/supabase/client';
+
+export interface SalesData {
+  salesMetrics: {
+    // External Sales - Health IT
+    eclair: { current: number; target: number; achieved: number };
+    delphicAP: { current: number; target: number; achieved: number };
+    delphicLIS: { current: number; target: number; achieved: number };
+    hclabExternal: { current: number; target: number; achieved: number };
+    
+    // External Sales - IVD
+    urinalysis: {
+      total: { current: number; target: number; achieved: number };
+      breakdown: {
+        instrument: { current: number; target: number; achieved: number };
+        reagents: { current: number; target: number; achieved: number };
+        service: { current: number; target: number; achieved: number };
+      };
+    };
+    ogt: { current: number; target: number; achieved: number };
+    fcm: {
+      total: { current: number; target: number; achieved: number };
+      breakdown: {
+        reagents: { current: number; target: number; achieved: number };
+        instrument: { current: number; target: number; achieved: number };
+        service: { current: number; target: number; achieved: number };
+      };
+    };
+    
+    // Internal Sales
+    hclabInternal: { current: number; target: number; achieved: number };
+    snzService: { current: number; target: number; achieved: number };
+  };
+  monthlyData: {
+    [key: string]: {
+      month: string;
+      [productKey: string]: number | string;
+    }[];
+  };
+  companyTripProgress: {
+    overall: number;
+    target: number;
+    achieved: number;
+    requiredForTrip: number;
+  };
+}
+
+export const saveSalesDataToSupabase = async (data: SalesData): Promise<void> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const { data: existing } = await supabase
+    .from('user_sales_data')
+    .select('id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (existing) {
+    const { error } = await supabase
+      .from('user_sales_data')
+      .update({
+        sales_metrics: data.salesMetrics,
+        monthly_data: data.monthlyData,
+        company_trip_progress: data.companyTripProgress,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+  } else {
+    const { error } = await supabase
+      .from('user_sales_data')
+      .insert({
+        user_id: user.id,
+        sales_metrics: data.salesMetrics,
+        monthly_data: data.monthlyData,
+        company_trip_progress: data.companyTripProgress
+      });
+
+    if (error) throw error;
+  }
+};
+
+export const loadSalesDataFromSupabase = async (defaultData: SalesData): Promise<SalesData> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return defaultData;
+
+  const { data: savedData, error } = await supabase
+    .from('user_sales_data')
+    .select('*')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (error || !savedData) {
+    console.log('No saved sales data found or error loading:', error);
+    return defaultData;
+  }
+
+  return {
+    salesMetrics: savedData.sales_metrics as SalesData['salesMetrics'],
+    monthlyData: savedData.monthly_data as SalesData['monthlyData'],
+    companyTripProgress: savedData.company_trip_progress as SalesData['companyTripProgress']
+  };
+};
+
+export const clearSalesDataFromSupabase = async (): Promise<void> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { error } = await supabase
+    .from('user_sales_data')
+    .delete()
+    .eq('user_id', user.id);
+
+  if (error) throw error;
+};
+
+export const hasSavedSalesDataInSupabase = async (): Promise<boolean> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data } = await supabase
+    .from('user_sales_data')
+    .select('id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  return !!data;
+};

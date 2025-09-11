@@ -174,6 +174,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sales_data: {
+        Row: {
+          company_trip_progress: Json
+          created_at: string
+          id: string
+          monthly_data: Json
+          sales_metrics: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_trip_progress?: Json
+          created_at?: string
+          id?: string
+          monthly_data?: Json
+          sales_metrics?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_trip_progress?: Json
+          created_at?: string
+          id?: string
+          monthly_data?: Json
+          sales_metrics?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
