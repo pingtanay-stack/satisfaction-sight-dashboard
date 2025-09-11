@@ -2,7 +2,6 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plane, MapPin, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
 interface CompanyTripProgressProps {
   currentProgress: number; // 0-100
   target: number; // Target amount needed
@@ -10,19 +9,16 @@ interface CompanyTripProgressProps {
   requiredForTrip: number; // Amount required for trip
   className?: string;
 }
-
-export function CompanyTripProgress({ 
-  currentProgress, 
-  target, 
-  achieved, 
+export function CompanyTripProgress({
+  currentProgress,
+  target,
+  achieved,
   requiredForTrip,
-  className 
+  className
 }: CompanyTripProgressProps) {
   const isQualified = currentProgress >= 100;
   const progressCapped = Math.min(currentProgress, 100);
-  
-  return (
-    <Card className={cn("glass-card overflow-hidden", className)}>
+  return <Card className={cn("glass-card overflow-hidden", className)}>
       <CardContent className="p-6">
         <div className="space-y-6">
           {/* Header */}
@@ -31,9 +27,7 @@ export function CompanyTripProgress({
               <Trophy className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-semibold">Company Trip Progress</h3>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {isQualified ? "🎉 Trip Qualified!" : "Keep pushing to qualify for the company trip!"}
-            </p>
+            
           </div>
 
           {/* Flight Path Visualization */}
@@ -49,27 +43,17 @@ export function CompanyTripProgress({
               
               {/* Progress Track */}
               <div className="absolute top-1/2 left-4 right-4 h-1 bg-gray-300 dark:bg-gray-600 rounded-full transform -translate-y-1/2">
-                <div 
-                  className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-1000 ease-out"
-                  style={{ width: `${progressCapped}%` }}
-                ></div>
+                <div className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-1000 ease-out" style={{
+                width: `${progressCapped}%`
+              }}></div>
               </div>
 
               {/* Airplane */}
-              <div 
-                className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 transition-all duration-1000 ease-out"
-                style={{ left: `${Math.max(8, Math.min(92, 8 + (progressCapped * 0.84)))}%` }}
-              >
-                <div className={cn(
-                  "relative p-2 rounded-full transition-colors duration-300",
-                  isQualified 
-                    ? "bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400" 
-                    : "bg-primary/10 text-primary"
-                )}>
-                  <Plane className={cn(
-                    "h-6 w-6 transition-transform duration-300",
-                    isQualified && "animate-bounce"
-                  )} />
+              <div className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 transition-all duration-1000 ease-out" style={{
+              left: `${Math.max(8, Math.min(92, 8 + progressCapped * 0.84))}%`
+            }}>
+                <div className={cn("relative p-2 rounded-full transition-colors duration-300", isQualified ? "bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400" : "bg-primary/10 text-primary")}>
+                  <Plane className={cn("h-6 w-6 transition-transform duration-300", isQualified && "animate-bounce")} />
                 </div>
               </div>
 
@@ -80,18 +64,8 @@ export function CompanyTripProgress({
 
               {/* End Point (Destination) */}
               <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                <div className={cn(
-                  "p-1 rounded-full transition-colors duration-300",
-                  isQualified 
-                    ? "bg-green-100 dark:bg-green-900/50" 
-                    : "bg-orange-100 dark:bg-orange-900/50"
-                )}>
-                  <Trophy className={cn(
-                    "h-4 w-4 transition-colors duration-300",
-                    isQualified 
-                      ? "text-green-600 dark:text-green-400" 
-                      : "text-orange-600 dark:text-orange-400"
-                  )} />
+                <div className={cn("p-1 rounded-full transition-colors duration-300", isQualified ? "bg-green-100 dark:bg-green-900/50" : "bg-orange-100 dark:bg-orange-900/50")}>
+                  <Trophy className={cn("h-4 w-4 transition-colors duration-300", isQualified ? "text-green-600 dark:text-green-400" : "text-orange-600 dark:text-orange-400")} />
                 </div>
               </div>
             </div>
@@ -113,18 +87,13 @@ export function CompanyTripProgress({
 
           {/* Status Message */}
           <div className="text-center">
-            {isQualified ? (
-              <div className="text-green-600 dark:text-green-400 font-medium">
+            {isQualified ? <div className="text-green-600 dark:text-green-400 font-medium">
                 ✈️ All aboard! Trip destination unlocked!
-              </div>
-            ) : (
-              <div className="text-muted-foreground">
-                ${((achieved) / 1000000).toFixed(1)}M of ${(requiredForTrip / 1000000).toFixed(1)}M required
-              </div>
-            )}
+              </div> : <div className="text-muted-foreground">
+                ${(achieved / 1000000).toFixed(1)}M of ${(requiredForTrip / 1000000).toFixed(1)}M required
+              </div>}
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 }
