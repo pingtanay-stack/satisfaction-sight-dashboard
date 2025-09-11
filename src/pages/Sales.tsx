@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Download, Upload, Trophy, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MetricCard } from '@/components/dashboard/MetricCard';
-import { CompanyTripProgress } from '@/components/dashboard/CompanyTripProgress';
+import { EnhancedCompanyTripProgress } from '@/components/dashboard/EnhancedCompanyTripProgress';
 import { SalesTrendChart } from '@/components/dashboard/SalesTrendChart';
 import { DataSourceBadge } from '@/components/ui/data-source-badge';
 import { toast } from 'sonner';
@@ -191,7 +191,7 @@ const Sales = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <CompanyTripProgress 
+              <EnhancedCompanyTripProgress 
                 currentProgress={companyTripPercentage}
                 target={salesData.companyTripProgress.target}
                 achieved={salesData.companyTripProgress.achieved}
