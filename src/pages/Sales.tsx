@@ -318,7 +318,7 @@ const Sales = () => {
               
               {/* Center: Dashboard Title */}
               <div className="text-center">
-                <h1 className="text-2xl font-bold text-foreground">Sales Performance Dashboard</h1>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Sales Performance Dashboard</h1>
               </div>
               
               {/* Right: Data Source Badge */}
