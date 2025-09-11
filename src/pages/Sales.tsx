@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Download, Upload, Trophy, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Download, Upload, Trophy, TrendingUp, Microscope, TestTube, Building, Beaker, Wrench, HeadphonesIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import { EnhancedCompanyTripProgress } from '@/components/dashboard/EnhancedCompanyTripProgress';
@@ -227,106 +227,121 @@ const Sales = () => {
             </CardContent>
           </Card>
 
-          {/* External Sales - Health IT */}
+          {/* External Sales - Health IT with Icons */}
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle>External Sales - Health IT</CardTitle>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                  <Microscope className="h-5 w-5 text-blue-600" />
+                </div>
+                🔬 External Sales - Health IT
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <MetricCard
-                  title="Eclair"
+                  title="💻 Eclair"
                   currentScore={salesData.salesMetrics.eclair.achieved}
                   target={100}
                   maxScore={100}
                   trend={2.5}
-                  icon={<TrendingUp className="h-4 w-4" />}
+                  icon={<Microscope className="h-4 w-4" />}
                 />
                 <MetricCard
-                  title="Delphic AP"
+                  title="📊 Delphic AP"
                   currentScore={salesData.salesMetrics.delphicAP.achieved}
                   target={100}
                   maxScore={100}
                   trend={1.8}
-                  icon={<TrendingUp className="h-4 w-4" />}
+                  icon={<TestTube className="h-4 w-4" />}
                 />
                 <MetricCard
-                  title="Delphic LIS"
+                  title="🖥️ Delphic LIS"
                   currentScore={salesData.salesMetrics.delphicLIS.achieved}
                   target={100}
                   maxScore={100}
                   trend={3.1}
-                  icon={<TrendingUp className="h-4 w-4" />}
+                  icon={<Building className="h-4 w-4" />}
                 />
                 <MetricCard
-                  title="HCLAB External"
+                  title="🏥 HCLAB External"
                   currentScore={salesData.salesMetrics.hclabExternal.achieved}
                   target={100}
                   maxScore={100}
                   trend={4.2}
-                  icon={<TrendingUp className="h-4 w-4" />}
+                  icon={<Wrench className="h-4 w-4" />}
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* External Sales - IVD */}
+          {/* External Sales - IVD with Icons */}
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle>External Sales - IVD (In Vitro Diagnostics)</CardTitle>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                  <TestTube className="h-5 w-5 text-green-600" />
+                </div>
+                🧪 External Sales - IVD (In Vitro Diagnostics)
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <MetricCard
-                  title="Urinalysis"
+                  title="🔬 Urinalysis"
                   currentScore={salesData.salesMetrics.urinalysis.total.achieved}
                   target={100}
                   maxScore={100}
                   trend={3.8}
-                  icon={<TrendingUp className="h-4 w-4" />}
+                  icon={<Microscope className="h-4 w-4" />}
                 />
                 <MetricCard
-                  title="OGT"
+                  title="🧬 OGT"
                   currentScore={salesData.salesMetrics.ogt.achieved}
                   target={100}
                   maxScore={100}
                   trend={5.5}
-                  icon={<TrendingUp className="h-4 w-4" />}
+                  icon={<Beaker className="h-4 w-4" />}
                 />
                 <MetricCard
-                  title="FCM"
+                  title="🩸 FCM"
                   currentScore={salesData.salesMetrics.fcm.total.achieved}
                   target={100}
                   maxScore={100}
                   trend={2.9}
-                  icon={<TrendingUp className="h-4 w-4" />}
+                  icon={<TestTube className="h-4 w-4" />}
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* Internal Sales */}
+          {/* Internal Sales with Icons */}
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle>Internal Sales</CardTitle>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
+                  <Building className="h-5 w-5 text-purple-600" />
+                </div>
+                🏢 Internal Sales
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <MetricCard
-                  title="HCLAB Internal"
+                  title="🏥 HCLAB Internal"
                   currentScore={salesData.salesMetrics.hclabInternal.achieved}
                   target={100}
                   maxScore={100}
                   trend={6.1}
-                  icon={<TrendingUp className="h-4 w-4" />}
+                  icon={<Building className="h-4 w-4" />}
                 />
                 <MetricCard
-                  title="SNZ Service"
+                  title="🔧 SNZ Service"
                   currentScore={salesData.salesMetrics.snzService.achieved}
                   target={100}
                   maxScore={100}
                   trend={4.7}
-                  icon={<TrendingUp className="h-4 w-4" />}
+                  icon={<HeadphonesIcon className="h-4 w-4" />}
                 />
               </div>
             </CardContent>
@@ -336,7 +351,10 @@ const Sales = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle>Health IT Trends</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Microscope className="h-4 w-4 text-blue-600" />
+                  🔬 Health IT Trends
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <SalesTrendChart data={salesData.monthlyData.external_health_it} />
@@ -345,7 +363,10 @@ const Sales = () => {
             
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle>IVD Trends</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <TestTube className="h-4 w-4 text-green-600" />
+                  🧪 IVD Trends
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <SalesTrendChart data={salesData.monthlyData.external_ivd} />
@@ -354,7 +375,10 @@ const Sales = () => {
 
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle>Internal Sales Trends</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Building className="h-4 w-4 text-purple-600" />
+                  🏢 Internal Sales Trends
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <SalesTrendChart data={salesData.monthlyData.internal} />
