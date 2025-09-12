@@ -347,14 +347,24 @@ export function IsometricAdventureProgress({
                     value={destinationInput}
                     onChange={(e) => setDestinationInput(e.target.value)}
                     maxLength={50}
-                    onKeyPress={(e) => {
+                    onKeyPress={async (e) => {
                       if (e.key === 'Enter' && destinationInput.trim()) {
-                        handleAddDestination();
+                        const success = await createDestination(destinationInput);
+                        if (success) {
+                          setDestinationInput('');
+                        }
                       }
                     }}
                   />
                   <Button 
-                    onClick={handleAddDestination}
+                    onClick={async () => {
+                      if (destinationInput.trim()) {
+                        const success = await createDestination(destinationInput);
+                        if (success) {
+                          setDestinationInput('');
+                        }
+                      }
+                    }}
                     disabled={!destinationInput.trim() || submitting}
                     className="shrink-0"
                   >
@@ -403,12 +413,12 @@ export function IsometricAdventureProgress({
                           </div>
                         </div>
                         <Button
-                          variant={destination.user_has_voted ? "default" : "outline"}
+                          variant={destination.user_voted ? "default" : "outline"}
                           size="sm"
-                          onClick={() => toggleVote(destination.id, destination.user_has_voted || false)}
+                          onClick={() => toggleVote(destination.id)}
                           className="shrink-0"
                         >
-                          <Heart className={cn("h-4 w-4 mr-1", destination.user_has_voted && "fill-current")} />
+                          <Heart className={cn("h-4 w-4 mr-1", destination.user_voted && "fill-current")} />
                           {destination.vote_count}
                         </Button>
                       </div>
