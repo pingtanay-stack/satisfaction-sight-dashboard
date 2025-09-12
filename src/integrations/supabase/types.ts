@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      climate_ideas: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string
+          id: string
+          is_anonymous: boolean | null
+          status: string | null
+          title: string
+          updated_at: string
+          user_id: string | null
+          votes: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          is_anonymous?: boolean | null
+          status?: string | null
+          title: string
+          updated_at?: string
+          user_id?: string | null
+          votes?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_anonymous?: boolean | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+          votes?: number | null
+        }
+        Relationships: []
+      }
       customer_satisfaction_data: {
         Row: {
           connection_id: string
@@ -185,6 +224,45 @@ export type Database = {
           id?: string
           is_active?: boolean
           suggested_by_user_id?: string
+        }
+        Relationships: []
+      }
+      user_climate_data: {
+        Row: {
+          communication_cooperation: number | null
+          created_at: string
+          id: string
+          learning_development: number | null
+          monthly_data: Json | null
+          overall_satisfaction: number | null
+          survey_data: Json | null
+          team_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          communication_cooperation?: number | null
+          created_at?: string
+          id?: string
+          learning_development?: number | null
+          monthly_data?: Json | null
+          overall_satisfaction?: number | null
+          survey_data?: Json | null
+          team_name?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          communication_cooperation?: number | null
+          created_at?: string
+          id?: string
+          learning_development?: number | null
+          monthly_data?: Json | null
+          overall_satisfaction?: number | null
+          survey_data?: Json | null
+          team_name?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

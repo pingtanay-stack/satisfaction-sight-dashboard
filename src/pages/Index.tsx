@@ -7,7 +7,7 @@ import { DetailModal } from "@/components/dashboard/DetailModal";
 import { AdvancedCharts } from "@/components/dashboard/AdvancedCharts";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { VisionFramework } from "@/components/dashboard/VisionFramework";
-import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, RotateCcw, LogOut, Building, Trophy, ArrowRight } from "lucide-react";
+import { BarChart3, TrendingUp, Ticket, FolderOpen, MessageSquare, Star, Sparkles, RotateCcw, LogOut, Building, Trophy, ArrowRight, Users } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -453,16 +453,26 @@ const Index = () => {
                   <BarChart3 className="h-4 w-4 text-primary" />
                   <span className="text-sm font-medium text-primary">Customer Satisfaction</span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/sales')}
-                  className="px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
-                >
-                  <Trophy className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <span className="text-sm">Sales Performance</span>
-                  <ArrowRight className="h-4 w-4 ml-2 text-muted-foreground" />
-                </Button>
+                 <Button
+                   variant="ghost"
+                   size="sm"
+                   onClick={() => navigate('/sales')}
+                   className="px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
+                 >
+                   <Trophy className="h-4 w-4 mr-2 text-muted-foreground" />
+                   <span className="text-sm">Sales Performance</span>
+                   <ArrowRight className="h-4 w-4 ml-2 text-muted-foreground" />
+                 </Button>
+                 <Button
+                   variant="ghost"
+                   size="sm"
+                   onClick={() => navigate('/climate')}
+                   className="px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
+                 >
+                   <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                   <span className="text-sm">Climate Survey</span>
+                   <ArrowRight className="h-4 w-4 ml-2 text-muted-foreground" />
+                 </Button>
               </div>
             </div>
             

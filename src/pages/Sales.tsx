@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Download, Upload, Trophy, Monitor, TestTube, Building, Microscope, Beaker, Wrench, Headphones } from 'lucide-react';
+import { ArrowLeft, Download, Upload, Trophy, Monitor, TestTube, Building, Microscope, Beaker, Wrench, Headphones, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import { RadialMetricCard } from '@/components/dashboard/RadialMetricCard';
@@ -550,6 +550,16 @@ const Sales = () => {
                     <Trophy className="h-4 w-4 text-primary" />
                     <span className="text-xs lg:text-sm font-medium text-primary">Sales Performance</span>
                   </div>
+                  <Link to="/climate">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="px-2 lg:px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
+                    >
+                      <Users className="h-4 w-4 mr-1 lg:mr-2 text-muted-foreground" />
+                      <span className="text-xs lg:text-sm">Climate Survey</span>
+                    </Button>
+                  </Link>
                 </div>
               </div>
               
