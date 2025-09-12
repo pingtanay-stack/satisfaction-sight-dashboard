@@ -196,7 +196,11 @@ export function ProductDetailModal({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <SalesTrendChart data={monthlyData} />
+              <SalesTrendChart 
+                data={monthlyData} 
+                title={`${productName} Trend Analysis`}
+                showActualVsTarget={false}
+              />
               <div className="mt-4 flex flex-wrap gap-4 justify-center">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded bg-blue-500"></div>

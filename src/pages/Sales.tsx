@@ -198,6 +198,26 @@ const defaultSalesData: SalesData = {
     requiredForTrip: 9000000
   }
 };
+
+// Transform monthly targets data to chart format
+const transformMonthlyTargetsToChartData = (monthlyTargets: MonthlyTargetData[]) => {
+  return monthlyTargets.map(item => {
+    const chartItem: { month: string; [key: string]: string | number } = { month: item.month };
+    
+    // Add actual values
+    Object.entries(item.actuals).forEach(([key, value]) => {
+      chartItem[`${key}_actual`] = value;
+    });
+    
+    // Add target values
+    Object.entries(item.targets).forEach(([key, value]) => {
+      chartItem[`${key}_target`] = value;
+    });
+    
+    return chartItem;
+  });
+};
+
 const Sales = () => {
   const [salesData, setSalesData] = useState<SalesData>(defaultSalesData);
   const [isUsingRealData, setIsUsingRealData] = useState(false);
@@ -518,7 +538,11 @@ const Sales = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <SalesTrendChart data={salesData.monthlyData.external_health_it} />
+                <SalesTrendChart 
+                  data={transformMonthlyTargetsToChartData(salesData.monthlyTargets.external_health_it || [])}
+                  title="Health IT - Actual vs Target"
+                  showActualVsTarget={true}
+                />
               </CardContent>
             </Card>
             
@@ -530,7 +554,11 @@ const Sales = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <SalesTrendChart data={salesData.monthlyData.external_ivd} />
+                <SalesTrendChart 
+                  data={transformMonthlyTargetsToChartData(salesData.monthlyTargets.external_ivd || [])}
+                  title="IVD - Actual vs Target"
+                  showActualVsTarget={true}
+                />
               </CardContent>
             </Card>
 
@@ -542,7 +570,11 @@ const Sales = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <SalesTrendChart data={salesData.monthlyData.internal} />
+                <SalesTrendChart 
+                  data={transformMonthlyTargetsToChartData(salesData.monthlyTargets.internal || [])}
+                  title="Internal Sales - Actual vs Target"
+                  showActualVsTarget={true}
+                />
               </CardContent>
             </Card>
           </div>
