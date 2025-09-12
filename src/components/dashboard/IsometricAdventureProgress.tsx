@@ -1,28 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Car, 
-  Train, 
-  Ship, 
-  Plane, 
-  Rocket, 
-  Trophy, 
-  Star, 
-  Sparkles, 
-  Mountain, 
-  Trees, 
-  Waves,
-  Cloud,
-  Sun,
-  Flag,
-  MapPin,
-  Users,
-  Gift,
-  Medal,
-  Crown
-} from 'lucide-react';
+import { Car, Train, Ship, Plane, Rocket, Trophy, Star, Sparkles, Mountain, Trees, Waves, Cloud, Sun, Flag, MapPin, Users, Gift, Medal, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
 interface IsometricAdventureProgressProps {
   currentProgress: number; // 0-100
   target: number;
@@ -30,7 +9,6 @@ interface IsometricAdventureProgressProps {
   requiredForTrip: number;
   className?: string;
 }
-
 export function IsometricAdventureProgress({
   currentProgress,
   target,
@@ -40,10 +18,8 @@ export function IsometricAdventureProgress({
 }: IsometricAdventureProgressProps) {
   const [showCelebration, setShowCelebration] = useState(false);
   const [particleCount, setParticleCount] = useState(0);
-  
   const isQualified = currentProgress >= 100;
   const progressCapped = Math.min(currentProgress, 100);
-  
   useEffect(() => {
     if (isQualified) {
       setShowCelebration(true);
@@ -58,25 +34,73 @@ export function IsometricAdventureProgress({
 
   // Journey stages with vehicles and terrain
   const getJourneyStage = (progress: number) => {
-    if (progress >= 95) return { stage: 'space', vehicle: Rocket, terrain: 'space', weather: 'stars' };
-    if (progress >= 80) return { stage: 'sky', vehicle: Plane, terrain: 'clouds', weather: 'clear' };
-    if (progress >= 60) return { stage: 'ocean', vehicle: Ship, terrain: 'water', weather: 'wind' };
-    if (progress >= 40) return { stage: 'rails', vehicle: Train, terrain: 'mountain', weather: 'sunny' };
-    if (progress >= 20) return { stage: 'forest', vehicle: Car, terrain: 'forest', weather: 'partly-cloudy' };
-    return { stage: 'start', vehicle: Car, terrain: 'grass', weather: 'morning' };
+    if (progress >= 95) return {
+      stage: 'space',
+      vehicle: Rocket,
+      terrain: 'space',
+      weather: 'stars'
+    };
+    if (progress >= 80) return {
+      stage: 'sky',
+      vehicle: Plane,
+      terrain: 'clouds',
+      weather: 'clear'
+    };
+    if (progress >= 60) return {
+      stage: 'ocean',
+      vehicle: Ship,
+      terrain: 'water',
+      weather: 'wind'
+    };
+    if (progress >= 40) return {
+      stage: 'rails',
+      vehicle: Train,
+      terrain: 'mountain',
+      weather: 'sunny'
+    };
+    if (progress >= 20) return {
+      stage: 'forest',
+      vehicle: Car,
+      terrain: 'forest',
+      weather: 'partly-cloudy'
+    };
+    return {
+      stage: 'start',
+      vehicle: Car,
+      terrain: 'grass',
+      weather: 'morning'
+    };
   };
-
   const journeyInfo = getJourneyStage(progressCapped);
   const VehicleIcon = journeyInfo.vehicle;
 
   // Waypoint markers with rewards
-  const waypoints = [
-    { progress: 20, icon: Trees, reward: 'Forest Base', color: 'text-green-500' },
-    { progress: 40, icon: Mountain, reward: 'Mountain Station', color: 'text-orange-500' },
-    { progress: 60, icon: Waves, reward: 'Ocean Port', color: 'text-blue-500' },
-    { progress: 80, icon: Cloud, reward: 'Sky Terminal', color: 'text-sky-500' },
-    { progress: 100, icon: Crown, reward: 'Trip Destination', color: 'text-yellow-500' }
-  ];
+  const waypoints = [{
+    progress: 20,
+    icon: Trees,
+    reward: 'Forest Base',
+    color: 'text-green-500'
+  }, {
+    progress: 40,
+    icon: Mountain,
+    reward: 'Mountain Station',
+    color: 'text-orange-500'
+  }, {
+    progress: 60,
+    icon: Waves,
+    reward: 'Ocean Port',
+    color: 'text-blue-500'
+  }, {
+    progress: 80,
+    icon: Cloud,
+    reward: 'Sky Terminal',
+    color: 'text-sky-500'
+  }, {
+    progress: 100,
+    icon: Crown,
+    reward: 'Trip Destination',
+    color: 'text-yellow-500'
+  }];
 
   // Terrain background based on current stage
   const getTerrainBackground = () => {
@@ -99,92 +123,64 @@ export function IsometricAdventureProgress({
   // Weather effects
   const renderWeatherEffects = () => {
     const effects = [];
-    
     switch (journeyInfo.weather) {
       case 'stars':
         for (let i = 0; i < 8; i++) {
-          effects.push(
-            <div
-              key={`star-${i}`}
-              className="absolute animate-twinkle"
-              style={{
-                left: `${Math.random() * 90 + 5}%`,
-                top: `${Math.random() * 60 + 10}%`,
-                animationDelay: `${Math.random() * 2}s`
-              }}
-            >
+          effects.push(<div key={`star-${i}`} className="absolute animate-twinkle" style={{
+            left: `${Math.random() * 90 + 5}%`,
+            top: `${Math.random() * 60 + 10}%`,
+            animationDelay: `${Math.random() * 2}s`
+          }}>
               <Star className="h-2 w-2 text-yellow-300" />
-            </div>
-          );
+            </div>);
         }
         break;
       case 'clear':
-        effects.push(
-          <div key="sun" className="absolute top-2 right-4 animate-pulse">
+        effects.push(<div key="sun" className="absolute top-2 right-4 animate-pulse">
             <Sun className="h-6 w-6 text-yellow-400" />
-          </div>
-        );
+          </div>);
         break;
       case 'wind':
         for (let i = 0; i < 4; i++) {
-          effects.push(
-            <div
-              key={`wave-${i}`}
-              className="absolute animate-wave opacity-30"
-              style={{
-                left: `${i * 25 + 10}%`,
-                bottom: '10%',
-                animationDelay: `${i * 0.3}s`
-              }}
-            >
+          effects.push(<div key={`wave-${i}`} className="absolute animate-wave opacity-30" style={{
+            left: `${i * 25 + 10}%`,
+            bottom: '10%',
+            animationDelay: `${i * 0.3}s`
+          }}>
               <div className="w-8 h-2 bg-white dark:bg-white/20 rounded-full transform rotate-12"></div>
-            </div>
-          );
+            </div>);
         }
         break;
       case 'partly-cloudy':
-        effects.push(
-          <div key="cloud1" className="absolute top-3 left-1/4 animate-float">
+        effects.push(<div key="cloud1" className="absolute top-3 left-1/4 animate-float">
             <div className="w-8 h-4 bg-white dark:bg-white/30 rounded-full"></div>
-          </div>,
-          <div key="cloud2" className="absolute top-5 right-1/3 animate-float" style={{ animationDelay: '1s' }}>
+          </div>, <div key="cloud2" className="absolute top-5 right-1/3 animate-float" style={{
+          animationDelay: '1s'
+        }}>
             <div className="w-6 h-3 bg-white dark:bg-white/30 rounded-full"></div>
-          </div>
-        );
+          </div>);
         break;
     }
-    
     return effects;
   };
 
   // Dynamic particle trail
   const renderParticleTrail = () => {
     if (particleCount === 0) return null;
-    
-    return [...Array(particleCount)].map((_, i) => (
-      <div
-        key={`particle-${i}`}
-        className="absolute animate-bounce"
-        style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 1}s`,
-          animationDuration: `${1 + Math.random() * 0.5}s`
-        }}
-      >
+    return [...Array(particleCount)].map((_, i) => <div key={`particle-${i}`} className="absolute animate-bounce" style={{
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      animationDelay: `${Math.random() * 1}s`,
+      animationDuration: `${1 + Math.random() * 0.5}s`
+    }}>
         <Sparkles className="h-3 w-3 text-yellow-400" />
-      </div>
-    ));
+      </div>);
   };
-
-  return (
-    <Card className={cn("glass-card overflow-hidden relative", className)}>
+  return <Card className={cn("glass-card overflow-hidden relative", className)}>
       {/* Celebration particles */}
-      {showCelebration && (
-        <div className="absolute inset-0 pointer-events-none z-20">
+      {showCelebration && <div className="absolute inset-0 pointer-events-none z-20">
           {renderParticleTrail()}
-        </div>
-      )}
+        </div>}
 
       <CardContent className="p-6">
         <div className="space-y-6">
@@ -192,32 +188,22 @@ export function IsometricAdventureProgress({
           <div className="text-center space-y-3">
             <div className="flex items-center justify-center gap-3">
               <Trophy className="h-6 w-6 text-primary animate-pulse" />
-              <h3 className="text-xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-                🚀 Adventure Journey Quest
-              </h3>
+              <h3 className="text-xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">🚀 Going to be named by Anton </h3>
               <Trophy className="h-6 w-6 text-primary animate-pulse" />
             </div>
             <div className="flex items-center justify-center gap-2">
-              <div className={cn("px-3 py-1 rounded-full text-sm font-medium", 
-                isQualified ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" : "bg-muted text-muted-foreground"
-              )}>
+              <div className={cn("px-3 py-1 rounded-full text-sm font-medium", isQualified ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" : "bg-muted text-muted-foreground")}>
                 {journeyInfo.stage.charAt(0).toUpperCase() + journeyInfo.stage.slice(1)} Phase
               </div>
-              {isQualified && (
-                <div className="animate-bounce">
+              {isQualified && <div className="animate-bounce">
                   <Crown className="h-5 w-5 text-yellow-500" />
-                </div>
-              )}
+                </div>}
             </div>
           </div>
 
           {/* 3D Isometric Journey Path */}
           <div className="relative">
-            <div className={cn(
-              "h-32 rounded-xl relative overflow-hidden transition-all duration-1000 border-2",
-              getTerrainBackground(),
-              isQualified ? "border-green-400 shadow-green-400/50 shadow-lg" : "border-border"
-            )}>
+            <div className={cn("h-32 rounded-xl relative overflow-hidden transition-all duration-1000 border-2", getTerrainBackground(), isQualified ? "border-green-400 shadow-green-400/50 shadow-lg" : "border-border")}>
               {/* Weather effects layer */}
               <div className="absolute inset-0 z-10">
                 {renderWeatherEffects()}
@@ -233,48 +219,33 @@ export function IsometricAdventureProgress({
                   </div>
                   
                   {/* Progress overlay with 3D effect */}
-                  <div 
-                    className="absolute top-1/2 left-0 h-4 bg-gradient-to-r from-primary via-secondary to-primary rounded-full transform -translate-y-1/2 transition-all duration-1000 shadow-xl"
-                    style={{ width: `${progressCapped}%` }}
-                  >
+                  <div className="absolute top-1/2 left-0 h-4 bg-gradient-to-r from-primary via-secondary to-primary rounded-full transform -translate-y-1/2 transition-all duration-1000 shadow-xl" style={{
+                  width: `${progressCapped}%`
+                }}>
                     <div className="absolute inset-0 bg-gradient-to-b from-white/30 to-transparent rounded-full"></div>
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full animate-shimmer"></div>
                   </div>
                 </div>
 
                 {/* Vehicle convoy with 3D positioning */}
-                <div 
-                  className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 transition-all duration-1000 ease-out z-20"
-                  style={{ left: `${Math.max(8, Math.min(92, progressCapped))}%` }}
-                >
+                <div className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 transition-all duration-1000 ease-out z-20" style={{
+                left: `${Math.max(8, Math.min(92, progressCapped))}%`
+              }}>
                   <div className="relative">
                     {/* Vehicle shadow */}
                     <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-black/20 rounded-full blur-sm"></div>
                     
                     {/* Main vehicle */}
-                    <div className={cn(
-                      "relative p-4 rounded-xl transition-all duration-500 transform",
-                      isQualified 
-                        ? "bg-gradient-to-br from-green-200 to-green-400 text-green-800 animate-celebrate shadow-2xl shadow-green-400/50 scale-110" 
-                        : "bg-gradient-to-br from-primary/20 to-secondary/20 text-primary hover:scale-105 shadow-xl"
-                    )}>
-                      <VehicleIcon className={cn(
-                        "h-10 w-10 transition-transform duration-300",
-                        isQualified && "animate-bounce",
-                        journeyInfo.stage === 'space' && "text-purple-600",
-                        journeyInfo.stage === 'sky' && "text-blue-600",
-                        journeyInfo.stage === 'ocean' && "text-cyan-600"
-                      )} />
+                    <div className={cn("relative p-4 rounded-xl transition-all duration-500 transform", isQualified ? "bg-gradient-to-br from-green-200 to-green-400 text-green-800 animate-celebrate shadow-2xl shadow-green-400/50 scale-110" : "bg-gradient-to-br from-primary/20 to-secondary/20 text-primary hover:scale-105 shadow-xl")}>
+                      <VehicleIcon className={cn("h-10 w-10 transition-transform duration-300", isQualified && "animate-bounce", journeyInfo.stage === 'space' && "text-purple-600", journeyInfo.stage === 'sky' && "text-blue-600", journeyInfo.stage === 'ocean' && "text-cyan-600")} />
                       
                       {/* Progress trail */}
                       <div className="absolute -right-3 top-1/2 transform -translate-y-1/2 w-12 h-2 bg-gradient-to-r from-primary/60 via-secondary/40 to-transparent rounded opacity-80"></div>
                       
                       {/* Team indicator */}
-                      {progressCapped > 10 && (
-                        <div className="absolute -top-2 -right-2 bg-blue-500 rounded-full p-1 animate-pulse">
+                      {progressCapped > 10 && <div className="absolute -top-2 -right-2 bg-blue-500 rounded-full p-1 animate-pulse">
                           <Users className="h-3 w-3 text-white" />
-                        </div>
-                      )}
+                        </div>}
                     </div>
                   </div>
                 </div>
@@ -291,57 +262,32 @@ export function IsometricAdventureProgress({
 
                 {/* Waypoints with 3D landmarks */}
                 {waypoints.map((waypoint, index) => {
-                  const WaypointIcon = waypoint.icon;
-                  const reached = progressCapped >= waypoint.progress;
-                  const isDestination = waypoint.progress === 100;
-                  // Adjust positioning so 100% waypoint is visible (map 0-100% to 8-92% of container)
-                  const position = 8 + (waypoint.progress / 100) * 84;
-                  
-                  return (
-                    <div
-                      key={waypoint.progress}
-                      className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 z-15 transition-all duration-500"
-                      style={{ left: `${position}%` }}
-                    >
-                      <div className={cn(
-                        "relative transition-all duration-300",
-                        reached ? "scale-100 opacity-100" : "scale-75 opacity-50"
-                      )}>
+                const WaypointIcon = waypoint.icon;
+                const reached = progressCapped >= waypoint.progress;
+                const isDestination = waypoint.progress === 100;
+                // Adjust positioning so 100% waypoint is visible (map 0-100% to 8-92% of container)
+                const position = 8 + waypoint.progress / 100 * 84;
+                return <div key={waypoint.progress} className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 z-15 transition-all duration-500" style={{
+                  left: `${position}%`
+                }}>
+                      <div className={cn("relative transition-all duration-300", reached ? "scale-100 opacity-100" : "scale-75 opacity-50")}>
                         {/* Waypoint marker */}
-                        <div className={cn(
-                          "w-8 h-8 rounded-xl shadow-lg border-2 transition-all duration-300 flex items-center justify-center",
-                          reached 
-                            ? isDestination && isQualified
-                              ? "bg-gradient-to-br from-yellow-300 to-yellow-500 border-yellow-400 animate-pulse-glow"
-                              : "bg-gradient-to-br from-green-300 to-green-500 border-green-400"
-                            : "bg-gradient-to-br from-gray-200 to-gray-400 border-gray-300"
-                        )}>
-                          <WaypointIcon className={cn(
-                            "h-4 w-4 transition-colors duration-300",
-                            reached ? waypoint.color : "text-gray-600"
-                          )} />
+                        <div className={cn("w-8 h-8 rounded-xl shadow-lg border-2 transition-all duration-300 flex items-center justify-center", reached ? isDestination && isQualified ? "bg-gradient-to-br from-yellow-300 to-yellow-500 border-yellow-400 animate-pulse-glow" : "bg-gradient-to-br from-green-300 to-green-500 border-green-400" : "bg-gradient-to-br from-gray-200 to-gray-400 border-gray-300")}>
+                          <WaypointIcon className={cn("h-4 w-4 transition-colors duration-300", reached ? waypoint.color : "text-gray-600")} />
                         </div>
                         
                         {/* Reward tooltip */}
-                        <div className={cn(
-                          "absolute top-10 left-1/2 transform -translate-x-1/2 px-2 py-1 rounded text-xs whitespace-nowrap transition-all duration-300",
-                          reached 
-                            ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300" 
-                            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                        )}>
+                        <div className={cn("absolute top-10 left-1/2 transform -translate-x-1/2 px-2 py-1 rounded text-xs whitespace-nowrap transition-all duration-300", reached ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300" : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400")}>
                           {waypoint.reward}
                         </div>
 
                         {/* Achievement badge for reached waypoints */}
-                        {reached && (
-                          <div className="absolute -top-2 -right-2 animate-bounce">
+                        {reached && <div className="absolute -top-2 -right-2 animate-bounce">
                             <Medal className="h-4 w-4 text-yellow-500" />
-                          </div>
-                        )}
+                          </div>}
                       </div>
-                    </div>
-                  );
-                })}
+                    </div>;
+              })}
               </div>
             </div>
           </div>
@@ -370,8 +316,7 @@ export function IsometricAdventureProgress({
 
           {/* Status message with adventure theme */}
           <div className="text-center p-4 rounded-xl bg-gradient-to-r from-background/50 via-muted/20 to-background/50 border shadow-inner">
-            {isQualified ? (
-              <div className="space-y-2">
+            {isQualified ? <div className="space-y-2">
                 <div className="text-lg font-bold text-green-600 dark:text-green-400 animate-bounce-in">
                   🎉 🚀 Adventure Complete! Trip Unlocked! 🏆 🎉
                 </div>
@@ -383,20 +328,16 @@ export function IsometricAdventureProgress({
                   <span className="text-sm font-medium text-primary">Reward: Premium Company Adventure Trip</span>
                   <Gift className="h-4 w-4 text-primary" />
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
+              </div> : <div className="space-y-2">
                 <div className="text-foreground font-medium">
                   Next milestone: {waypoints.find(w => progressCapped < w.progress)?.reward || 'Destination'}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   Keep pushing forward on your epic journey! 🗺️✨
                 </div>
-              </div>
-            )}
+              </div>}
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 }
