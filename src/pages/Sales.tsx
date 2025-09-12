@@ -243,23 +243,193 @@ const Sales = () => {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
     try {
       const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
+      const workbook = XLSX.read(data, { type: 'array' });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      const rows: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: 0 });
 
-      // Process the uploaded data and update salesData
-      // This is a simplified version - you'd want more robust parsing
-      if (jsonData.length > 0) {
-        await saveSalesDataToSupabase(salesData);
-        setIsUsingRealData(true);
-        setLastUpdated(new Date());
-        toast.success('Sales data uploaded successfully!');
+      if (!rows.length) {
+        toast.error('The uploaded file is empty.');
+        return;
       }
+
+      const requiredCols = [
+        'Month',
+        'Eclair Target','Eclair Current',
+        'Delphic AP Target','Delphic AP Current',
+        'Delphic LIS Target','Delphic LIS Current',
+        'HCLAB External Target','HCLAB External Current',
+        'Urinalysis Instrument Target','Urinalysis Instrument Current',
+        'Urinalysis Reagents Target','Urinalysis Reagents Current',
+        'Urinalysis Service Target','Urinalysis Service Current',
+        'OGT Target','OGT Current',
+        'FCM Reagents Target','FCM Reagents Current',
+        'FCM Instrument Target','FCM Instrument Current',
+        'FCM Service Target','FCM Service Current',
+        'HCLAB Internal Target','HCLAB Internal Current',
+        'SNZ Service Target','SNZ Service Current'
+      ];
+
+      const missing = requiredCols.filter(c => !(c in rows[0]));
+      if (missing.length) {
+        toast.error(`Missing columns: ${missing.slice(0,4).join(', ')}${missing.length>4?'...':''}`);
+        return;
+      }
+
+      // Monthly Targets - Health IT
+      const mt_external_health_it = rows.map(r => ({
+        month: String(r['Month']),
+        targets: {
+          eclair: Number(r['Eclair Target']) || 0,
+          delphicAP: Number(r['Delphic AP Target']) || 0,
+          delphicLIS: Number(r['Delphic LIS Target']) || 0,
+          hclabExternal: Number(r['HCLAB External Target']) || 0,
+        },
+        actuals: {
+          eclair: Number(r['Eclair Current']) || 0,
+          delphicAP: Number(r['Delphic AP Current']) || 0,
+          delphicLIS: Number(r['Delphic LIS Current']) || 0,
+          hclabExternal: Number(r['HCLAB External Current']) || 0,
+        }
+      }));
+
+      // Monthly Targets - IVD (aggregate breakdown to totals)
+      const mt_external_ivd = rows.map(r => {
+        const ur_t = (Number(r['Urinalysis Instrument Target']) || 0) + (Number(r['Urinalysis Reagents Target']) || 0) + (Number(r['Urinalysis Service Target']) || 0);
+        const ur_a = (Number(r['Urinalysis Instrument Current']) || 0) + (Number(r['Urinalysis Reagents Current']) || 0) + (Number(r['Urinalysis Service Current']) || 0);
+        const fcm_t = (Number(r['FCM Reagents Target']) || 0) + (Number(r['FCM Instrument Target']) || 0) + (Number(r['FCM Service Target']) || 0);
+        const fcm_a = (Number(r['FCM Reagents Current']) || 0) + (Number(r['FCM Instrument Current']) || 0) + (Number(r['FCM Service Current']) || 0);
+        return {
+          month: String(r['Month']),
+          targets: {
+            urinalysis: ur_t,
+            ogt: Number(r['OGT Target']) || 0,
+            fcm: fcm_t,
+          },
+          actuals: {
+            urinalysis: ur_a,
+            ogt: Number(r['OGT Current']) || 0,
+            fcm: fcm_a,
+          }
+        };
+      });
+
+      // Monthly Targets - Internal
+      const mt_internal = rows.map(r => ({
+        month: String(r['Month']),
+        targets: {
+          hclabInternal: Number(r['HCLAB Internal Target']) || 0,
+          snzService: Number(r['SNZ Service Target']) || 0,
+        },
+        actuals: {
+          hclabInternal: Number(r['HCLAB Internal Current']) || 0,
+          snzService: Number(r['SNZ Service Current']) || 0,
+        }
+      }));
+
+      // Monthly actuals for other components
+      const monthlyData = {
+        external_health_it: rows.map(r => ({
+          month: String(r['Month']),
+          eclair: Number(r['Eclair Current']) || 0,
+          delphicAP: Number(r['Delphic AP Current']) || 0,
+          delphicLIS: Number(r['Delphic LIS Current']) || 0,
+          hclabExternal: Number(r['HCLAB External Current']) || 0,
+        })),
+        external_ivd: rows.map(r => ({
+          month: String(r['Month']),
+          urinalysis: (Number(r['Urinalysis Instrument Current']) || 0) + (Number(r['Urinalysis Reagents Current']) || 0) + (Number(r['Urinalysis Service Current']) || 0),
+          ogt: Number(r['OGT Current']) || 0,
+          fcm: (Number(r['FCM Reagents Current']) || 0) + (Number(r['FCM Instrument Current']) || 0) + (Number(r['FCM Service Current']) || 0),
+        })),
+        internal: rows.map(r => ({
+          month: String(r['Month']),
+          hclabInternal: Number(r['HCLAB Internal Current']) || 0,
+          snzService: Number(r['SNZ Service Current']) || 0,
+        })),
+      } as SalesData['monthlyData'];
+
+      const sum = (arr: number[]) => arr.reduce((a, b) => a + (Number(b) || 0), 0);
+      const total = (arrObjs: any[], key: string) => arrObjs.reduce((a, r) => a + (Number(r[key]) || 0), 0);
+      const ytd = {
+        eclair: { a: total(monthlyData.external_health_it, 'eclair'), t: mt_external_health_it.reduce((a, r) => a + r.targets.eclair, 0) },
+        delphicAP: { a: total(monthlyData.external_health_it, 'delphicAP'), t: mt_external_health_it.reduce((a, r) => a + r.targets.delphicAP, 0) },
+        delphicLIS: { a: total(monthlyData.external_health_it, 'delphicLIS'), t: mt_external_health_it.reduce((a, r) => a + r.targets.delphicLIS, 0) },
+        hclabExternal: { a: total(monthlyData.external_health_it, 'hclabExternal'), t: mt_external_health_it.reduce((a, r) => a + r.targets.hclabExternal, 0) },
+        urinalysis: { a: total(monthlyData.external_ivd, 'urinalysis'), t: mt_external_ivd.reduce((a, r) => a + r.targets.urinalysis, 0) },
+        ogt: { a: total(monthlyData.external_ivd, 'ogt'), t: mt_external_ivd.reduce((a, r) => a + r.targets.ogt, 0) },
+        fcm: { a: total(monthlyData.external_ivd, 'fcm'), t: mt_external_ivd.reduce((a, r) => a + r.targets.fcm, 0) },
+        hclabInternal: { a: total(monthlyData.internal, 'hclabInternal'), t: mt_internal.reduce((a, r) => a + r.targets.hclabInternal, 0) },
+        snzService: { a: total(monthlyData.internal, 'snzService'), t: mt_internal.reduce((a, r) => a + r.targets.snzService, 0) },
+        // breakdowns
+        urinalysis_instrument: { a: sum(rows.map(r => Number(r['Urinalysis Instrument Current']) || 0)), t: sum(rows.map(r => Number(r['Urinalysis Instrument Target']) || 0)) },
+        urinalysis_reagents: { a: sum(rows.map(r => Number(r['Urinalysis Reagents Current']) || 0)), t: sum(rows.map(r => Number(r['Urinalysis Reagents Target']) || 0)) },
+        urinalysis_service: { a: sum(rows.map(r => Number(r['Urinalysis Service Current']) || 0)), t: sum(rows.map(r => Number(r['Urinalysis Service Target']) || 0)) },
+        fcm_reagents: { a: sum(rows.map(r => Number(r['FCM Reagents Current']) || 0)), t: sum(rows.map(r => Number(r['FCM Reagents Target']) || 0)) },
+        fcm_instrument: { a: sum(rows.map(r => Number(r['FCM Instrument Current']) || 0)), t: sum(rows.map(r => Number(r['FCM Instrument Target']) || 0)) },
+        fcm_service: { a: sum(rows.map(r => Number(r['FCM Service Current']) || 0)), t: sum(rows.map(r => Number(r['FCM Service Target']) || 0)) },
+      };
+
+      const pct = (a: number, t: number) => (t > 0 ? +(((a / t) * 100).toFixed(2)) : 0);
+
+      const newSalesData: SalesData = {
+        salesMetrics: {
+          eclair: { current: ytd.eclair.a, target: ytd.eclair.t, achieved: pct(ytd.eclair.a, ytd.eclair.t) },
+          delphicAP: { current: ytd.delphicAP.a, target: ytd.delphicAP.t, achieved: pct(ytd.delphicAP.a, ytd.delphicAP.t) },
+          delphicLIS: { current: ytd.delphicLIS.a, target: ytd.delphicLIS.t, achieved: pct(ytd.delphicLIS.a, ytd.delphicLIS.t) },
+          hclabExternal: { current: ytd.hclabExternal.a, target: ytd.hclabExternal.t, achieved: pct(ytd.hclabExternal.a, ytd.hclabExternal.t) },
+          urinalysis: {
+            total: { current: ytd.urinalysis.a, target: ytd.urinalysis.t, achieved: pct(ytd.urinalysis.a, ytd.urinalysis.t) },
+            breakdown: {
+              instrument: { current: ytd.urinalysis_instrument.a, target: ytd.urinalysis_instrument.t, achieved: pct(ytd.urinalysis_instrument.a, ytd.urinalysis_instrument.t) },
+              reagents: { current: ytd.urinalysis_reagents.a, target: ytd.urinalysis_reagents.t, achieved: pct(ytd.urinalysis_reagents.a, ytd.urinalysis_reagents.t) },
+              service: { current: ytd.urinalysis_service.a, target: ytd.urinalysis_service.t, achieved: pct(ytd.urinalysis_service.a, ytd.urinalysis_service.t) },
+            }
+          },
+          ogt: { current: ytd.ogt.a, target: ytd.ogt.t, achieved: pct(ytd.ogt.a, ytd.ogt.t) },
+          fcm: {
+            total: { current: ytd.fcm.a, target: ytd.fcm.t, achieved: pct(ytd.fcm.a, ytd.fcm.t) },
+            breakdown: {
+              reagents: { current: ytd.fcm_reagents.a, target: ytd.fcm_reagents.t, achieved: pct(ytd.fcm_reagents.a, ytd.fcm_reagents.t) },
+              instrument: { current: ytd.fcm_instrument.a, target: ytd.fcm_instrument.t, achieved: pct(ytd.fcm_instrument.a, ytd.fcm_instrument.t) },
+              service: { current: ytd.fcm_service.a, target: ytd.fcm_service.t, achieved: pct(ytd.fcm_service.a, ytd.fcm_service.t) },
+            }
+          },
+          hclabInternal: { current: ytd.hclabInternal.a, target: ytd.hclabInternal.t, achieved: pct(ytd.hclabInternal.a, ytd.hclabInternal.t) },
+          snzService: { current: ytd.snzService.a, target: ytd.snzService.t, achieved: pct(ytd.snzService.a, ytd.snzService.t) },
+        },
+        monthlyData,
+        monthlyTargets: {
+          external_health_it: mt_external_health_it,
+          external_ivd: mt_external_ivd,
+          internal: mt_internal,
+        },
+        companyTripProgress: {
+          overall: pct(
+            ytd.eclair.a + ytd.delphicAP.a + ytd.delphicLIS.a + ytd.hclabExternal.a +
+            ytd.urinalysis.a + ytd.ogt.a + ytd.fcm.a + ytd.hclabInternal.a + ytd.snzService.a,
+            ytd.eclair.t + ytd.delphicAP.t + ytd.delphicLIS.t + ytd.hclabExternal.t +
+            ytd.urinalysis.t + ytd.ogt.t + ytd.fcm.t + ytd.hclabInternal.t + ytd.snzService.t
+          ),
+          target: ytd.eclair.t + ytd.delphicAP.t + ytd.delphicLIS.t + ytd.hclabExternal.t +
+                  ytd.urinalysis.t + ytd.ogt.t + ytd.fcm.t + ytd.hclabInternal.t + ytd.snzService.t,
+          achieved: ytd.eclair.a + ytd.delphicAP.a + ytd.delphicLIS.a + ytd.hclabExternal.a +
+                    ytd.urinalysis.a + ytd.ogt.a + ytd.fcm.a + ytd.hclabInternal.a + ytd.snzService.a,
+          requiredForTrip: Math.round((ytd.eclair.t + ytd.delphicAP.t + ytd.delphicLIS.t + ytd.hclabExternal.t +
+                    ytd.urinalysis.t + ytd.ogt.t + ytd.fcm.t + ytd.hclabInternal.t + ytd.snzService.t) * 0.9),
+        }
+      };
+
+      setSalesData(newSalesData);
+      await saveSalesDataToSupabase(newSalesData);
+      setIsUsingRealData(true);
+      setLastUpdated(new Date());
+      toast.success(`Uploaded ${file.name}: ${rows.length} rows processed`);
     } catch (error) {
       console.error('Error uploading file:', error);
-      toast.error('Error uploading file. Please check the format.');
+      toast.error('Error uploading file. Please check the template format.');
     }
   };
   const downloadTemplate = () => {
