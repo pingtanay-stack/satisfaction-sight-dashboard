@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Car, Train, Ship, Plane, Rocket, Trophy, Star, Sparkles, Mountain, Trees, Waves, Cloud, Sun, Flag, MapPin, Users, Gift, Medal, Crown } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Car, Train, Ship, Plane, Rocket, Trophy, Star, Sparkles, Mountain, Trees, Waves, Cloud, Sun, Flag, MapPin, Users, Gift, Medal, Crown, Heart, ChevronDown, Plus, Vote } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTripDestinations } from '@/hooks/useTripDestinations';
 interface IsometricAdventureProgressProps {
   currentProgress: number; // 0-100
   target: number;
@@ -18,6 +22,11 @@ export function IsometricAdventureProgress({
 }: IsometricAdventureProgressProps) {
   const [showCelebration, setShowCelebration] = useState(false);
   const [particleCount, setParticleCount] = useState(0);
+  const [destinationInput, setDestinationInput] = useState('');
+  const [destinationsOpen, setDestinationsOpen] = useState(false);
+  
+  const { destinations, loading, submitting, createDestination, toggleVote } = useTripDestinations();
+  
   const isQualified = currentProgress >= 100;
   const progressCapped = Math.min(currentProgress, 100);
   useEffect(() => {
@@ -187,9 +196,9 @@ export function IsometricAdventureProgress({
           {/* Enhanced Header */}
           <div className="text-center space-y-3">
             <div className="flex items-center justify-center gap-3">
-              <Trophy className="h-6 w-6 text-primary animate-pulse" />
-              <h3 className="text-xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">🚀 Going to be named by Anton </h3>
-              <Trophy className="h-6 w-6 text-primary animate-pulse" />
+      <Trophy className="h-6 w-6 text-primary animate-pulse" />
+      <h3 className="text-xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">🚀 Dream Destination Adventure 🌍</h3>
+      <Trophy className="h-6 w-6 text-primary animate-pulse" />
             </div>
             <div className="flex items-center justify-center gap-2">
               <div className={cn("px-3 py-1 rounded-full text-sm font-medium", isQualified ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" : "bg-muted text-muted-foreground")}>
@@ -314,6 +323,108 @@ export function IsometricAdventureProgress({
             </div>
           </div>
 
+          {/* Dream Destinations Section */}
+          <Collapsible open={destinationsOpen} onOpenChange={setDestinationsOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="w-full justify-between">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Dream Destinations
+                </div>
+                <ChevronDown className={cn("h-4 w-4 transition-transform", destinationsOpen && "transform rotate-180")} />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-4 pt-4">
+              {/* Add New Destination */}
+              <div className="space-y-3 p-4 rounded-lg bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <Plus className="h-4 w-4 text-primary" />
+                  <h4 className="font-medium">Suggest Your Dream Destination</h4>
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Where should we go? (e.g., Bali, Tokyo, Paris...)"
+                    value={destinationInput}
+                    onChange={(e) => setDestinationInput(e.target.value)}
+                    maxLength={50}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && destinationInput.trim()) {
+                        handleAddDestination();
+                      }
+                    }}
+                  />
+                  <Button 
+                    onClick={handleAddDestination}
+                    disabled={!destinationInput.trim() || submitting}
+                    className="shrink-0"
+                  >
+                    {submitting ? '...' : 'Add'}
+                  </Button>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {destinationInput.length}/50 characters
+                </div>
+              </div>
+
+              {/* Top 3 Destinations */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Vote className="h-4 w-4 text-primary" />
+                  <h4 className="font-medium">Top Dream Destinations</h4>
+                </div>
+                {loading ? (
+                  <div className="text-center py-4 text-muted-foreground">Loading destinations...</div>
+                ) : destinations.length > 0 ? (
+                  <div className="space-y-2">
+                    {destinations.map((destination, index) => (
+                      <div
+                        key={destination.id}
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-lg border transition-all duration-300 hover:shadow-md",
+                          index === 0 && "bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-yellow-200 dark:border-yellow-800",
+                          index === 1 && "bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/20 dark:to-gray-900/20 border-slate-200 dark:border-slate-800",
+                          index === 2 && "bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-orange-200 dark:border-orange-800"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold",
+                            index === 0 && "bg-yellow-500 text-white",
+                            index === 1 && "bg-slate-400 text-white", 
+                            index === 2 && "bg-orange-500 text-white"
+                          )}>
+                            {index + 1}
+                          </div>
+                          <div>
+                            <div className="font-medium">{destination.destination_name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {destination.vote_count} {destination.vote_count === 1 ? 'vote' : 'votes'}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          variant={destination.user_has_voted ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => toggleVote(destination.id, destination.user_has_voted || false)}
+                          className="shrink-0"
+                        >
+                          <Heart className={cn("h-4 w-4 mr-1", destination.user_has_voted && "fill-current")} />
+                          {destination.vote_count}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-muted-foreground">
+                    <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <div>No destinations yet</div>
+                    <div className="text-xs">Be the first to suggest a dream destination!</div>
+                  </div>
+                )}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
           {/* Status message with adventure theme */}
           <div className="text-center p-4 rounded-xl bg-gradient-to-r from-background/50 via-muted/20 to-background/50 border shadow-inner">
             {isQualified ? <div className="space-y-2">
@@ -325,7 +436,7 @@ export function IsometricAdventureProgress({
                 </div>
                 <div className="flex items-center justify-center gap-2 mt-2">
                   <Gift className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium text-primary">Reward: Premium Company Adventure Trip</span>
+                  <span className="text-sm font-medium text-primary">Time to vote on your dream destination!</span>
                   <Gift className="h-4 w-4 text-primary" />
                 </div>
               </div> : <div className="space-y-2">
@@ -340,4 +451,13 @@ export function IsometricAdventureProgress({
         </div>
       </CardContent>
     </Card>;
+
+  async function handleAddDestination() {
+    if (!destinationInput.trim()) return;
+    
+    const success = await createDestination(destinationInput.trim());
+    if (success) {
+      setDestinationInput('');
+    }
+  }
 }
