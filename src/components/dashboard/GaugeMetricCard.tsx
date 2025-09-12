@@ -32,40 +32,49 @@ export function GaugeMetricCard({
   benchmark,
   insights
 }: GaugeMetricCardProps) {
-  const percentage = (currentScore / maxScore) * 100;
-  const targetPercentage = (target / maxScore) * 100;
+  // Dynamic scaling for sales - allow over-performance
+  const dynamicMaxScore = Math.max(maxScore, target * 1.5, currentScore * 1.1);
+  const percentage = (currentScore / dynamicMaxScore) * 100;
+  const targetPercentage = (target / dynamicMaxScore) * 100;
+  const overPerformanceRatio = currentScore / target;
   const isTargetMet = currentScore >= target;
   const isPositiveTrend = trend >= 0;
+  const isOverPerforming = currentScore > target;
   
-  // Gauge calculations (semicircle)
+  // Gauge calculations - allow needle to go beyond normal range for over-performance
   const radius = 40;
   const circumference = Math.PI * radius; // Half circle
   const strokeDasharray = circumference;
+  
+  // Extend gauge range for over-performance (can go up to 140% of semicircle for visual effect)
+  const extendedPercentage = Math.min((currentScore / target) * 100, 140);
+  const needleAngle = -90 + (extendedPercentage / 100) * 180 * 1.4; // Extended range
   const progressOffset = circumference - (percentage / 100) * circumference;
   const targetOffset = circumference - (targetPercentage / 100) * circumference;
   
-  // Calculate needle angle (-90 to 90 degrees for semicircle)
-  const needleAngle = -90 + (percentage / 100) * 180;
-  
-  const statusColor = isTargetMet 
-    ? "success" 
-    : percentage >= 80 
-      ? "warning" 
-      : "destructive";
+  // Sales-specific performance levels
+  const getSalesStatus = () => {
+    if (overPerformanceRatio >= 1.5) return { label: "Record Breaking", color: "success", zone: "Legendary", glow: true };
+    if (overPerformanceRatio >= 1.25) return { label: "Bonus Territory", color: "success", zone: "Exceptional", glow: true };
+    if (overPerformanceRatio >= 1.1) return { label: "Exceeded Target", color: "success", zone: "Excellent", glow: false };
+    if (isTargetMet) return { label: "Target Met", color: "success", zone: "Optimal", glow: false };
+    if (overPerformanceRatio >= 0.9) return { label: "Approaching Target", color: "warning", zone: "Good", glow: false };
+    if (overPerformanceRatio >= 0.8) return { label: "Needs Push", color: "warning", zone: "Fair", glow: false };
+    return { label: "Below Target", color: "destructive", zone: "Critical", glow: false };
+  };
+
+  const salesStatus = getSalesStatus();
 
   const getGaugeColor = () => {
-    if (percentage >= 90) return "hsl(var(--primary))";
-    if (percentage >= 80) return "hsl(var(--warning))";
-    if (percentage >= 60) return "hsl(var(--secondary))";
-    return "hsl(var(--destructive))";
+    if (overPerformanceRatio >= 1.5) return ["hsl(var(--success))", "hsl(var(--success-foreground))"];
+    if (overPerformanceRatio >= 1.25) return ["hsl(var(--primary))", "hsl(var(--primary-foreground))"];
+    if (overPerformanceRatio >= 1.1) return ["hsl(var(--secondary))", "hsl(var(--secondary-foreground))"];
+    if (percentage >= 80) return ["hsl(var(--primary))", "hsl(var(--primary-foreground))"];
+    if (percentage >= 60) return ["hsl(var(--warning))", "hsl(var(--warning-foreground))"];
+    return ["hsl(var(--destructive))", "hsl(var(--destructive-foreground))"];
   };
 
-  const getPerformanceZone = () => {
-    if (percentage >= 90) return "Optimal";
-    if (percentage >= 80) return "Good";
-    if (percentage >= 60) return "Fair";
-    return "Critical";
-  };
+  const [gaugeColor] = getGaugeColor();
 
   return (
     <EnhancedTooltip
@@ -94,15 +103,16 @@ export function GaugeMetricCard({
               </CardTitle>
             </div>
             <Badge
-              variant={statusColor === "success" ? "default" : "secondary"}
+              variant={salesStatus.color === "success" ? "default" : "secondary"}
               className={cn(
-                "text-xs",
-                statusColor === "success" && "bg-success text-success-foreground",
-                statusColor === "warning" && "bg-warning text-warning-foreground",
-                statusColor === "destructive" && "bg-destructive text-destructive-foreground"
+                "text-xs animate-fade-in",
+                salesStatus.color === "success" && "bg-success text-success-foreground",
+                salesStatus.color === "warning" && "bg-warning text-warning-foreground",
+                salesStatus.color === "destructive" && "bg-destructive text-destructive-foreground",
+                salesStatus.glow && "animate-pulse shadow-lg shadow-success/50"
               )}
             >
-              {isTargetMet ? "Target Met" : "Below Target"}
+              {salesStatus.label}
             </Badge>
           </div>
         </CardHeader>
@@ -164,18 +174,21 @@ export function GaugeMetricCard({
                     strokeDasharray="2,2"
                   />
                   
-                  {/* Needle */}
+                  {/* Needle - can extend beyond normal range for over-performance */}
                   <line
                     x1="50"
                     y1="50"
-                    x2={50 + 30 * Math.cos((needleAngle * Math.PI) / 180)}
-                    y2={50 + 30 * Math.sin((needleAngle * Math.PI) / 180)}
-                    stroke={getGaugeColor()}
-                    strokeWidth="3"
+                    x2={50 + 30 * Math.cos((Math.min(needleAngle, 90) * Math.PI) / 180)}
+                    y2={50 + 30 * Math.sin((Math.min(needleAngle, 90) * Math.PI) / 180)}
+                    stroke={gaugeColor}
+                    strokeWidth={salesStatus.glow ? "4" : "3"}
                     strokeLinecap="round"
-                    className="transition-all duration-700 group-hover:animate-pulse"
+                    className={cn(
+                      "transition-all duration-700",
+                      salesStatus.glow ? "animate-pulse" : "group-hover:animate-pulse"
+                    )}
                     style={{
-                      filter: `drop-shadow(0 0 4px ${getGaugeColor()}40)`
+                      filter: `drop-shadow(0 0 ${salesStatus.glow ? '8px' : '4px'} ${gaugeColor}${salesStatus.glow ? '80' : '40'})`
                     }}
                   />
                   
@@ -183,9 +196,12 @@ export function GaugeMetricCard({
                   <circle
                     cx="50"
                     cy="50"
-                    r="3"
-                    fill={getGaugeColor()}
-                    className="transition-all duration-300"
+                    r={salesStatus.glow ? "4" : "3"}
+                    fill={gaugeColor}
+                    className={cn(
+                      "transition-all duration-300",
+                      salesStatus.glow && "animate-pulse"
+                    )}
                   />
                   
                   {/* Performance zone labels */}
@@ -199,15 +215,24 @@ export function GaugeMetricCard({
               <div className="text-center">
                 <div className={cn(
                   "text-sm font-medium mb-1",
-                  percentage >= 80 ? "text-primary" : "text-muted-foreground"
+                  salesStatus.glow ? "text-success animate-pulse" : 
+                  salesStatus.color === "success" ? "text-primary" : "text-muted-foreground"
                 )}>
-                  {getPerformanceZone()} Zone
+                  {salesStatus.zone} Zone
                 </div>
-                <div className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                <div className={cn(
+                  "text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent",
+                  salesStatus.glow 
+                    ? "from-success to-success-foreground animate-bounce-in" 
+                    : "from-primary to-secondary"
+                )}>
                   {currentScore.toFixed(1)}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  / {maxScore} (Target: {target.toFixed(1)})
+                  {isOverPerforming 
+                    ? `${(overPerformanceRatio * 100).toFixed(0)}% of target (${target.toFixed(1)})`
+                    : `Target: ${target.toFixed(1)} (${((currentScore / target) * 100).toFixed(0)}%)`
+                  }
                 </div>
               </div>
             </div>
@@ -255,8 +280,20 @@ export function GaugeMetricCard({
               <span className="text-xs text-muted-foreground">vs last month</span>
             </div>
             
-            {/* Achievement indicator */}
-            {isTargetMet && (
+            {/* Sales achievement indicators */}
+            {overPerformanceRatio >= 1.5 && (
+              <div className="flex items-center justify-center gap-1 text-success animate-bounce-in">
+                <Target className="h-3 w-3 animate-spin" />
+                <span className="text-xs font-bold">RECORD BREAKING!</span>
+              </div>
+            )}
+            {overPerformanceRatio >= 1.25 && overPerformanceRatio < 1.5 && (
+              <div className="flex items-center justify-center gap-1 text-success animate-bounce-in">
+                <Target className="h-3 w-3" />
+                <span className="text-xs font-medium">Bonus Territory!</span>
+              </div>
+            )}
+            {isTargetMet && overPerformanceRatio < 1.25 && (
               <div className="flex items-center justify-center gap-1 text-success animate-bounce-in">
                 <Target className="h-3 w-3" />
                 <span className="text-xs font-medium">Target Achieved!</span>

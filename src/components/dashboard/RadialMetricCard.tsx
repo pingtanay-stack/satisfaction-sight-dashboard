@@ -32,10 +32,14 @@ export function RadialMetricCard({
   benchmark,
   insights
 }: RadialMetricCardProps) {
-  const percentage = (currentScore / maxScore) * 100;
-  const targetPercentage = (target / maxScore) * 100;
+  // Dynamic scaling for sales - allow over-performance
+  const dynamicMaxScore = Math.max(maxScore, target * 1.5, currentScore * 1.1);
+  const percentage = (currentScore / dynamicMaxScore) * 100;
+  const targetPercentage = (target / dynamicMaxScore) * 100;
+  const overPerformanceRatio = currentScore / target;
   const isTargetMet = currentScore >= target;
   const isPositiveTrend = trend >= 0;
+  const isOverPerforming = currentScore > target;
   
   // Calculate circle properties
   const radius = 45;
@@ -44,11 +48,17 @@ export function RadialMetricCard({
   const progressOffset = circumference - (percentage / 100) * circumference;
   const targetOffset = circumference - (targetPercentage / 100) * circumference;
   
-  const statusColor = isTargetMet 
-    ? "success" 
-    : percentage >= 80 
-      ? "warning" 
-      : "destructive";
+  // Sales-specific performance levels
+  const getSalesStatus = () => {
+    if (overPerformanceRatio >= 1.5) return { label: "Record Breaking", color: "success", glow: true };
+    if (overPerformanceRatio >= 1.25) return { label: "Bonus Territory", color: "success", glow: true };
+    if (overPerformanceRatio >= 1.1) return { label: "Exceeded Target", color: "success", glow: false };
+    if (isTargetMet) return { label: "Target Met", color: "success", glow: false };
+    if (percentage >= 80) return { label: "Approaching Target", color: "warning", glow: false };
+    return { label: "Below Target", color: "destructive", glow: false };
+  };
+  
+  const salesStatus = getSalesStatus();
 
   return (
     <EnhancedTooltip
@@ -77,15 +87,16 @@ export function RadialMetricCard({
               </CardTitle>
             </div>
             <Badge
-              variant={statusColor === "success" ? "default" : "secondary"}
+              variant={salesStatus.color === "success" ? "default" : "secondary"}
               className={cn(
-                "text-xs",
-                statusColor === "success" && "bg-success text-success-foreground",
-                statusColor === "warning" && "bg-warning text-warning-foreground",
-                statusColor === "destructive" && "bg-destructive text-destructive-foreground"
+                "text-xs animate-fade-in",
+                salesStatus.color === "success" && "bg-success text-success-foreground",
+                salesStatus.color === "warning" && "bg-warning text-warning-foreground",
+                salesStatus.color === "destructive" && "bg-destructive text-destructive-foreground",
+                salesStatus.glow && "animate-pulse shadow-lg shadow-success/50"
               )}
             >
-              {isTargetMet ? "Target Met" : "Below Target"}
+              {salesStatus.label}
             </Badge>
           </div>
         </CardHeader>
@@ -121,29 +132,41 @@ export function RadialMetricCard({
                     strokeLinecap="round"
                   />
                   
-                  {/* Progress circle */}
+                  {/* Progress circle - can exceed 100% */}
                   <circle
                     cx="50"
                     cy="50"
                     r={radius}
                     stroke={
-                      percentage < 50 
-                        ? "hsl(var(--destructive))"
-                        : percentage < 80 
-                          ? "hsl(var(--warning))"
-                          : "hsl(var(--primary))"
+                      overPerformanceRatio >= 1.5
+                        ? "hsl(var(--success))"
+                        : overPerformanceRatio >= 1.25
+                          ? "hsl(var(--primary))"
+                          : overPerformanceRatio >= 1.1
+                            ? "hsl(var(--secondary))"
+                            : percentage < 50 
+                              ? "hsl(var(--destructive))"
+                              : percentage < 80 
+                                ? "hsl(var(--warning))"
+                                : "hsl(var(--primary))"
                     }
                     strokeWidth="6"
                     fill="transparent"
                     strokeDasharray={strokeDasharray}
                     strokeDashoffset={progressOffset}
                     strokeLinecap="round"
-                    className="transition-all duration-1000 group-hover:animate-pulse"
+                    className={cn(
+                      "transition-all duration-1000",
+                      salesStatus.glow && "animate-pulse",
+                      !salesStatus.glow && "group-hover:animate-pulse"
+                    )}
                     style={{
                       filter: `drop-shadow(0 0 8px ${
-                        percentage >= 80 
-                          ? 'hsl(var(--primary) / 0.4)'
-                          : 'transparent'
+                        salesStatus.glow
+                          ? 'hsl(var(--success) / 0.6)'
+                          : percentage >= 80 
+                            ? 'hsl(var(--primary) / 0.4)'
+                            : 'transparent'
                       })`
                     }}
                   />
@@ -151,18 +174,28 @@ export function RadialMetricCard({
                 
                 {/* Center content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  <span className={cn(
+                    "text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent",
+                    salesStatus.glow 
+                      ? "from-success to-success-foreground animate-bounce-in" 
+                      : "from-primary to-secondary"
+                  )}>
                     {currentScore.toFixed(1)}
                   </span>
-                  <span className="text-xs text-muted-foreground">/ {maxScore}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {isOverPerforming ? `${(overPerformanceRatio * 100).toFixed(0)}% of target` : `/ ${target} target`}
+                  </span>
                 </div>
               </div>
             </div>
             
-            {/* Target line indicator */}
+            {/* Performance indicator */}
             <div className="text-center">
               <p className="text-xs text-muted-foreground mb-2">
-                Target: {target.toFixed(1)} ({targetPercentage.toFixed(1)}%)
+                {isOverPerforming 
+                  ? `${((overPerformanceRatio - 1) * 100).toFixed(1)}% above target (${target.toFixed(1)})`
+                  : `Target: ${target.toFixed(1)} (${((currentScore / target) * 100).toFixed(1)}%)`
+                }
               </p>
             </div>
             
@@ -182,8 +215,20 @@ export function RadialMetricCard({
               <span className="text-xs text-muted-foreground">vs last month</span>
             </div>
             
-            {/* Achievement indicator */}
-            {isTargetMet && (
+            {/* Sales achievement indicators */}
+            {overPerformanceRatio >= 1.5 && (
+              <div className="flex items-center justify-center gap-1 text-success animate-bounce-in">
+                <Target className="h-3 w-3 animate-spin" />
+                <span className="text-xs font-bold">RECORD BREAKING!</span>
+              </div>
+            )}
+            {overPerformanceRatio >= 1.25 && overPerformanceRatio < 1.5 && (
+              <div className="flex items-center justify-center gap-1 text-success animate-bounce-in">
+                <Target className="h-3 w-3" />
+                <span className="text-xs font-medium">Bonus Territory!</span>
+              </div>
+            )}
+            {isTargetMet && overPerformanceRatio < 1.25 && (
               <div className="flex items-center justify-center gap-1 text-success animate-bounce-in">
                 <Target className="h-3 w-3" />
                 <span className="text-xs font-medium">Target Achieved!</span>

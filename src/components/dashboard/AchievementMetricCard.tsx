@@ -32,37 +32,56 @@ export function AchievementMetricCard({
   benchmark,
   insights
 }: AchievementMetricCardProps) {
-  const percentage = (currentScore / maxScore) * 100;
+  // Dynamic scaling for sales - allow over-performance
+  const dynamicMaxScore = Math.max(maxScore, target * 1.5, currentScore * 1.1);
+  const percentage = Math.min((currentScore / dynamicMaxScore) * 100, 100);
+  const overPerformanceRatio = currentScore / target;
   const isTargetMet = currentScore >= target;
   const isPositiveTrend = trend >= 0;
+  const isOverPerforming = currentScore > target;
   
-  // Calculate achievement level (1-5 stars)
-  const achievementLevel = Math.floor((percentage / 100) * 5) + 1;
-  const stars = Math.min(Math.max(achievementLevel, 1), 5);
-  
-  // Get achievement title based on performance
-  const getAchievementTitle = () => {
-    if (percentage >= 95) return "Legendary";
-    if (percentage >= 90) return "Epic";
-    if (percentage >= 80) return "Excellent";
-    if (percentage >= 70) return "Good";
-    if (percentage >= 60) return "Fair";
-    return "Needs Focus";
+  // Calculate achievement level based on target performance
+  const getPerformanceLevel = () => {
+    if (overPerformanceRatio >= 1.5) return 5; // Max stars for exceptional performance
+    if (overPerformanceRatio >= 1.25) return 5;
+    if (overPerformanceRatio >= 1.1) return 4;
+    if (overPerformanceRatio >= 1.0) return 4;
+    if (overPerformanceRatio >= 0.9) return 3;
+    if (overPerformanceRatio >= 0.8) return 2;
+    return 1;
   };
   
-  const getAchievementColor = () => {
-    if (percentage >= 90) return "text-yellow-500";
-    if (percentage >= 80) return "text-blue-500";
-    if (percentage >= 70) return "text-green-500";
-    if (percentage >= 60) return "text-orange-500";
+  const stars = getPerformanceLevel();
+  
+  // Sales-specific achievement titles
+  const getSalesTitle = () => {
+    if (overPerformanceRatio >= 1.5) return "Sales Champion";
+    if (overPerformanceRatio >= 1.25) return "Top Performer";
+    if (overPerformanceRatio >= 1.1) return "Revenue Leader";
+    if (isTargetMet) return "Target Achiever";
+    if (overPerformanceRatio >= 0.9) return "Close to Target";
+    if (overPerformanceRatio >= 0.8) return "Needs Push";
+    return "Requires Focus";
+  };
+  
+  const getSalesColor = () => {
+    if (overPerformanceRatio >= 1.25) return "text-yellow-500";
+    if (overPerformanceRatio >= 1.1) return "text-blue-500";
+    if (isTargetMet) return "text-green-500";
+    if (overPerformanceRatio >= 0.8) return "text-orange-500";
     return "text-gray-400";
   };
   
-  const statusColor = isTargetMet 
-    ? "success" 
-    : percentage >= 80 
-      ? "warning" 
-      : "destructive";
+  const getSalesStatus = () => {
+    if (overPerformanceRatio >= 1.5) return { label: "Record Breaking", color: "success", glow: true };
+    if (overPerformanceRatio >= 1.25) return { label: "Bonus Territory", color: "success", glow: true };
+    if (overPerformanceRatio >= 1.1) return { label: "Exceeded Target", color: "success", glow: false };
+    if (isTargetMet) return { label: "Target Met", color: "success", glow: false };
+    if (overPerformanceRatio >= 0.8) return { label: "Approaching Target", color: "warning", glow: false };
+    return { label: "Below Target", color: "destructive", glow: false };
+  };
+  
+  const salesStatus = getSalesStatus();
 
   return (
     <EnhancedTooltip
@@ -82,9 +101,9 @@ export function AchievementMetricCard({
         )}
         onClick={onClick}
       >
-        {/* Achievement glow effect */}
-        {percentage >= 90 && (
-          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 via-transparent to-orange-400/10 animate-pulse" />
+        {/* Sales achievement glow effect */}
+        {salesStatus.glow && (
+          <div className="absolute inset-0 bg-gradient-to-br from-success/10 via-transparent to-primary/10 animate-pulse" />
         )}
         
         <CardHeader className="pb-2 relative z-10">
@@ -96,36 +115,39 @@ export function AchievementMetricCard({
               </CardTitle>
             </div>
             <Badge
-              variant={statusColor === "success" ? "default" : "secondary"}
+              variant={salesStatus.color === "success" ? "default" : "secondary"}
               className={cn(
-                "text-xs",
-                statusColor === "success" && "bg-success text-success-foreground",
-                statusColor === "warning" && "bg-warning text-warning-foreground",
-                statusColor === "destructive" && "bg-destructive text-destructive-foreground"
+                "text-xs animate-fade-in",
+                salesStatus.color === "success" && "bg-success text-success-foreground",
+                salesStatus.color === "warning" && "bg-warning text-warning-foreground",
+                salesStatus.color === "destructive" && "bg-destructive text-destructive-foreground",
+                salesStatus.glow && "animate-pulse shadow-lg shadow-success/50"
               )}
             >
-              {isTargetMet ? "Target Met" : "Below Target"}
+              {salesStatus.label}
             </Badge>
           </div>
         </CardHeader>
         
         <CardContent className="pt-2 relative z-10">
           <div className="space-y-4">
-            {/* Achievement Level */}
+            {/* Sales Performance Level */}
             <div className="text-center space-y-2">
-              <div className={cn("text-lg font-bold", getAchievementColor())}>
-                {getAchievementTitle()}
+              <div className={cn("text-lg font-bold", getSalesColor())}>
+                {getSalesTitle()}
               </div>
               
-              {/* Star Rating */}
+              {/* Star Rating based on performance */}
               <div className="flex justify-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
                     className={cn(
                       "h-5 w-5 transition-all duration-300",
-                      star <= Math.floor((percentage / 100) * 5) + 1
-                        ? "text-yellow-500 fill-yellow-500"
+                      star <= stars
+                        ? salesStatus.glow 
+                          ? "text-yellow-400 fill-yellow-400 animate-pulse" 
+                          : "text-yellow-500 fill-yellow-500"
                         : "text-muted-foreground/30"
                     )}
                   />
@@ -136,42 +158,57 @@ export function AchievementMetricCard({
             {/* Score Display */}
             <div className="text-center space-y-1">
               <div className="flex items-center justify-center gap-2">
-                <span className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent group-hover:animate-number-roll">
+                <span className={cn(
+                  "text-3xl font-bold bg-gradient-to-r bg-clip-text text-transparent group-hover:animate-number-roll",
+                  salesStatus.glow 
+                    ? "from-success to-success-foreground animate-bounce-in" 
+                    : "from-primary to-secondary"
+                )}>
                   {currentScore.toFixed(1)}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  / {maxScore}
+                  {isOverPerforming ? `(${(overPerformanceRatio * 100).toFixed(0)}%)` : `/ ${target}`}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
-                Target: {target.toFixed(1)}
+                {isOverPerforming 
+                  ? `${((overPerformanceRatio - 1) * 100).toFixed(1)}% above target (${target.toFixed(1)})`
+                  : `Target: ${target.toFixed(1)}`
+                }
               </p>
             </div>
             
-            {/* Progress Bar with XP style */}
+            {/* Sales Progress Bar */}
             <div className="space-y-2">
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Progress</span>
-                <span>{percentage.toFixed(1)}% XP</span>
+                <span>Sales Progress</span>
+                <span>{isOverPerforming ? `${(overPerformanceRatio * 100).toFixed(0)}%` : `${((currentScore / target) * 100).toFixed(1)}%`}</span>
               </div>
               
-              <div className="h-3 bg-muted rounded-full overflow-hidden border border-border">
+              <div className="h-3 bg-muted rounded-full overflow-hidden border border-border relative">
+                {/* Target marker */}
+                <div 
+                  className="absolute top-0 w-0.5 h-full bg-foreground/40 z-10"
+                  style={{ left: `${Math.min((target / dynamicMaxScore) * 100, 100)}%` }}
+                />
                 <div 
                   className={cn(
-                    "h-full transition-all duration-700 group-hover:animate-progress-fill relative",
-                    percentage < 50 && "bg-gradient-to-r from-red-500 to-red-400",
-                    percentage >= 50 && percentage < 80 && "bg-gradient-to-r from-orange-500 to-yellow-400",
-                    percentage >= 80 && percentage < 90 && "bg-gradient-to-r from-blue-500 to-green-400",
-                    percentage >= 90 && "bg-gradient-to-r from-yellow-400 to-orange-500"
+                    "h-full transition-all duration-700 relative",
+                    salesStatus.glow && "animate-progress-fill",
+                    overPerformanceRatio >= 1.25 && "bg-gradient-to-r from-success to-success-foreground",
+                    overPerformanceRatio >= 1.1 && overPerformanceRatio < 1.25 && "bg-gradient-to-r from-primary to-secondary",
+                    isTargetMet && overPerformanceRatio < 1.1 && "bg-gradient-to-r from-blue-500 to-green-500",
+                    !isTargetMet && overPerformanceRatio >= 0.8 && "bg-gradient-to-r from-orange-500 to-yellow-400",
+                    overPerformanceRatio < 0.8 && "bg-gradient-to-r from-red-500 to-red-400"
                   )}
                   style={{ 
-                    width: `${Math.min(percentage, 100)}%`,
-                    boxShadow: percentage >= 90 ? "0 0 10px rgba(251, 191, 36, 0.5)" : "none"
+                    width: `${Math.min((currentScore / dynamicMaxScore) * 100, 100)}%`,
+                    boxShadow: salesStatus.glow ? "0 0 15px rgba(34, 197, 94, 0.6)" : "none"
                   }}
                 >
-                  {/* Sparkle effects for high performance */}
-                  {percentage >= 90 && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                  {/* Sparkle effects for exceptional performance */}
+                  {salesStatus.glow && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
                   )}
                 </div>
               </div>
@@ -193,18 +230,25 @@ export function AchievementMetricCard({
               <span className="text-xs text-muted-foreground">momentum</span>
             </div>
             
-            {/* Achievement badges */}
-            {isTargetMet && (
+            {/* Sales achievement badges */}
+            {overPerformanceRatio >= 1.5 && (
               <div className="flex items-center justify-center gap-1 text-success animate-bounce-in">
-                <Award className="h-4 w-4" />
-                <span className="text-xs font-medium">Achievement Unlocked!</span>
+                <Zap className="h-4 w-4 fill-current animate-pulse" />
+                <span className="text-xs font-bold">SALES CHAMPION!</span>
               </div>
             )}
             
-            {percentage >= 95 && (
-              <div className="flex items-center justify-center gap-1 text-yellow-500 animate-bounce-in">
-                <Zap className="h-4 w-4 fill-current" />
-                <span className="text-xs font-bold">LEGENDARY PERFORMANCE!</span>
+            {overPerformanceRatio >= 1.25 && overPerformanceRatio < 1.5 && (
+              <div className="flex items-center justify-center gap-1 text-primary animate-bounce-in">
+                <Award className="h-4 w-4" />
+                <span className="text-xs font-medium">Top Performer!</span>
+              </div>
+            )}
+            
+            {isTargetMet && overPerformanceRatio < 1.25 && (
+              <div className="flex items-center justify-center gap-1 text-success animate-bounce-in">
+                <Award className="h-4 w-4" />
+                <span className="text-xs font-medium">Target Achieved!</span>
               </div>
             )}
           </div>
