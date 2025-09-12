@@ -58,6 +58,35 @@ export type Database = {
           },
         ]
       }
+      destination_votes: {
+        Row: {
+          created_at: string
+          destination_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          destination_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          destination_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "destination_votes_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "trip_destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       microsoft_tokens: {
         Row: {
           access_token: string
@@ -132,6 +161,30 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      trip_destinations: {
+        Row: {
+          created_at: string
+          destination_name: string
+          id: string
+          is_active: boolean
+          suggested_by_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          destination_name: string
+          id?: string
+          is_active?: boolean
+          suggested_by_user_id: string
+        }
+        Update: {
+          created_at?: string
+          destination_name?: string
+          id?: string
+          is_active?: boolean
+          suggested_by_user_id?: string
         }
         Relationships: []
       }
@@ -212,7 +265,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_top_destinations: {
+        Args: { limit_count?: number }
+        Returns: {
+          destination_name: string
+          id: string
+          suggested_by_user_id: string
+          vote_count: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
