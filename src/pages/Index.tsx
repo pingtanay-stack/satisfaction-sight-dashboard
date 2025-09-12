@@ -429,7 +429,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/8 via-background to-secondary/6 bg-[length:400%_400%] animate-gradient-shift">
       <div className="container mx-auto p-4 space-y-6">
-        {/* Header with Logo, Navigation and Traffic Light */}
+        {/* Header with Logo and Navigation */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-between mb-6">
             {/* Sysmex Logo */}
@@ -441,39 +441,32 @@ const Index = () => {
               />
             </div>
             
-            {/* Dashboard Title and Navigation */}
-            <div className="flex flex-col items-center gap-3">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Customer Satisfaction Dashboard
-              </h1>
-              
-              {/* Navigation Bar */}
-              <div className="flex items-center gap-2 p-1 bg-muted/30 rounded-lg border">
-                <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 border border-primary/20 rounded-md">
-                  <BarChart3 className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium text-primary">Customer Satisfaction</span>
-                </div>
-                 <Button
-                   variant="ghost"
-                   size="sm"
-                   onClick={() => navigate('/sales')}
-                   className="px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
-                 >
-                   <Trophy className="h-4 w-4 mr-2 text-muted-foreground" />
-                   <span className="text-sm">Sales Performance</span>
-                   <ArrowRight className="h-4 w-4 ml-2 text-muted-foreground" />
-                 </Button>
-                 <Button
-                   variant="ghost"
-                   size="sm"
-                   onClick={() => navigate('/climate')}
-                   className="px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
-                 >
-                   <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-                   <span className="text-sm">Climate Survey</span>
-                   <ArrowRight className="h-4 w-4 ml-2 text-muted-foreground" />
-                 </Button>
+            {/* Navigation Bar */}
+            <div className="flex items-center gap-2 p-1 bg-muted/30 rounded-lg border">
+              <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 border border-primary/20 rounded-md">
+                <BarChart3 className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Customer Dashboard</span>
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/sales')}
+                className="px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
+              >
+                <Trophy className="h-4 w-4 mr-2 text-muted-foreground" />
+                <span className="text-sm">Sales Dashboard</span>
+                <ArrowRight className="h-4 w-4 ml-2 text-muted-foreground" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/climate')}
+                className="px-3 py-2 h-auto hover:bg-primary/5 transition-all duration-200"
+              >
+                <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                <span className="text-sm">Climate Survey</span>
+                <ArrowRight className="h-4 w-4 ml-2 text-muted-foreground" />
+              </Button>
             </div>
             
             {/* Traffic Light */}
@@ -481,6 +474,11 @@ const Index = () => {
               <OverallTrafficLight metrics={metrics} variant="horizontal" />
             </div>
           </div>
+          
+          {/* Dashboard Title - moved below navigation */}
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-6">
+            Customer Satisfaction Dashboard
+          </h1>
           <div className="flex items-center justify-center gap-4 mt-4">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">

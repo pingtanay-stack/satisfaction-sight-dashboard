@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Upload, FileDown, Users, Lightbulb, Star, TrendingUp, MessageSquare, ThumbsUp } from "lucide-react";
+import { ArrowLeft, Upload, FileDown, Users, Lightbulb, Star, TrendingUp, MessageSquare, ThumbsUp, Sparkles, Heart, Smile, Zap, Trophy, Target, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 
@@ -42,6 +42,8 @@ const Climate = () => {
   const [selectedTeam, setSelectedTeam] = useState("General");
   const [newRating, setNewRating] = useState(5);
   const [newIdea, setNewIdea] = useState({ title: "", description: "", category: "Culture", anonymous: false });
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   const teams = ["Sales & Marketing", "Technical", "Development", "Admin"];
 
@@ -83,6 +85,8 @@ const Climate = () => {
       return;
     }
 
+    setIsSubmittingRating(true);
+
     const { error } = await supabase
       .from('user_climate_data')
       .upsert({
@@ -98,9 +102,13 @@ const Climate = () => {
     if (error) {
       toast({ title: "Error saving rating", variant: "destructive" });
     } else {
-      toast({ title: "Rating saved successfully!" });
+      setShowSuccessAnimation(true);
+      toast({ title: "🎉 Rating saved successfully!" });
+      setTimeout(() => setShowSuccessAnimation(false), 2000);
       loadClimateData();
     }
+    
+    setIsSubmittingRating(false);
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,7 +141,7 @@ const Climate = () => {
       if (error) {
         toast({ title: "Error uploading data", variant: "destructive" });
       } else {
-        toast({ title: "Survey data uploaded successfully!" });
+        toast({ title: "📊 Survey data uploaded successfully!" });
         loadClimateData();
       }
     } catch (error) {
@@ -184,7 +192,7 @@ const Climate = () => {
     if (error) {
       toast({ title: "Error submitting idea", variant: "destructive" });
     } else {
-      toast({ title: "Idea submitted successfully!" });
+      toast({ title: "💡 Idea submitted successfully!" });
       setNewIdea({ title: "", description: "", category: "Culture", anonymous: false });
       loadIdeas();
     }
@@ -200,6 +208,7 @@ const Climate = () => {
       .eq('id', ideaId);
 
     if (!error) {
+      toast({ title: "👍 Vote added!" });
       loadIdeas();
     }
   };
@@ -209,9 +218,23 @@ const Climate = () => {
     : "3.5";
 
   const getScoreColor = (score: number) => {
-    if (score >= 4.5) return "text-green-600";
-    if (score >= 3.5) return "text-yellow-600"; 
-    return "text-red-600";
+    if (score >= 4.5) return "text-green-500";
+    if (score >= 3.5) return "text-yellow-500"; 
+    return "text-red-500";
+  };
+
+  const getScoreEmoji = (score: number) => {
+    if (score >= 4.5) return "🤩";
+    if (score >= 4.0) return "😄";
+    if (score >= 3.5) return "😊";
+    if (score >= 2.5) return "😐";
+    return "😢";
+  };
+
+  const getMoodGradient = (score: number) => {
+    if (score >= 4.5) return "from-green-400 to-emerald-500";
+    if (score >= 3.5) return "from-yellow-400 to-orange-500";
+    return "from-red-400 to-pink-500";
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -224,25 +247,29 @@ const Climate = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
+    <div className="min-h-screen bg-gradient-to-br from-primary/8 via-background to-secondary/6 bg-[length:400%_400%] animate-gradient-shift">
+      {/* Header with matching gradient style */}
+      <div className="border-b bg-gradient-to-r from-primary/5 via-secondary/3 to-primary/5 backdrop-blur-sm border-border/50">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => navigate(-1)}>
+            <Button variant="outline" onClick={() => navigate(-1)} className="hover-lift">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">Climate Survey Dashboard</h1>
-              <p className="text-muted-foreground">Staff satisfaction and workplace culture insights</p>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent animate-fade-in">
+                Climate Survey Dashboard ⛅
+              </h1>
+              <p className="text-muted-foreground animate-slide-up">Staff satisfaction and workplace culture insights</p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/")}>
+            <Button variant="outline" onClick={() => navigate("/")} className="hover-scale">
+              <BarChart3 className="h-4 w-4 mr-2" />
               Customer Dashboard
             </Button>
-            <Button variant="outline" onClick={() => navigate("/sales")}>
+            <Button variant="outline" onClick={() => navigate("/sales")} className="hover-scale">
+              <TrendingUp className="h-4 w-4 mr-2" />
               Sales Dashboard  
             </Button>
           </div>
@@ -250,92 +277,122 @@ const Climate = () => {
       </div>
 
       <div className="p-6 space-y-6">
-        {/* Main Score Display */}
-        <Card className="text-center">
+        {/* Main Score Display with Enhanced Animations */}
+        <Card className={`text-center glass-card hover-lift animate-fade-in ${showSuccessAnimation ? 'animate-celebrate' : ''}`}>
           <CardHeader>
-            <CardTitle className="text-xl">Overall Climate Score</CardTitle>
+            <CardTitle className="text-xl flex items-center justify-center gap-2">
+              <Heart className="h-6 w-6 text-red-500 animate-pulse" />
+              Overall Climate Score
+              <Sparkles className="h-6 w-6 text-yellow-500 animate-twinkle" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className={`text-6xl font-bold mb-4 ${getScoreColor(parseFloat(overallScore))}`}>
+          <CardContent className="space-y-4">
+            <div className={`text-6xl font-bold mb-4 ${getScoreColor(parseFloat(overallScore))} animate-scale-in`}>
               {overallScore}/5.0
+              <span className="text-4xl ml-2 animate-bounce">{getScoreEmoji(parseFloat(overallScore))}</span>
             </div>
             <div className="flex justify-center gap-1 mb-4">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
-                  className={`h-6 w-6 ${
-                    star <= parseFloat(overallScore) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                  className={`h-6 w-6 transition-all duration-300 hover:scale-125 ${
+                    star <= parseFloat(overallScore) 
+                      ? 'fill-yellow-400 text-yellow-400 animate-twinkle' 
+                      : 'text-gray-300'
                   }`}
                 />
               ))}
             </div>
+            <div className={`h-2 bg-gradient-to-r ${getMoodGradient(parseFloat(overallScore))} rounded-full mx-auto max-w-xs animate-pulse`}></div>
             <p className="text-muted-foreground">Based on Communication, Learning & Overall Satisfaction</p>
           </CardContent>
         </Card>
 
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="teams">Team Scores</TabsTrigger>
-            <TabsTrigger value="upload">Data Management</TabsTrigger>
-            <TabsTrigger value="ideas">Think Tank</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 glass-surface">
+            <TabsTrigger value="overview" className="hover-glow">📊 Overview</TabsTrigger>
+            <TabsTrigger value="teams" className="hover-glow">👥 Team Scores</TabsTrigger>
+            <TabsTrigger value="upload" className="hover-glow">📁 Data Management</TabsTrigger>
+            <TabsTrigger value="ideas" className="hover-glow">💡 Think Tank</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-4">
+          <TabsContent value="overview" className="space-y-4 animate-fade-in">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
+              <Card className="glass-card hover-lift group">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Communication & Cooperation</CardTitle>
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4 text-blue-500" />
+                    Communication & Cooperation
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
+                  <div className="text-2xl font-bold text-blue-600 animate-pulse-glow">
                     {climateData?.communication_cooperation.toFixed(1) || "3.8"}/5.0
+                    <span className="text-lg ml-2">{getScoreEmoji(climateData?.communication_cooperation || 3.8)}</span>
                   </div>
                   <Progress 
                     value={(climateData?.communication_cooperation || 3.8) * 20} 
-                    className="mt-2" 
+                    className="mt-2 h-3 animate-shimmer" 
                   />
+                  <div className="mt-2 text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                    Excellent team synergy! 🤝
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="glass-card hover-lift group">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Learning & Development</CardTitle>
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Target className="h-4 w-4 text-purple-500" />
+                    Learning & Development
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
+                  <div className="text-2xl font-bold text-purple-600 animate-pulse-glow">
                     {climateData?.learning_development.toFixed(1) || "4.0"}/5.0
+                    <span className="text-lg ml-2">{getScoreEmoji(climateData?.learning_development || 4.0)}</span>
                   </div>
                   <Progress 
                     value={(climateData?.learning_development || 4.0) * 20} 
-                    className="mt-2" 
+                    className="mt-2 h-3 animate-shimmer" 
                   />
+                  <div className="mt-2 text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                    Great growth mindset! 📚
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="glass-card hover-lift group">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Overall Satisfaction</CardTitle>
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Smile className="h-4 w-4 text-green-500" />
+                    Overall Satisfaction
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
+                  <div className="text-2xl font-bold text-green-600 animate-pulse-glow">
                     {climateData?.overall_satisfaction.toFixed(1) || "4.2"}/5.0
+                    <span className="text-lg ml-2">{getScoreEmoji(climateData?.overall_satisfaction || 4.2)}</span>
                   </div>
                   <Progress 
                     value={(climateData?.overall_satisfaction || 4.2) * 20} 
-                    className="mt-2" 
+                    className="mt-2 h-3 animate-shimmer" 
                   />
+                  <div className="mt-2 text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                    Keep up the good vibes! ✨
+                  </div>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          <TabsContent value="teams" className="space-y-4">
-            <Card>
+          <TabsContent value="teams" className="space-y-4 animate-fade-in">
+            <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
+                  <Users className="h-5 w-5 text-primary animate-pulse" />
                   Quick Team Rating
+                  <Zap className="h-5 w-5 text-yellow-500 animate-bounce" />
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -343,7 +400,7 @@ const Climate = () => {
                   <div className="flex-1">
                     <label className="text-sm font-medium">Select Team</label>
                     <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                      <SelectTrigger>
+                      <SelectTrigger className="hover-glow">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -362,178 +419,237 @@ const Climate = () => {
                       step="0.1"
                       value={newRating}
                       onChange={(e) => setNewRating(parseFloat(e.target.value))}
+                      className="hover-glow"
                     />
                   </div>
-                  <Button onClick={handleQuickRating}>
-                    Submit Rating
+                  <Button 
+                    onClick={handleQuickRating}
+                    disabled={isSubmittingRating}
+                    className="hover-lift bg-gradient-to-r from-primary to-secondary hover:from-primary/80 hover:to-secondary/80"
+                  >
+                    {isSubmittingRating ? (
+                      <>
+                        <div className="animate-spin mr-2">⭐</div>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Submit Rating
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {teams.map((team) => (
-                <Card key={team}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">{team}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-center mb-2">
-                      {(3.5 + Math.random() * 1.5).toFixed(1)}/5.0
-                    </div>
-                    <div className="flex justify-center gap-1">
-                      {[1, 2, 3, 4].map((star) => (
-                        <Star
-                          key={star}
-                          className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                        />
-                      ))}
-                      <Star className="h-4 w-4 text-gray-300" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {teams.map((team, index) => {
+                const randomScore = 3.5 + Math.random() * 1.5;
+                return (
+                  <Card key={team} className="glass-card hover-lift animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Trophy className="h-4 w-4 text-yellow-500 animate-twinkle" />
+                        {team}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-center mb-2 animate-pulse-glow">
+                        {randomScore.toFixed(1)}/5.0
+                        <span className="text-lg ml-1">{getScoreEmoji(randomScore)}</span>
+                      </div>
+                      <div className="flex justify-center gap-1 mb-2">
+                        {[1, 2, 3, 4].map((star) => (
+                          <Star
+                            key={star}
+                            className="h-4 w-4 fill-yellow-400 text-yellow-400 animate-twinkle"
+                            style={{ animationDelay: `${star * 0.2}s` }}
+                          />
+                        ))}
+                        <Star className="h-4 w-4 text-gray-300" />
+                      </div>
+                      <div className={`h-2 bg-gradient-to-r ${getMoodGradient(randomScore)} rounded-full animate-shimmer`}></div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
 
-          <TabsContent value="upload" className="space-y-4">
+          <TabsContent value="upload" className="space-y-4 animate-fade-in">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
+              <Card className="glass-card hover-lift">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Upload className="h-5 w-5" />
+                    <Upload className="h-5 w-5 text-blue-500 animate-bounce" />
                     Upload Survey Data
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-sm text-muted-foreground">
-                    Upload Excel files containing survey results from HR
+                    Upload Excel files containing survey results from HR 📊
                   </p>
                   <Input
                     type="file"
                     accept=".xlsx,.xls,.csv"
                     onChange={handleFileUpload}
+                    className="hover-glow"
                   />
-                  <Button variant="outline" onClick={downloadTemplate} className="w-full">
+                  <Button variant="outline" onClick={downloadTemplate} className="w-full hover-lift">
                     <FileDown className="h-4 w-4 mr-2" />
-                    Download Template
+                    Download Template 📄
                   </Button>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="glass-card hover-lift">
                 <CardHeader>
-                  <CardTitle>Data Status</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-green-500 animate-pulse" />
+                    Data Status
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Data Source:</span>
-                    <Badge variant="secondary">Demo Data</Badge>
+                    <Badge variant="secondary" className="animate-fade-in">✨ Demo Data</Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Last Updated:</span>
                     <span className="text-sm text-muted-foreground">
-                      {new Date().toLocaleDateString()}
+                      {new Date().toLocaleDateString()} 📅
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Survey Responses:</span>
-                    <span className="text-sm font-medium">24 employees</span>
+                    <span className="text-sm font-medium animate-pulse">24 employees 👥</span>
+                  </div>
+                  <div className="mt-4 p-3 bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30 rounded-lg">
+                    <p className="text-sm text-center animate-fade-in">
+                      🎯 Response rate: 89% - Excellent participation!
+                    </p>
                   </div>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          <TabsContent value="ideas" className="space-y-4">
-            <Card>
+          <TabsContent value="ideas" className="space-y-4 animate-fade-in">
+            <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5" />
+                  <Lightbulb className="h-5 w-5 text-yellow-500 animate-pulse" />
                   Submit New Idea
+                  <Sparkles className="h-5 w-5 text-purple-500 animate-twinkle" />
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Input
-                  placeholder="Idea title..."
+                  placeholder="💡 Idea title..."
                   value={newIdea.title}
                   onChange={(e) => setNewIdea({ ...newIdea, title: e.target.value })}
+                  className="hover-glow"
                 />
                 <Textarea
-                  placeholder="Describe your idea to enhance work culture..."
+                  placeholder="✨ Describe your idea to enhance work culture..."
                   value={newIdea.description}
                   onChange={(e) => setNewIdea({ ...newIdea, description: e.target.value })}
+                  className="hover-glow"
                 />
                 <div className="flex gap-4 items-center">
                   <Select 
                     value={newIdea.category} 
                     onValueChange={(value) => setNewIdea({ ...newIdea, category: value })}
                   >
-                    <SelectTrigger className="w-48">
+                    <SelectTrigger className="w-48 hover-glow">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Culture">Work Culture</SelectItem>
-                      <SelectItem value="Process">Process Improvement</SelectItem>
-                      <SelectItem value="Benefits">Benefits & Perks</SelectItem>
-                      <SelectItem value="Environment">Work Environment</SelectItem>
+                      <SelectItem value="Culture">🎭 Work Culture</SelectItem>
+                      <SelectItem value="Process">⚙️ Process Improvement</SelectItem>
+                      <SelectItem value="Benefits">🎁 Benefits & Perks</SelectItem>
+                      <SelectItem value="Environment">🏢 Work Environment</SelectItem>
                     </SelectContent>
                   </Select>
                   <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
+                    <input 
+                      type="checkbox" 
                       checked={newIdea.anonymous}
                       onChange={(e) => setNewIdea({ ...newIdea, anonymous: e.target.checked })}
+                      className="rounded"
                     />
-                    Submit anonymously
+                    🎭 Submit anonymously
                   </label>
-                  <Button onClick={submitIdea} disabled={!newIdea.title || !newIdea.description}>
-                    Submit Idea
+                  <Button 
+                    onClick={submitIdea}
+                    disabled={!newIdea.title || !newIdea.description}
+                    className="hover-lift bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  >
+                    <Lightbulb className="h-4 w-4 mr-2" />
+                    Submit Idea ✨
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Community Ideas</h3>
-              {ideas.length > 0 ? ideas.map((idea) => (
-                <Card key={idea.id}>
-                  <CardContent className="pt-6">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex-1">
-                        <h4 className="font-semibold">{idea.title}</h4>
-                        <p className="text-sm text-muted-foreground mt-1">{idea.description}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={getStatusBadgeColor(idea.status)}>
-                          {idea.status}
-                        </Badge>
-                        <Badge variant="outline">{idea.category}</Badge>
-                      </div>
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5 text-blue-500 animate-pulse" />
+                  Community Ideas
+                  <Badge variant="outline" className="animate-bounce">{ideas.length} ideas</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {ideas.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Lightbulb className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
+                      <p className="text-muted-foreground">💭 No ideas yet. Be the first to share!</p>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <div className="text-xs text-muted-foreground">
-                        {idea.is_anonymous ? 'Anonymous' : 'Team Member'} • {new Date(idea.created_at).toLocaleDateString()}
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => voteIdea(idea.id)}
-                      >
-                        <ThumbsUp className="h-3 w-3 mr-1" />
-                        {idea.votes}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )) : (
-                <Card>
-                  <CardContent className="pt-6">
-                    <p className="text-center text-muted-foreground">No ideas submitted yet. Be the first to share your thoughts!</p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+                  ) : (
+                    ideas.map((idea, index) => (
+                      <Card key={idea.id} className="glass-surface hover-lift" style={{ animationDelay: `${index * 0.1}s` }}>
+                        <CardContent className="pt-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="font-medium text-sm">{idea.title}</h3>
+                            <div className="flex items-center gap-2">
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${getStatusBadgeColor(idea.status)} text-white animate-fade-in`}
+                              >
+                                {idea.status}
+                              </Badge>
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-3">{idea.description}</p>
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary" className="text-xs animate-fade-in">
+                                {idea.category}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                {idea.is_anonymous ? "👤 Anonymous" : "👥 Team Member"}
+                              </span>
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => voteIdea(idea.id)}
+                              className="hover-scale"
+                            >
+                              <ThumbsUp className="h-3 w-3 mr-1" />
+                              {idea.votes} 👍
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
