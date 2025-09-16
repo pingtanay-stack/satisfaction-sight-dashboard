@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Upload, FileDown, Users, Lightbulb, Star, TrendingUp, MessageSquare, ThumbsUp, Sparkles, Heart, Smile, Zap, Trophy, Target, BarChart3 } from "lucide-react";
+import { ArrowLeft, Upload, FileDown, Users, Lightbulb, Star, TrendingUp, MessageSquare, ThumbsUp, Sparkles, Heart, Smile, Zap, Trophy, Target, BarChart3, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 
@@ -40,7 +40,7 @@ const Climate = () => {
   const [climateData, setClimateData] = useState<ClimateData | null>(null);
   const [ideas, setIdeas] = useState<IdeaData[]>([]);
   const [selectedTeam, setSelectedTeam] = useState("General");
-  const [newRating, setNewRating] = useState(5);
+  const [newRating, setNewRating] = useState(2);
   const [newIdea, setNewIdea] = useState({ title: "", description: "", category: "Culture", anonymous: false });
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
@@ -59,6 +59,16 @@ const Climate = () => {
 
     if (data && !error) {
       setClimateData(data);
+    } else {
+      // Set default inverted demo data (lower scores are better)
+      setClimateData({
+        overall_satisfaction: 1.8,
+        communication_cooperation: 2.2,
+        learning_development: 2.0,
+        team_name: "General",
+        survey_data: {},
+        monthly_data: {}
+      });
     }
   };
 
@@ -123,12 +133,12 @@ const Climate = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      // Process and save climate survey data
+      // Process and save climate survey data (inverted scoring: 1=best, 5=worst)
       const climateData = {
         user_id: user.user.id,
-        overall_satisfaction: 4.2,
-        communication_cooperation: 3.8,
-        learning_development: 4.0,
+        overall_satisfaction: 1.8,
+        communication_cooperation: 2.2,
+        learning_development: 2.0,
         team_name: "General",
         survey_data: data as any,
         monthly_data: {} as any
@@ -154,17 +164,17 @@ const Climate = () => {
       { 
         'Employee ID': 'EMP001',
         'Team': 'Sales & Marketing',
-        'Overall Satisfaction (1-5)': 4,
-        'Communication & Cooperation (1-5)': 3,
-        'Learning & Development (1-5)': 4,
+        'Overall Satisfaction (1-5, 1=Best)': 2,
+        'Communication & Cooperation (1-5, 1=Best)': 3,
+        'Learning & Development (1-5, 1=Best)': 2,
         'Comments': 'Great team environment'
       },
       { 
         'Employee ID': 'EMP002',
         'Team': 'Technical',
-        'Overall Satisfaction (1-5)': 5,
-        'Communication & Cooperation (1-5)': 4,
-        'Learning & Development (1-5)': 5,
+        'Overall Satisfaction (1-5, 1=Best)': 1,
+        'Communication & Cooperation (1-5, 1=Best)': 2,
+        'Learning & Development (1-5, 1=Best)': 1,
         'Comments': 'Excellent growth opportunities'
       }
     ];
@@ -215,25 +225,25 @@ const Climate = () => {
 
   const overallScore = climateData ? 
     ((climateData.overall_satisfaction + climateData.communication_cooperation + climateData.learning_development) / 3).toFixed(1)
-    : "3.5";
+    : "2.5";
 
   const getScoreColor = (score: number) => {
-    if (score >= 4.5) return "text-green-500";
-    if (score >= 3.5) return "text-yellow-500"; 
+    if (score <= 1.5) return "text-green-500";
+    if (score <= 2.5) return "text-yellow-500"; 
     return "text-red-500";
   };
 
   const getScoreEmoji = (score: number) => {
-    if (score >= 4.5) return "🤩";
-    if (score >= 4.0) return "😄";
-    if (score >= 3.5) return "😊";
-    if (score >= 2.5) return "😐";
+    if (score <= 1.5) return "🤩";
+    if (score <= 2.0) return "😄";
+    if (score <= 2.5) return "😊";
+    if (score <= 3.5) return "😐";
     return "😢";
   };
 
   const getMoodGradient = (score: number) => {
-    if (score >= 4.5) return "from-green-400 to-emerald-500";
-    if (score >= 3.5) return "from-yellow-400 to-orange-500";
+    if (score <= 1.5) return "from-green-400 to-emerald-500";
+    if (score <= 2.5) return "from-yellow-400 to-orange-500";
     return "from-red-400 to-pink-500";
   };
 
@@ -292,11 +302,11 @@ const Climate = () => {
               <span className="text-4xl ml-2 animate-bounce">{getScoreEmoji(parseFloat(overallScore))}</span>
             </div>
             <div className="flex justify-center gap-1 mb-4">
-              {[1, 2, 3, 4, 5].map((star) => (
+              {[5, 4, 3, 2, 1].map((star) => (
                 <Star
                   key={star}
                   className={`h-6 w-6 transition-all duration-300 hover:scale-125 ${
-                    star <= parseFloat(overallScore) 
+                    parseFloat(overallScore) <= star 
                       ? 'fill-yellow-400 text-yellow-400 animate-twinkle' 
                       : 'text-gray-300'
                   }`}
@@ -304,7 +314,7 @@ const Climate = () => {
               ))}
             </div>
             <div className={`h-2 bg-gradient-to-r ${getMoodGradient(parseFloat(overallScore))} rounded-full mx-auto max-w-xs animate-pulse`}></div>
-            <p className="text-muted-foreground">Based on Communication, Learning & Overall Satisfaction</p>
+            <p className="text-muted-foreground">Based on Communication, Learning & Overall Satisfaction (1=Best, 5=Needs Improvement)</p>
           </CardContent>
         </Card>
 
@@ -327,11 +337,11 @@ const Climate = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-blue-600 animate-pulse-glow">
-                    {climateData?.communication_cooperation.toFixed(1) || "3.8"}/5.0
-                    <span className="text-lg ml-2">{getScoreEmoji(climateData?.communication_cooperation || 3.8)}</span>
+                    {climateData?.communication_cooperation.toFixed(1) || "2.2"}/5.0
+                    <span className="text-lg ml-2">{getScoreEmoji(climateData?.communication_cooperation || 2.2)}</span>
                   </div>
                   <Progress 
-                    value={(climateData?.communication_cooperation || 3.8) * 20} 
+                    value={100 - (climateData?.communication_cooperation || 2.2) * 20} 
                     className="mt-2 h-3 animate-shimmer" 
                   />
                   <div className="mt-2 text-xs text-muted-foreground group-hover:text-primary transition-colors">
@@ -349,11 +359,11 @@ const Climate = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-purple-600 animate-pulse-glow">
-                    {climateData?.learning_development.toFixed(1) || "4.0"}/5.0
-                    <span className="text-lg ml-2">{getScoreEmoji(climateData?.learning_development || 4.0)}</span>
+                    {climateData?.learning_development.toFixed(1) || "2.0"}/5.0
+                    <span className="text-lg ml-2">{getScoreEmoji(climateData?.learning_development || 2.0)}</span>
                   </div>
                   <Progress 
-                    value={(climateData?.learning_development || 4.0) * 20} 
+                    value={100 - (climateData?.learning_development || 2.0) * 20} 
                     className="mt-2 h-3 animate-shimmer" 
                   />
                   <div className="mt-2 text-xs text-muted-foreground group-hover:text-primary transition-colors">
@@ -371,11 +381,11 @@ const Climate = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-600 animate-pulse-glow">
-                    {climateData?.overall_satisfaction.toFixed(1) || "4.2"}/5.0
-                    <span className="text-lg ml-2">{getScoreEmoji(climateData?.overall_satisfaction || 4.2)}</span>
+                    {climateData?.overall_satisfaction.toFixed(1) || "1.8"}/5.0
+                    <span className="text-lg ml-2">{getScoreEmoji(climateData?.overall_satisfaction || 1.8)}</span>  
                   </div>
                   <Progress 
-                    value={(climateData?.overall_satisfaction || 4.2) * 20} 
+                    value={100 - (climateData?.overall_satisfaction || 1.8) * 20} 
                     className="mt-2 h-3 animate-shimmer" 
                   />
                   <div className="mt-2 text-xs text-muted-foreground group-hover:text-primary transition-colors">
@@ -411,7 +421,7 @@ const Climate = () => {
                     </Select>
                   </div>
                   <div className="flex-1">
-                    <label className="text-sm font-medium">Current Satisfaction (1-5)</label>
+                    <label className="text-sm font-medium">Current Satisfaction (1=Best, 5=Needs Work)</label>
                     <Input
                       type="number"
                       min="1"
@@ -445,13 +455,26 @@ const Climate = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {teams.map((team, index) => {
-                const randomScore = 3.5 + Math.random() * 1.5;
+                const randomScore = 1.5 + Math.random() * 1.5; // Inverted: now 1.5-3.0 range
                 return (
-                  <Card key={team} className="glass-card hover-lift animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <Card key={team} className="glass-card hover-lift animate-fade-in cursor-pointer group" style={{ animationDelay: `${index * 0.1}s` }}>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-medium flex items-center gap-2">
-                        <Trophy className="h-4 w-4 text-yellow-500 animate-twinkle" />
-                        {team}
+                      <CardTitle className="text-sm font-medium flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Trophy className="h-4 w-4 text-yellow-500 animate-twinkle" />
+                          {team}
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-xs hover:bg-primary/10"
+                          onClick={() => {
+                            toast({ title: `🗳️ Vote submitted for ${team}!` });
+                            // In real app, this would update team scores
+                          }}
+                        >
+                          Vote 🗳️
+                        </Button>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -460,16 +483,22 @@ const Climate = () => {
                         <span className="text-lg ml-1">{getScoreEmoji(randomScore)}</span>
                       </div>
                       <div className="flex justify-center gap-1 mb-2">
-                        {[1, 2, 3, 4].map((star) => (
+                        {[5, 4, 3, 2, 1].map((star) => (
                           <Star
                             key={star}
-                            className="h-4 w-4 fill-yellow-400 text-yellow-400 animate-twinkle"
+                            className={`h-4 w-4 transition-all duration-300 ${
+                              randomScore <= star 
+                                ? 'fill-yellow-400 text-yellow-400 animate-twinkle' 
+                                : 'text-gray-300'
+                            }`}
                             style={{ animationDelay: `${star * 0.2}s` }}
                           />
                         ))}
-                        <Star className="h-4 w-4 text-gray-300" />
                       </div>
                       <div className={`h-2 bg-gradient-to-r ${getMoodGradient(randomScore)} rounded-full animate-shimmer`}></div>
+                      <div className="mt-2 text-xs text-center text-muted-foreground group-hover:text-primary transition-colors">
+                        Click to vote for improvement areas
+                      </div>
                     </CardContent>
                   </Card>
                 );
@@ -536,7 +565,17 @@ const Climate = () => {
           </TabsContent>
 
           <TabsContent value="ideas" className="space-y-4 animate-fade-in">
-            <Card className="glass-card">
+            <div className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-yellow-500/10 p-6 rounded-xl border-2 border-dashed border-primary/30 mb-6 text-center">
+              <div className="text-4xl mb-2 animate-bounce">💡</div>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                Think Tank - Innovation Hub
+              </h2>
+              <p className="text-muted-foreground">
+                🚀 Share your brilliant ideas to transform our workplace culture and processes!
+              </p>
+            </div>
+            
+            <Card className="glass-card border-2 border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Lightbulb className="h-5 w-5 text-yellow-500 animate-pulse" />
@@ -652,6 +691,105 @@ const Climate = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Enhanced Vision Framework with Navigation */}
+        <div className="mt-8">
+          <Card className="p-8 mb-8 bg-gradient-to-br from-primary/15 to-secondary/10 border-2 border-primary/30 shadow-2xl">
+            <div className="text-center mb-6">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+                🏠 Our Vision Framework
+              </h2>
+              <p className="text-muted-foreground">Navigate to any dashboard from our organizational foundation</p>
+            </div>
+            
+            {/* House Structure */}
+            <div className="relative max-w-4xl mx-auto">
+              
+              {/* Roof - Vision */}
+              <div className="relative mb-0">
+                <div className="w-0 h-0 border-l-[300px] border-r-[300px] border-b-[120px] border-l-transparent border-r-transparent border-b-primary/40 mx-auto"></div>
+                <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-center z-10">
+                  <h1 className="text-2xl font-bold text-primary mb-1">Our Vision</h1>
+                </div>
+                {/* Roof ridge line */}
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-3 bg-primary/40"></div>
+              </div>
+
+              {/* House Body */}
+              <div className="bg-gradient-to-b from-background to-secondary/5 border-2 border-primary/30 rounded-none relative" style={{marginTop: '-2px'}}>
+                
+                {/* Dashboard Navigation - Top Floor */}
+                <div className="text-center py-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-secondary/5">
+                  <h2 className="text-lg font-semibold text-foreground mb-4">Dashboard Navigation</h2>
+                  <div className="flex justify-center gap-4 flex-wrap">
+                    <Button 
+                      onClick={() => navigate("/")} 
+                      className="hover-lift bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                    >
+                      📊 Customer Dashboard
+                    </Button>
+                    <Button 
+                      onClick={() => navigate("/sales")} 
+                      className="hover-lift bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
+                    >
+                      📈 Sales Dashboard
+                    </Button>
+                    <Button 
+                      onClick={() => navigate("/climate")} 
+                      className="hover-lift bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                      disabled
+                    >
+                      ⛅ Climate Dashboard (Current)
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Core Values - Second Floor */}
+                <div className="text-center py-6 border-b border-border/50 bg-secondary/5">
+                  <h2 className="text-lg font-semibold text-foreground mb-4">Core Values</h2>
+                  <div className="flex justify-center gap-3 flex-wrap">
+                    <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Driving Innovation</Badge>
+                    <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Ignite purpose in our work</Badge>
+                    <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Developing Trusted Relationship</Badge>
+                    <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Building Customer Confidence</Badge>
+                    <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Upholding Ethical Standards</Badge>
+                  </div>
+                </div>
+
+                {/* Four Pillars - Main Floor */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-background/80">
+                  {[
+                    { title: "People", icon: Users, color: "bg-blue-500", description: "Customer Experience", dashboard: "/" },
+                    { title: "Innovate", icon: Lightbulb, color: "bg-green-500", description: "Continuous Improvement", dashboard: "/climate" },
+                    { title: "Protect", icon: Shield, color: "bg-orange-500", description: "Quality Assurance", dashboard: "/" },
+                    { title: "Expand", icon: TrendingUp, color: "bg-purple-500", description: "Growth & Scale", dashboard: "/sales" }
+                  ].map(pillar => (
+                    <div 
+                      key={pillar.title} 
+                      className="text-center group bg-background/70 rounded-lg p-4 border border-border/30 hover:border-primary/50 transition-all duration-200 shadow-sm cursor-pointer hover-lift"
+                      onClick={() => navigate(pillar.dashboard)}
+                    >
+                      <div className="mb-3">
+                        <div className={`w-12 h-12 rounded-full ${pillar.color} flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-200 shadow-lg`}>
+                          <pillar.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-foreground mb-1">{pillar.title}</h3>
+                        <p className="text-xs text-muted-foreground">{pillar.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Foundation */}
+              <div className="text-center py-4 bg-secondary/20 border-2 border-t-0 border-primary/30 rounded-b-lg">
+                <p className="text-xs text-muted-foreground">
+                  <strong className="text-foreground">Foundation:</strong> Customer Satisfaction • Innovation Excellence • Quality Protection • Strategic Growth
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
