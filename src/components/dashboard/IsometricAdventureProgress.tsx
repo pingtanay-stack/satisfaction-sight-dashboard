@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Car, Train, Ship, Plane, Rocket, Trophy, Star, Sparkles, Mountain, Trees, Waves, Cloud, Sun, Flag, MapPin, Users, Gift, Medal, Crown, Heart, ChevronDown, Plus, Vote } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -324,18 +325,17 @@ export function IsometricAdventureProgress({
             </div>
           </div>
 
-          {/* Dream Destinations Section */}
-          <Collapsible open={destinationsOpen} onOpenChange={setDestinationsOpen}>
-            <CollapsibleTrigger asChild>
-              <Button variant="outline" className="w-full justify-between">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  Dream Destinations
-                </div>
-                <ChevronDown className={cn("h-4 w-4 transition-transform", destinationsOpen && "transform rotate-180")} />
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-4 pt-4">
+          {/* Dream Destinations Section - Always Visible */}
+          <div className="space-y-4 p-4 rounded-xl border-2 border-dashed border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="font-medium text-lg">🌍 Suggest Your Dream Destination</span>
+                <Badge variant="secondary" className="ml-2">
+                  {destinations.length} destinations
+                </Badge>
+              </div>
+            </div>
               {/* Add New Destination */}
               <div className="space-y-3 p-4 rounded-lg bg-muted/30">
                 <div className="flex items-center gap-2">
@@ -433,8 +433,7 @@ export function IsometricAdventureProgress({
                   </div>
                 )}
               </div>
-            </CollapsibleContent>
-          </Collapsible>
+            </div>
 
           {/* Status message with adventure theme */}
           <div className="text-center p-4 rounded-xl bg-gradient-to-r from-background/50 via-muted/20 to-background/50 border shadow-inner">
