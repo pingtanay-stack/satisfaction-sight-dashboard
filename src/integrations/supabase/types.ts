@@ -203,6 +203,33 @@ export type Database = {
         }
         Relationships: []
       }
+      team_votes: {
+        Row: {
+          created_at: string
+          id: string
+          team_name: string
+          updated_at: string
+          user_id: string | null
+          vote_score: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          team_name: string
+          updated_at?: string
+          user_id?: string | null
+          vote_score: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          team_name?: string
+          updated_at?: string
+          user_id?: string | null
+          vote_score?: number
+        }
+        Relationships: []
+      }
       trip_destinations: {
         Row: {
           created_at: string
@@ -343,6 +370,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_team_scores: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          average_score: number
+          team_name: string
+          vote_count: number
+        }[]
+      }
       get_top_destinations: {
         Args: { limit_count?: number }
         Returns: {

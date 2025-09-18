@@ -34,11 +34,18 @@ interface IdeaData {
   created_at: string;
 }
 
+interface TeamScore {
+  team_name: string;
+  average_score: number;
+  vote_count: number;
+}
+
 const Climate = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [climateData, setClimateData] = useState<ClimateData | null>(null);
   const [ideas, setIdeas] = useState<IdeaData[]>([]);
+  const [teamScores, setTeamScores] = useState<TeamScore[]>([]);
   const [selectedTeam, setSelectedTeam] = useState("General");
   const [newRating, setNewRating] = useState(2);
   const [newIdea, setNewIdea] = useState({ title: "", description: "", category: "Culture", anonymous: false });
@@ -46,6 +53,13 @@ const Climate = () => {
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   const teams = ["Sales & Marketing", "Technical", "Development", "Admin"];
+
+  const loadTeamScores = async () => {
+    const { data, error } = await supabase.rpc('get_team_scores');
+    if (data && !error) {
+      setTeamScores(data);
+    }
+  };
 
   const loadClimateData = async () => {
     const { data: user } = await supabase.auth.getUser();
@@ -86,7 +100,27 @@ const Climate = () => {
   useEffect(() => {
     loadClimateData();
     loadIdeas();
+    loadTeamScores();
   }, []);
+
+  const handleTeamVote = async (teamName: string, score: number) => {
+    const { data: user } = await supabase.auth.getUser();
+    
+    const { error } = await supabase
+      .from('team_votes')
+      .insert({
+        team_name: teamName,
+        user_id: user.user?.id || null,
+        vote_score: score
+      });
+
+    if (error) {
+      toast({ title: "Error saving vote", variant: "destructive" });
+    } else {
+      toast({ title: `🗳️ Vote submitted for ${teamName}!` });
+      loadTeamScores(); // Reload team scores to show updated averages
+    }
+  };
 
   const handleQuickRating = async () => {
     const { data: user } = await supabase.auth.getUser();
@@ -273,20 +307,126 @@ const Climate = () => {
               <p className="text-muted-foreground animate-slide-up">Staff satisfaction and workplace culture insights</p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/")} className="hover-scale">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Customer Dashboard
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/sales")} className="hover-scale">
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Sales Dashboard  
-            </Button>
-          </div>
         </div>
       </div>
 
       <div className="p-6 space-y-6">
+        {/* Enhanced Vision Framework - Main View */}
+        <Card className="p-8 mb-8 bg-gradient-to-br from-primary/15 to-secondary/10 border-2 border-primary/30 shadow-2xl">
+          <div className="text-center mb-6">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+              🏠 Our Vision Framework - Central Hub
+            </h2>
+            <p className="text-lg text-muted-foreground">Navigate to any dashboard from our organizational foundation</p>
+          </div>
+          
+          {/* House Structure */}
+          <div className="relative max-w-5xl mx-auto">
+            
+            {/* Roof - Vision */}
+            <div className="relative mb-0">
+              <div className="w-0 h-0 border-l-[350px] border-r-[350px] border-b-[140px] border-l-transparent border-r-transparent border-b-primary/40 mx-auto"></div>
+              <div className="absolute top-14 left-1/2 transform -translate-x-1/2 text-center z-10">
+                <h1 className="text-3xl font-bold text-primary mb-1">Our Vision</h1>
+                <p className="text-sm text-muted-foreground">Excellence Through Innovation</p>
+              </div>
+              {/* Roof ridge line */}
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-primary/40"></div>
+            </div>
+
+            {/* House Body */}
+            <div className="bg-gradient-to-b from-background to-secondary/5 border-2 border-primary/30 rounded-none relative" style={{marginTop: '-2px'}}>
+              
+              {/* Dashboard Navigation - Top Floor */}
+              <div className="text-center py-8 border-b border-border/50 bg-gradient-to-r from-primary/10 to-secondary/10">
+                <h2 className="text-2xl font-semibold text-foreground mb-6 flex items-center justify-center gap-2">
+                  <BarChart3 className="h-6 w-6 text-primary animate-pulse" />
+                  Dashboard Navigation Hub
+                  <Sparkles className="h-6 w-6 text-yellow-500 animate-twinkle" />
+                </h2>
+                <div className="flex justify-center gap-6 flex-wrap">
+                  <Button 
+                    onClick={() => navigate("/")} 
+                    className="hover-lift bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-4 h-auto"
+                  >
+                    📊 Customer Dashboard
+                  </Button>
+                  <Button 
+                    onClick={() => navigate("/sales")} 
+                    className="hover-lift bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-lg px-8 py-4 h-auto"
+                  >
+                    📈 Sales Dashboard
+                  </Button>
+                  <Button 
+                    className="hover-lift bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-lg px-8 py-4 h-auto opacity-75 cursor-not-allowed"
+                    disabled
+                  >
+                    ⛅ Climate Dashboard (Current)
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Core Values - Second Floor */}
+              <div className="text-center py-6 border-b border-border/50 bg-secondary/5">
+                <h2 className="text-lg font-semibold text-foreground mb-4">Core Values</h2>
+                <div className="flex justify-center gap-3 flex-wrap">
+                  <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Driving Innovation</Badge>
+                  <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Ignite purpose in our work</Badge>
+                  <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Developing Trusted Relationship</Badge>
+                  <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Building Customer Confidence</Badge>
+                  <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Upholding Ethical Standards</Badge>
+                </div>
+              </div>
+
+              {/* Four Pillars - Main Floor */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-background/80">
+                {[
+                  { title: "People", icon: Users, color: "bg-blue-500", description: "Customer Experience", dashboard: "/" },
+                  { title: "Innovate", icon: Lightbulb, color: "bg-green-500", description: "Continuous Improvement", dashboard: "/climate" },
+                  { title: "Protect", icon: Shield, color: "bg-orange-500", description: "Quality Assurance", dashboard: "/" },
+                  { title: "Expand", icon: TrendingUp, color: "bg-purple-500", description: "Growth & Scale", dashboard: "/sales" }
+                ].map(pillar => (
+                  <div 
+                    key={pillar.title} 
+                    className="text-center group bg-background/70 rounded-lg p-4 border border-border/30 hover:border-primary/50 transition-all duration-200 shadow-sm cursor-pointer hover-lift"
+                    onClick={() => navigate(pillar.dashboard)}
+                  >
+                    <div className="mb-3">
+                      <div className={`w-12 h-12 rounded-full ${pillar.color} flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-200 shadow-lg`}>
+                        <pillar.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-foreground mb-1">{pillar.title}</h3>
+                      <p className="text-xs text-muted-foreground">{pillar.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Foundation */}
+            <div className="text-center py-4 bg-secondary/20 border-2 border-t-0 border-primary/20 rounded-b-lg">
+              <p className="text-xs text-muted-foreground">
+                <strong className="text-foreground">Foundation:</strong> Customer Satisfaction • Innovation Excellence • Quality Protection • Strategic Growth
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        {/* THINK TANK - Prominent Banner */}
+        <div className="bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-yellow-600/20 p-8 rounded-2xl border-4 border-dashed border-primary/40 mb-8 text-center shadow-2xl">
+          <div className="text-6xl mb-4 animate-bounce">🧠💡</div>
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+            THINK TANK - Innovation Central
+          </h2>
+          <p className="text-xl text-muted-foreground mb-4">
+            🚀 The heart of our innovation! Share brilliant ideas to transform our workplace culture!
+          </p>
+          <div className="flex justify-center gap-4">
+            <Badge variant="outline" className="text-lg px-4 py-2 animate-pulse">💭 {ideas.length} Active Ideas</Badge>
+            <Badge variant="outline" className="text-lg px-4 py-2 animate-pulse">⚡ Innovation Hub</Badge>
+          </div>
+        </div>
+
         {/* Main Score Display with Enhanced Animations */}
         <Card className={`text-center glass-card hover-lift animate-fade-in ${showSuccessAnimation ? 'animate-celebrate' : ''}`}>
           <CardHeader>
@@ -321,7 +461,7 @@ const Climate = () => {
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="grid w-full grid-cols-4 glass-surface">
             <TabsTrigger value="overview" className="hover-glow">📊 Overview</TabsTrigger>
-            <TabsTrigger value="teams" className="hover-glow">👥 Team Scores</TabsTrigger>
+            <TabsTrigger value="teams" className="hover-glow">👥 Team Voting</TabsTrigger>
             <TabsTrigger value="upload" className="hover-glow">📁 Data Management</TabsTrigger>
             <TabsTrigger value="ideas" className="hover-glow">💡 Think Tank</TabsTrigger>
           </TabsList>
@@ -397,107 +537,71 @@ const Climate = () => {
           </TabsContent>
 
           <TabsContent value="teams" className="space-y-4 animate-fade-in">
-            <Card className="glass-card">
+            <Card className="glass-card border-2 border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-primary animate-pulse" />
-                  Quick Team Rating
+                  Live Team Voting System
                   <Zap className="h-5 w-5 text-yellow-500 animate-bounce" />
                 </CardTitle>
+                <p className="text-muted-foreground">Vote multiple times to help improve team performance! (1=Best, 5=Needs Improvement)</p>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-4 items-end">
-                  <div className="flex-1">
-                    <label className="text-sm font-medium">Select Team</label>
-                    <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                      <SelectTrigger className="hover-glow">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {teams.map((team) => (
-                          <SelectItem key={team} value={team}>{team}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex-1">
-                    <label className="text-sm font-medium">Current Satisfaction (1=Best, 5=Needs Work)</label>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="5"
-                      step="0.1"
-                      value={newRating}
-                      onChange={(e) => setNewRating(parseFloat(e.target.value))}
-                      className="hover-glow"
-                    />
-                  </div>
-                  <Button 
-                    onClick={handleQuickRating}
-                    disabled={isSubmittingRating}
-                    className="hover-lift bg-gradient-to-r from-primary to-secondary hover:from-primary/80 hover:to-secondary/80"
-                  >
-                    {isSubmittingRating ? (
-                      <>
-                        <div className="animate-spin mr-2">⭐</div>
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Submit Rating
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {teams.map((team, index) => {
-                const randomScore = 1.5 + Math.random() * 1.5; // Inverted: now 1.5-3.0 range
+                const teamScore = teamScores.find(ts => ts.team_name === team);
+                const avgScore = teamScore?.average_score || 3.0;
+                const voteCount = teamScore?.vote_count || 0;
+                
                 return (
-                  <Card key={team} className="glass-card hover-lift animate-fade-in cursor-pointer group" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <Card key={team} className="glass-card hover-lift animate-fade-in cursor-pointer group border-2 border-primary/20" style={{ animationDelay: `${index * 0.1}s` }}>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-medium flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Trophy className="h-4 w-4 text-yellow-500 animate-twinkle" />
-                          {team}
-                        </div>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="text-xs hover:bg-primary/10"
-                          onClick={() => {
-                            toast({ title: `🗳️ Vote submitted for ${team}!` });
-                            // In real app, this would update team scores
-                          }}
-                        >
-                          Vote 🗳️
-                        </Button>
+                      <CardTitle className="text-sm font-medium text-center">
+                        <Trophy className="h-6 w-6 text-yellow-500 animate-twinkle mx-auto mb-2" />
+                        {team}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-center mb-2 animate-pulse-glow">
-                        {randomScore.toFixed(1)}/5.0
-                        <span className="text-lg ml-1">{getScoreEmoji(randomScore)}</span>
+                    <CardContent className="space-y-4">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold animate-pulse-glow mb-2">
+                          {avgScore}/5.0
+                          <span className="text-lg ml-1">{getScoreEmoji(avgScore)}</span>
+                        </div>
+                        <div className="flex justify-center gap-1 mb-2">
+                          {[5, 4, 3, 2, 1].map((star) => (
+                            <Star
+                              key={star}
+                              className={`h-4 w-4 transition-all duration-300 ${
+                                avgScore <= star 
+                                  ? 'fill-yellow-400 text-yellow-400 animate-twinkle' 
+                                  : 'text-gray-300'
+                              }`}
+                              style={{ animationDelay: `${star * 0.2}s` }}
+                            />
+                          ))}
+                        </div>
+                        <Badge variant="outline" className="mb-4">📊 {voteCount} votes</Badge>
                       </div>
-                      <div className="flex justify-center gap-1 mb-2">
-                        {[5, 4, 3, 2, 1].map((star) => (
-                          <Star
-                            key={star}
-                            className={`h-4 w-4 transition-all duration-300 ${
-                              randomScore <= star 
-                                ? 'fill-yellow-400 text-yellow-400 animate-twinkle' 
-                                : 'text-gray-300'
-                            }`}
-                            style={{ animationDelay: `${star * 0.2}s` }}
-                          />
-                        ))}
-                      </div>
-                      <div className={`h-2 bg-gradient-to-r ${getMoodGradient(randomScore)} rounded-full animate-shimmer`}></div>
-                      <div className="mt-2 text-xs text-center text-muted-foreground group-hover:text-primary transition-colors">
-                        Click to vote for improvement areas
+                      
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium">Rate this team (1-5):</label>
+                        <div className="flex gap-1 justify-center">
+                          {[1, 2, 3, 4, 5].map((rating) => (
+                            <Button
+                              key={rating}
+                              size="sm"
+                              variant={rating <= 2 ? "default" : rating <= 3 ? "secondary" : "destructive"}
+                              onClick={() => handleTeamVote(team, rating)}
+                              className="w-10 h-10 text-xs hover-scale"
+                            >
+                              {rating}
+                            </Button>
+                          ))}
+                        </div>
+                        <p className="text-xs text-center text-muted-foreground">
+                          Click to vote: 1-2 = Great! • 3 = Good • 4-5 = Needs work
+                        </p>
                       </div>
                     </CardContent>
                   </Card>
@@ -565,16 +669,6 @@ const Climate = () => {
           </TabsContent>
 
           <TabsContent value="ideas" className="space-y-4 animate-fade-in">
-            <div className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-yellow-500/10 p-6 rounded-xl border-2 border-dashed border-primary/30 mb-6 text-center">
-              <div className="text-4xl mb-2 animate-bounce">💡</div>
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                Think Tank - Innovation Hub
-              </h2>
-              <p className="text-muted-foreground">
-                🚀 Share your brilliant ideas to transform our workplace culture and processes!
-              </p>
-            </div>
-            
             <Card className="glass-card border-2 border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -691,105 +785,6 @@ const Climate = () => {
             </Card>
           </TabsContent>
         </Tabs>
-
-        {/* Enhanced Vision Framework with Navigation */}
-        <div className="mt-8">
-          <Card className="p-8 mb-8 bg-gradient-to-br from-primary/15 to-secondary/10 border-2 border-primary/30 shadow-2xl">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
-                🏠 Our Vision Framework
-              </h2>
-              <p className="text-muted-foreground">Navigate to any dashboard from our organizational foundation</p>
-            </div>
-            
-            {/* House Structure */}
-            <div className="relative max-w-4xl mx-auto">
-              
-              {/* Roof - Vision */}
-              <div className="relative mb-0">
-                <div className="w-0 h-0 border-l-[300px] border-r-[300px] border-b-[120px] border-l-transparent border-r-transparent border-b-primary/40 mx-auto"></div>
-                <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-center z-10">
-                  <h1 className="text-2xl font-bold text-primary mb-1">Our Vision</h1>
-                </div>
-                {/* Roof ridge line */}
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-3 bg-primary/40"></div>
-              </div>
-
-              {/* House Body */}
-              <div className="bg-gradient-to-b from-background to-secondary/5 border-2 border-primary/30 rounded-none relative" style={{marginTop: '-2px'}}>
-                
-                {/* Dashboard Navigation - Top Floor */}
-                <div className="text-center py-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-secondary/5">
-                  <h2 className="text-lg font-semibold text-foreground mb-4">Dashboard Navigation</h2>
-                  <div className="flex justify-center gap-4 flex-wrap">
-                    <Button 
-                      onClick={() => navigate("/")} 
-                      className="hover-lift bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-                    >
-                      📊 Customer Dashboard
-                    </Button>
-                    <Button 
-                      onClick={() => navigate("/sales")} 
-                      className="hover-lift bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
-                    >
-                      📈 Sales Dashboard
-                    </Button>
-                    <Button 
-                      onClick={() => navigate("/climate")} 
-                      className="hover-lift bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                      disabled
-                    >
-                      ⛅ Climate Dashboard (Current)
-                    </Button>
-                  </div>
-                </div>
-                
-                {/* Core Values - Second Floor */}
-                <div className="text-center py-6 border-b border-border/50 bg-secondary/5">
-                  <h2 className="text-lg font-semibold text-foreground mb-4">Core Values</h2>
-                  <div className="flex justify-center gap-3 flex-wrap">
-                    <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Driving Innovation</Badge>
-                    <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Ignite purpose in our work</Badge>
-                    <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Developing Trusted Relationship</Badge>
-                    <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Building Customer Confidence</Badge>
-                    <Badge variant="secondary" className="px-3 py-1 text-xs hover-scale">Upholding Ethical Standards</Badge>
-                  </div>
-                </div>
-
-                {/* Four Pillars - Main Floor */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-background/80">
-                  {[
-                    { title: "People", icon: Users, color: "bg-blue-500", description: "Customer Experience", dashboard: "/" },
-                    { title: "Innovate", icon: Lightbulb, color: "bg-green-500", description: "Continuous Improvement", dashboard: "/climate" },
-                    { title: "Protect", icon: Shield, color: "bg-orange-500", description: "Quality Assurance", dashboard: "/" },
-                    { title: "Expand", icon: TrendingUp, color: "bg-purple-500", description: "Growth & Scale", dashboard: "/sales" }
-                  ].map(pillar => (
-                    <div 
-                      key={pillar.title} 
-                      className="text-center group bg-background/70 rounded-lg p-4 border border-border/30 hover:border-primary/50 transition-all duration-200 shadow-sm cursor-pointer hover-lift"
-                      onClick={() => navigate(pillar.dashboard)}
-                    >
-                      <div className="mb-3">
-                        <div className={`w-12 h-12 rounded-full ${pillar.color} flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-200 shadow-lg`}>
-                          <pillar.icon className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-foreground mb-1">{pillar.title}</h3>
-                        <p className="text-xs text-muted-foreground">{pillar.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Foundation */}
-              <div className="text-center py-4 bg-secondary/20 border-2 border-t-0 border-primary/30 rounded-b-lg">
-                <p className="text-xs text-muted-foreground">
-                  <strong className="text-foreground">Foundation:</strong> Customer Satisfaction • Innovation Excellence • Quality Protection • Strategic Growth
-                </p>
-              </div>
-            </div>
-          </Card>
-        </div>
       </div>
     </div>
   );
