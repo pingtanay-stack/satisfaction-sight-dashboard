@@ -25,6 +25,7 @@ export function IsometricAdventureProgress({
   const [particleCount, setParticleCount] = useState(0);
   const [destinationInput, setDestinationInput] = useState('');
   const [destinationsOpen, setDestinationsOpen] = useState(false);
+  const [viewAllDestinations, setViewAllDestinations] = useState(false);
   
   const { destinations, loading, submitting, createDestination, toggleVote } = useTripDestinations();
   
@@ -325,19 +326,91 @@ export function IsometricAdventureProgress({
             </div>
           </div>
 
-          {/* Dream Destinations Section - Always Visible */}
-          <div className="space-y-4 p-4 rounded-xl border-2 border-dashed border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5">
+          {/* Top 3 Dream Destinations - Always Visible */}
+          <div className="space-y-4 p-4 rounded-xl border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-primary" />
-                <span className="font-medium text-lg">🌍 Suggest Your Dream Destination</span>
+                <Trophy className="h-5 w-5 text-primary" />
+                <span className="font-medium text-lg">🏆 Top Dream Destinations</span>
                 <Badge variant="secondary" className="ml-2">
-                  {destinations.length} destinations
+                  {Math.min(3, destinations.length)} of {destinations.length}
                 </Badge>
               </div>
             </div>
+            
+            {loading ? (
+              <div className="text-center py-4 text-muted-foreground">Loading destinations...</div>
+            ) : destinations.length > 0 ? (
+              <div className="space-y-2">
+                {destinations.slice(0, 3).map((destination, index) => (
+                  <div
+                    key={destination.id}
+                    className={cn(
+                      "flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.02]",
+                      index === 0 && "bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/30 dark:to-amber-900/30 border-yellow-300 dark:border-yellow-700 shadow-lg shadow-yellow-200/50 dark:shadow-yellow-900/20",
+                      index === 1 && "bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/30 dark:to-gray-900/30 border-slate-300 dark:border-slate-700 shadow-md shadow-slate-200/50 dark:shadow-slate-900/20",
+                      index === 2 && "bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 border-orange-300 dark:border-orange-700 shadow-md shadow-orange-200/50 dark:shadow-orange-900/20"
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={cn(
+                        "flex items-center justify-center w-10 h-10 rounded-full text-lg font-bold shadow-lg",
+                        index === 0 && "bg-gradient-to-br from-yellow-400 to-yellow-600 text-white",
+                        index === 1 && "bg-gradient-to-br from-slate-400 to-slate-600 text-white", 
+                        index === 2 && "bg-gradient-to-br from-orange-400 to-orange-600 text-white"
+                      )}>
+                        {index === 0 && "🥇"}
+                        {index === 1 && "🥈"}
+                        {index === 2 && "🥉"}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-lg">{destination.destination_name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {destination.vote_count} {destination.vote_count === 1 ? 'vote' : 'votes'}
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      variant={destination.user_voted ? "default" : "outline"}
+                      size="lg"
+                      onClick={() => toggleVote(destination.id)}
+                      className={cn(
+                        "shrink-0 transition-all duration-300",
+                        destination.user_voted && "scale-105 shadow-lg"
+                      )}
+                    >
+                      <Heart className={cn("h-5 w-5 mr-2", destination.user_voted && "fill-current")} />
+                      {destination.vote_count}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 text-muted-foreground">
+                <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <div>No destinations yet</div>
+                <div className="text-xs">Be the first to suggest a dream destination!</div>
+              </div>
+            )}
+          </div>
+
+          {/* Dream Destinations Section - Collapsible */}
+          <Collapsible open={destinationsOpen} onOpenChange={setDestinationsOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="w-full justify-between hover:bg-primary/5">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Manage Dream Destinations
+                  <Badge variant="outline" className="ml-2">
+                    {destinations.length} total
+                  </Badge>
+                </div>
+                <ChevronDown className={cn("h-4 w-4 transition-transform", destinationsOpen && "transform rotate-180")} />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-4 pt-4">
               {/* Add New Destination */}
-              <div className="space-y-3 p-4 rounded-lg bg-muted/30">
+              <div className="space-y-3 p-4 rounded-lg bg-muted/30 border border-dashed border-muted-foreground/30">
                 <div className="flex items-center gap-2">
                   <Plus className="h-4 w-4 text-primary" />
                   <h4 className="font-medium">Suggest Your Dream Destination</h4>
@@ -377,33 +450,35 @@ export function IsometricAdventureProgress({
                 </div>
               </div>
 
-              {/* Top 3 Destinations */}
+              {/* All Destinations */}
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Vote className="h-4 w-4 text-primary" />
-                  <h4 className="font-medium">Top Dream Destinations</h4>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Vote className="h-4 w-4 text-primary" />
+                    <h4 className="font-medium">All Dream Destinations</h4>
+                  </div>
+                  {destinations.length > 3 && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => setViewAllDestinations(!viewAllDestinations)}
+                    >
+                      {viewAllDestinations ? 'Show Top 3' : `View All ${destinations.length}`}
+                    </Button>
+                  )}
                 </div>
+                
                 {loading ? (
                   <div className="text-center py-4 text-muted-foreground">Loading destinations...</div>
                 ) : destinations.length > 0 ? (
-                  <div className="space-y-2">
-                    {destinations.map((destination, index) => (
+                  <div className="space-y-2 max-h-80 overflow-y-auto">
+                    {(viewAllDestinations ? destinations : destinations.slice(0, 3)).map((destination, index) => (
                       <div
                         key={destination.id}
-                        className={cn(
-                          "flex items-center justify-between p-3 rounded-lg border transition-all duration-300 hover:shadow-md",
-                          index === 0 && "bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-yellow-200 dark:border-yellow-800",
-                          index === 1 && "bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/20 dark:to-gray-900/20 border-slate-200 dark:border-slate-800",
-                          index === 2 && "bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-orange-200 dark:border-orange-800"
-                        )}
+                        className="flex items-center justify-between p-3 rounded-lg border transition-all duration-300 hover:shadow-md hover:border-primary/20"
                       >
                         <div className="flex items-center gap-3">
-                          <div className={cn(
-                            "flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold",
-                            index === 0 && "bg-yellow-500 text-white",
-                            index === 1 && "bg-slate-400 text-white", 
-                            index === 2 && "bg-orange-500 text-white"
-                          )}>
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold">
                             {index + 1}
                           </div>
                           <div>
@@ -433,7 +508,8 @@ export function IsometricAdventureProgress({
                   </div>
                 )}
               </div>
-            </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Status message with adventure theme */}
           <div className="text-center p-4 rounded-xl bg-gradient-to-r from-background/50 via-muted/20 to-background/50 border shadow-inner">
