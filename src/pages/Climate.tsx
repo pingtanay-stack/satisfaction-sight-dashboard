@@ -47,6 +47,7 @@ const Climate = () => {
   const [ideas, setIdeas] = useState<IdeaData[]>([]);
   const [teamScores, setTeamScores] = useState<TeamScore[]>([]);
   const [selectedTeam, setSelectedTeam] = useState("General");
+  const [activeTab, setActiveTab] = useState("overview");
   const [newRating, setNewRating] = useState(2);
   const [newIdea, setNewIdea] = useState({ title: "", description: "", category: "Culture", anonymous: false });
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
@@ -425,14 +426,24 @@ const Climate = () => {
             <Button 
               variant="outline" 
               className="text-lg px-6 py-3 h-auto hover-lift bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border-2 animate-pulse"
-              onClick={() => document.getElementById('ideas-section')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => {
+                setActiveTab('ideas');
+                setTimeout(() => {
+                  document.getElementById('ideas-section')?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }}
             >
               💭 {ideas.length} Active Ideas
             </Button>
             <Button 
               variant="outline" 
               className="text-lg px-6 py-3 h-auto hover-lift bg-gradient-to-r from-yellow-500/10 to-orange-500/10 hover:from-yellow-500/20 hover:to-orange-500/20 border-2 animate-pulse"
-              onClick={() => document.getElementById('submit-idea-section')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => {
+                setActiveTab('ideas');
+                setTimeout(() => {
+                  document.getElementById('submit-idea-section')?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }}
             >
               ⚡ Innovation Hub
             </Button>
@@ -470,7 +481,7 @@ const Climate = () => {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="overview" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid w-full grid-cols-4 glass-surface">
             <TabsTrigger value="overview" className="hover-glow">📊 Overview</TabsTrigger>
             <TabsTrigger value="teams" className="hover-glow">👥 Team Voting</TabsTrigger>
