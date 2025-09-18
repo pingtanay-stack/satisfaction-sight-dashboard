@@ -27,7 +27,7 @@ export function IsometricAdventureProgress({
   const [destinationsOpen, setDestinationsOpen] = useState(false);
   const [viewAllDestinations, setViewAllDestinations] = useState(false);
   
-  const { destinations, loading, submitting, createDestination, toggleVote } = useTripDestinations();
+  const { destinations, allDestinations, loading, submitting, createDestination, toggleVote } = useTripDestinations();
   
   const isQualified = currentProgress >= 100;
   const progressCapped = Math.min(currentProgress, 100);
@@ -401,9 +401,9 @@ export function IsometricAdventureProgress({
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
                   Manage Dream Destinations
-                  <Badge variant="outline" className="ml-2">
-                    {destinations.length} total
-                  </Badge>
+                <Badge variant="outline" className="ml-2">
+                  {allDestinations.length} total
+                </Badge>
                 </div>
                 <ChevronDown className={cn("h-4 w-4 transition-transform", destinationsOpen && "transform rotate-180")} />
               </Button>
@@ -457,22 +457,22 @@ export function IsometricAdventureProgress({
                     <Vote className="h-4 w-4 text-primary" />
                     <h4 className="font-medium">All Dream Destinations</h4>
                   </div>
-                  {destinations.length > 3 && (
+                  {allDestinations.length > 3 && (
                     <Button 
                       variant="ghost" 
                       size="sm"
                       onClick={() => setViewAllDestinations(!viewAllDestinations)}
                     >
-                      {viewAllDestinations ? 'Show Top 3' : `View All ${destinations.length}`}
+                      {viewAllDestinations ? 'Show Top 3' : `View All ${allDestinations.length}`}
                     </Button>
                   )}
                 </div>
                 
                 {loading ? (
                   <div className="text-center py-4 text-muted-foreground">Loading destinations...</div>
-                ) : destinations.length > 0 ? (
+                ) : allDestinations.length > 0 ? (
                   <div className="space-y-2 max-h-80 overflow-y-auto">
-                    {(viewAllDestinations ? destinations : destinations.slice(0, 3)).map((destination, index) => (
+                    {(viewAllDestinations ? allDestinations : allDestinations.slice(0, 3)).map((destination, index) => (
                       <div
                         key={destination.id}
                         className="flex items-center justify-between p-3 rounded-lg border transition-all duration-300 hover:shadow-md hover:border-primary/20"

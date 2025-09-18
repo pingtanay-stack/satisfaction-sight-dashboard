@@ -12,23 +12,28 @@ interface TripDestination {
 
 export function useTripDestinations() {
   const [destinations, setDestinations] = useState<TripDestination[]>([]);
+  const [allDestinations, setAllDestinations] = useState<TripDestination[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
 
   // Fetch top destinations with vote counts
-  const fetchDestinations = async () => {
+  const fetchDestinations = async (limitCount?: number) => {
     setLoading(true);
     try {
       const { data: topDestinations, error } = await supabase
-        .rpc('get_top_destinations', { limit_count: 3 });
+        .rpc('get_top_destinations', { limit_count: limitCount || 3 });
 
       if (error) throw error;
 
       // Get current user's votes
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        setDestinations(topDestinations || []);
+        if (limitCount) {
+          setAllDestinations(topDestinations || []);
+        } else {
+          setDestinations(topDestinations || []);
+        }
         return;
       }
 
@@ -46,7 +51,12 @@ export function useTripDestinations() {
         user_voted: userVoteIds.has(dest.id)
       }));
 
-      setDestinations(destinationsWithVotes);
+      // Set appropriate state based on whether it's limited fetch or all
+      if (limitCount && limitCount > 10) {
+        setAllDestinations(destinationsWithVotes);
+      } else {
+        setDestinations(destinationsWithVotes);
+      }
     } catch (error) {
       console.error('Error fetching destinations:', error);
       toast({
@@ -57,6 +67,11 @@ export function useTripDestinations() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Fetch all destinations (not limited to top 3)
+  const fetchAllDestinations = async () => {
+    await fetchDestinations(100); // Use high limit to get all
   };
 
   // Create new destination
@@ -87,7 +102,9 @@ export function useTripDestinations() {
         description: `Added "${name}" to dream destinations!`,
       });
 
+      // Refresh both lists
       await fetchDestinations();
+      await fetchAllDestinations();
       return true;
     } catch (error) {
       console.error('Error creating destination:', error);
@@ -115,7 +132,9 @@ export function useTripDestinations() {
         return;
       }
 
-      const destination = destinations.find(d => d.id === destinationId);
+      // Look for destination in both arrays
+      const destination = destinations.find(d => d.id === destinationId) || 
+                         allDestinations.find(d => d.id === destinationId);
       if (!destination) return;
 
       if (destination.user_voted) {
@@ -149,7 +168,9 @@ export function useTripDestinations() {
         });
       }
 
+      // Refresh both lists  
       await fetchDestinations();
+      await fetchAllDestinations();
     } catch (error) {
       console.error('Error toggling vote:', error);
       toast({
@@ -163,17 +184,24 @@ export function useTripDestinations() {
   // Real-time subscriptions
   useEffect(() => {
     fetchDestinations();
+    fetchAllDestinations();
 
     // Subscribe to changes
     const destinationsChannel = supabase
       .channel('destinations_changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'trip_destinations' }, 
-        () => fetchDestinations()
+        () => {
+          fetchDestinations();
+          fetchAllDestinations();
+        }
       )
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'destination_votes' }, 
-        () => fetchDestinations()
+        () => {
+          fetchDestinations();
+          fetchAllDestinations();
+        }
       )
       .subscribe();
 
@@ -184,10 +212,12 @@ export function useTripDestinations() {
 
   return {
     destinations,
+    allDestinations,
     loading,
     submitting,
     createDestination,
     toggleVote,
-    refreshDestinations: fetchDestinations
+    refreshDestinations: fetchDestinations,
+    fetchAllDestinations
   };
 }
