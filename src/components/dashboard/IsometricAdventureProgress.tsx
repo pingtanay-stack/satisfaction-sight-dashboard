@@ -4,9 +4,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Car, Train, Ship, Plane, Rocket, Trophy, Star, Sparkles, Mountain, Trees, Waves, Cloud, Sun, Flag, MapPin, Users, Gift, Medal, Crown, Heart, ChevronDown, Plus, Vote } from 'lucide-react';
+import { Car, Train, Ship, Plane, Rocket, Trophy, Star, Sparkles, Mountain, Trees, Waves, Cloud, Sun, Flag, MapPin, Users, Gift, Medal, Crown, Heart, ChevronDown, Plus, Vote, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTripDestinations } from '@/hooks/useTripDestinations';
+import { supabase } from '@/integrations/supabase/client';
 interface IsometricAdventureProgressProps {
   currentProgress: number; // 0-100
   target: number;
@@ -26,8 +27,9 @@ export function IsometricAdventureProgress({
   const [destinationInput, setDestinationInput] = useState('');
   const [destinationsOpen, setDestinationsOpen] = useState(false);
   const [viewAllDestinations, setViewAllDestinations] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   
-  const { destinations, allDestinations, loading, submitting, createDestination, toggleVote } = useTripDestinations();
+  const { destinations, allDestinations, loading, submitting, createDestination, deleteDestination, toggleVote } = useTripDestinations();
   
   const isQualified = currentProgress >= 100;
   const progressCapped = Math.min(currentProgress, 100);
@@ -42,6 +44,15 @@ export function IsometricAdventureProgress({
       return () => clearTimeout(timer);
     }
   }, [isQualified]);
+
+  // Get current user ID
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getCurrentUser();
+  }, []);
 
   // Journey stages with vehicles and terrain
   const getJourneyStage = (progress: number) => {
@@ -370,18 +381,30 @@ export function IsometricAdventureProgress({
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant={destination.user_voted ? "default" : "outline"}
-                      size="lg"
-                      onClick={() => toggleVote(destination.id)}
-                      className={cn(
-                        "shrink-0 transition-all duration-300",
-                        destination.user_voted && "scale-105 shadow-lg"
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant={destination.user_voted ? "default" : "outline"}
+                        size="lg"
+                        onClick={() => toggleVote(destination.id)}
+                        className={cn(
+                          "shrink-0 transition-all duration-300",
+                          destination.user_voted && "scale-105 shadow-lg"
+                        )}
+                      >
+                        <Heart className={cn("h-5 w-5 mr-2", destination.user_voted && "fill-current")} />
+                        {destination.vote_count}
+                      </Button>
+                      {currentUserId === destination.suggested_by_user_id && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => deleteDestination(destination.id)}
+                          className="text-red-600 hover:text-red-700 hover:border-red-300"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       )}
-                    >
-                      <Heart className={cn("h-5 w-5 mr-2", destination.user_voted && "fill-current")} />
-                      {destination.vote_count}
-                    </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -488,15 +511,27 @@ export function IsometricAdventureProgress({
                             </div>
                           </div>
                         </div>
-                        <Button
-                          variant={destination.user_voted ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => toggleVote(destination.id)}
-                          className="shrink-0"
-                        >
-                          <Heart className={cn("h-4 w-4 mr-1", destination.user_voted && "fill-current")} />
-                          {destination.vote_count}
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant={destination.user_voted ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => toggleVote(destination.id)}
+                            className="shrink-0"
+                          >
+                            <Heart className={cn("h-4 w-4 mr-1", destination.user_voted && "fill-current")} />
+                            {destination.vote_count}
+                          </Button>
+                          {currentUserId === destination.suggested_by_user_id && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => deleteDestination(destination.id)}
+                              className="text-red-600 hover:text-red-700 hover:border-red-300 shrink-0"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

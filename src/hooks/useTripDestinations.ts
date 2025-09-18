@@ -88,10 +88,27 @@ export function useTripDestinations() {
         return false;
       }
 
+      const trimmedName = name.trim();
+      
+      // Check for duplicates
+      const existingDestinations = [...destinations, ...allDestinations];
+      const isDuplicate = existingDestinations.some(
+        dest => dest.destination_name.toLowerCase() === trimmedName.toLowerCase()
+      );
+      
+      if (isDuplicate) {
+        toast({
+          title: 'Duplicate destination',
+          description: `"${trimmedName}" already exists in the list`,
+          variant: 'destructive',
+        });
+        return false;
+      }
+
       const { error } = await supabase
         .from('trip_destinations')
         .insert({
-          destination_name: name.trim(),
+          destination_name: trimmedName,
           suggested_by_user_id: user.id
         });
 
@@ -99,7 +116,7 @@ export function useTripDestinations() {
 
       toast({
         title: 'Success!',
-        description: `Added "${name}" to dream destinations!`,
+        description: `Added "${trimmedName}" to dream destinations!`,
       });
 
       // Refresh both lists
@@ -116,6 +133,49 @@ export function useTripDestinations() {
       return false;
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // Delete destination
+  const deleteDestination = async (destinationId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: 'Authentication required',
+          description: 'Please log in to delete destinations',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Find destination to get its name for the toast
+      const destination = destinations.find(d => d.id === destinationId) || 
+                         allDestinations.find(d => d.id === destinationId);
+      
+      const { error } = await supabase
+        .from('trip_destinations')
+        .delete()
+        .eq('id', destinationId)
+        .eq('suggested_by_user_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Destination deleted',
+        description: `Removed "${destination?.destination_name}" from dream destinations`,
+      });
+
+      // Refresh both lists
+      await fetchDestinations();
+      await fetchAllDestinations();
+    } catch (error) {
+      console.error('Error deleting destination:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete destination',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -216,6 +276,7 @@ export function useTripDestinations() {
     loading,
     submitting,
     createDestination,
+    deleteDestination,
     toggleVote,
     refreshDestinations: fetchDestinations,
     fetchAllDestinations
