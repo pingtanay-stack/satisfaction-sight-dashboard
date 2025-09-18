@@ -422,8 +422,20 @@ const Climate = () => {
             🚀 The heart of our innovation! Share brilliant ideas to transform our workplace culture!
           </p>
           <div className="flex justify-center gap-4">
-            <Badge variant="outline" className="text-lg px-4 py-2 animate-pulse">💭 {ideas.length} Active Ideas</Badge>
-            <Badge variant="outline" className="text-lg px-4 py-2 animate-pulse">⚡ Innovation Hub</Badge>
+            <Button 
+              variant="outline" 
+              className="text-lg px-6 py-3 h-auto hover-lift bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border-2 animate-pulse"
+              onClick={() => document.getElementById('ideas-section')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              💭 {ideas.length} Active Ideas
+            </Button>
+            <Button 
+              variant="outline" 
+              className="text-lg px-6 py-3 h-auto hover-lift bg-gradient-to-r from-yellow-500/10 to-orange-500/10 hover:from-yellow-500/20 hover:to-orange-500/20 border-2 animate-pulse"
+              onClick={() => document.getElementById('submit-idea-section')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              ⚡ Innovation Hub
+            </Button>
           </div>
         </div>
 
@@ -669,7 +681,7 @@ const Climate = () => {
           </TabsContent>
 
           <TabsContent value="ideas" className="space-y-4 animate-fade-in">
-            <Card className="glass-card border-2 border-primary/20">
+            <Card className="glass-card border-2 border-primary/20" id="submit-idea-section">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Lightbulb className="h-5 w-5 text-yellow-500 animate-pulse" />
@@ -726,7 +738,7 @@ const Climate = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass-card">
+            <Card className="glass-card" id="ideas-section">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5 text-blue-500 animate-pulse" />
