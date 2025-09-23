@@ -17,6 +17,30 @@ export function SalesTrendChart({ data, title = "Sales Trend", showActualVsTarge
   // Get all keys except 'month' for dynamic line rendering
   const dataKeys = data.length > 0 ? Object.keys(data[0]).filter(key => key !== 'month') : [];
   
+  // Determine the appropriate scale based on data values
+  const getDataScale = () => {
+    if (data.length === 0) return { divisor: 1, suffix: '' };
+    
+    const allValues = data.flatMap(item => 
+      dataKeys.map(key => typeof item[key] === 'number' ? item[key] as number : 0)
+    ).filter(val => val > 0);
+    
+    if (allValues.length === 0) return { divisor: 1, suffix: '' };
+    
+    const maxValue = Math.max(...allValues);
+    
+    if (maxValue >= 1000000000) {
+      return { divisor: 1000000000, suffix: 'B' };
+    } else if (maxValue >= 1000000) {
+      return { divisor: 1000000, suffix: 'M' };
+    } else if (maxValue >= 1000) {
+      return { divisor: 1000, suffix: 'K' };
+    }
+    return { divisor: 1, suffix: '' };
+  };
+
+  const { divisor, suffix } = getDataScale();
+  
   // Color palette for different products (hsl values for theming)
   const baseColors = [
     'hsl(262, 83%, 58%)', // Primary purple
@@ -129,14 +153,15 @@ export function SalesTrendChart({ data, title = "Sales Trend", showActualVsTarge
             <YAxis 
               className="text-xs"
               tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-              tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+              tickFormatter={(value) => suffix ? `$${(value / divisor).toFixed(1)}${suffix}` : `$${value.toLocaleString()}`}
             />
             <Tooltip 
               formatter={(value: number, name: string) => {
                 const productName = getProductName(name);
                 const isTarget = name.includes('_target');
                 const displayName = `${productName.charAt(0).toUpperCase() + productName.slice(1)} ${isTarget ? '(Target)' : '(Actual)'}`;
-                return [`$${(value / 1000000).toFixed(2)}M`, displayName];
+                const formattedValue = suffix ? `$${(value / divisor).toFixed(2)}${suffix}` : `$${value.toLocaleString()}`;
+                return [formattedValue, displayName];
               }}
               labelStyle={{ color: 'hsl(var(--foreground))' }}
               contentStyle={{ 
