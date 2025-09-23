@@ -18,6 +18,10 @@ interface GaugeMetricCardProps {
     current: string;
     recommendation?: string;
   };
+  // Sales-specific fields
+  actualValue?: number;
+  targetValue?: number;
+  showActualValues?: boolean;
 }
 
 export function GaugeMetricCard({
@@ -30,7 +34,10 @@ export function GaugeMetricCard({
   className,
   onClick,
   benchmark,
-  insights
+  insights,
+  actualValue,
+  targetValue,
+  showActualValues = false
 }: GaugeMetricCardProps) {
   // Dynamic scaling for sales - allow over-performance
   const dynamicMaxScore = Math.max(maxScore, target * 1.5, currentScore * 1.1);
@@ -226,13 +233,16 @@ export function GaugeMetricCard({
                     ? "from-success to-success-foreground animate-bounce-in" 
                     : "from-primary to-secondary"
                 )}>
-                  {currentScore.toFixed(1)}
+                  {showActualValues && actualValue ? `$${(actualValue / 1000000).toFixed(1)}M` : currentScore.toFixed(1)}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {isOverPerforming 
-                    ? `${(overPerformanceRatio * 100).toFixed(0)}% of target (${target.toFixed(1)})`
-                    : `Target: ${target.toFixed(1)} (${((currentScore / target) * 100).toFixed(0)}%)`
-                  }
+                  {showActualValues && targetValue ? (
+                    `Target: $${(targetValue / 1000000).toFixed(1)}M (${currentScore.toFixed(1)}%)`
+                  ) : (
+                    isOverPerforming 
+                      ? `${(overPerformanceRatio * 100).toFixed(0)}% of target (${target.toFixed(1)})`
+                      : `Target: ${target.toFixed(1)} (${((currentScore / target) * 100).toFixed(0)}%)`
+                  )}
                 </div>
               </div>
             </div>

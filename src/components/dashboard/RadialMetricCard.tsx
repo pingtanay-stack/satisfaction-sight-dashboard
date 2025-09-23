@@ -18,6 +18,10 @@ interface RadialMetricCardProps {
     current: string;
     recommendation?: string;
   };
+  // Sales-specific fields
+  actualValue?: number;
+  targetValue?: number;
+  showActualValues?: boolean;
 }
 
 export function RadialMetricCard({
@@ -30,7 +34,10 @@ export function RadialMetricCard({
   className,
   onClick,
   benchmark,
-  insights
+  insights,
+  actualValue,
+  targetValue,
+  showActualValues = false
 }: RadialMetricCardProps) {
   // Dynamic scaling for sales - allow over-performance
   const dynamicMaxScore = Math.max(maxScore, target * 1.5, currentScore * 1.1);
@@ -174,29 +181,57 @@ export function RadialMetricCard({
                 
                 {/* Center content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className={cn(
-                    "text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent",
-                    salesStatus.glow 
-                      ? "from-success to-success-foreground animate-bounce-in" 
-                      : "from-primary to-secondary"
-                  )}>
-                    {currentScore.toFixed(1)}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {isOverPerforming ? `${(overPerformanceRatio * 100).toFixed(0)}% of target` : `/ ${target} target`}
-                  </span>
+                  {showActualValues && actualValue ? (
+                    <>
+                      <span className={cn(
+                        "text-lg font-bold bg-gradient-to-r bg-clip-text text-transparent",
+                        salesStatus.glow 
+                          ? "from-success to-success-foreground animate-bounce-in" 
+                          : "from-primary to-secondary"
+                      )}>
+                        ${(actualValue / 1000000).toFixed(1)}M
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {currentScore.toFixed(1)}% achieved
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className={cn(
+                        "text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent",
+                        salesStatus.glow 
+                          ? "from-success to-success-foreground animate-bounce-in" 
+                          : "from-primary to-secondary"
+                      )}>
+                        {currentScore.toFixed(1)}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {isOverPerforming ? `${(overPerformanceRatio * 100).toFixed(0)}% of target` : `/ ${target} target`}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
             
             {/* Performance indicator */}
             <div className="text-center">
-              <p className="text-xs text-muted-foreground mb-2">
-                {isOverPerforming 
-                  ? `${((overPerformanceRatio - 1) * 100).toFixed(1)}% above target (${target.toFixed(1)})`
-                  : `Target: ${target.toFixed(1)} (${((currentScore / target) * 100).toFixed(1)}%)`
-                }
-              </p>
+              {showActualValues && targetValue ? (
+                <p className="text-xs text-muted-foreground mb-2">
+                  Target: ${(targetValue / 1000000).toFixed(1)}M
+                  {isOverPerforming 
+                    ? ` (${((overPerformanceRatio - 1) * 100).toFixed(1)}% above)`
+                    : ` (${((actualValue || 0) / targetValue * 100).toFixed(1)}%)`
+                  }
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground mb-2">
+                  {isOverPerforming 
+                    ? `${((overPerformanceRatio - 1) * 100).toFixed(1)}% above target (${target.toFixed(1)})`
+                    : `Target: ${target.toFixed(1)} (${((currentScore / target) * 100).toFixed(1)}%)`
+                  }
+                </p>
+              )}
             </div>
             
             {/* Trend */}

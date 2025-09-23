@@ -608,7 +608,10 @@ const Sales = () => {
                   target={100} 
                   maxScore={Math.max(100 * 1.5, salesData.salesMetrics.eclair.achieved * 1.1)} 
                   trend={2.5} 
-                  icon={<Monitor className="h-4 w-4" />} 
+                  icon={<Monitor className="h-4 w-4" />}
+                  actualValue={salesData.salesMetrics.eclair.current}
+                  targetValue={salesData.salesMetrics.eclair.target}
+                  showActualValues={true}
                 />
                 <RadialMetricCard 
                   title="Delphic AP" 
@@ -616,7 +619,10 @@ const Sales = () => {
                   target={100} 
                   maxScore={Math.max(100 * 1.5, salesData.salesMetrics.delphicAP.achieved * 1.1)} 
                   trend={1.8} 
-                  icon={<Microscope className="h-4 w-4" />} 
+                  icon={<Microscope className="h-4 w-4" />}
+                  actualValue={salesData.salesMetrics.delphicAP.current}
+                  targetValue={salesData.salesMetrics.delphicAP.target}
+                  showActualValues={true}
                 />
                 <RadialMetricCard 
                   title="Delphic LIS" 
@@ -624,7 +630,10 @@ const Sales = () => {
                   target={100} 
                   maxScore={Math.max(100 * 1.5, salesData.salesMetrics.delphicLIS.achieved * 1.1)} 
                   trend={3.1} 
-                  icon={<TestTube className="h-4 w-4" />} 
+                  icon={<TestTube className="h-4 w-4" />}
+                  actualValue={salesData.salesMetrics.delphicLIS.current}
+                  targetValue={salesData.salesMetrics.delphicLIS.target}
+                  showActualValues={true}
                 />
                 <RadialMetricCard 
                   title="HCLAB External" 
@@ -632,7 +641,10 @@ const Sales = () => {
                   target={100} 
                   maxScore={Math.max(100 * 1.5, salesData.salesMetrics.hclabExternal.achieved * 1.1)} 
                   trend={4.2} 
-                  icon={<Building className="h-4 w-4" />} 
+                  icon={<Building className="h-4 w-4" />}
+                  actualValue={salesData.salesMetrics.hclabExternal.current}
+                  targetValue={salesData.salesMetrics.hclabExternal.target}
+                  showActualValues={true}
                 />
               </div>
             </CardContent>
@@ -654,8 +666,11 @@ const Sales = () => {
                   target={100} 
                   maxScore={Math.max(100 * 1.5, salesData.salesMetrics.urinalysis.total.achieved * 1.1)} 
                   trend={3.8} 
-                  icon={<Beaker className="h-4 w-4" />} 
+                  icon={<Beaker className="h-4 w-4" />}
                   onClick={() => handleProductClick('urinalysis')}
+                  actualValue={salesData.salesMetrics.urinalysis.total.current}
+                  targetValue={salesData.salesMetrics.urinalysis.total.target}
+                  showActualValues={true}
                 />
                 <AchievementMetricCard 
                   title="OGT" 
@@ -663,7 +678,10 @@ const Sales = () => {
                   target={100} 
                   maxScore={Math.max(100 * 1.5, salesData.salesMetrics.ogt.achieved * 1.1)} 
                   trend={5.5} 
-                  icon={<TestTube className="h-4 w-4" />} 
+                  icon={<TestTube className="h-4 w-4" />}
+                  actualValue={salesData.salesMetrics.ogt.current}
+                  targetValue={salesData.salesMetrics.ogt.target}
+                  showActualValues={true}
                 />
                 <AchievementMetricCard 
                   title="FCM" 
@@ -673,6 +691,9 @@ const Sales = () => {
                   trend={2.9} 
                   icon={<Microscope className="h-4 w-4" />}
                   onClick={() => handleProductClick('fcm')}
+                  actualValue={salesData.salesMetrics.fcm.total.current}
+                  targetValue={salesData.salesMetrics.fcm.total.target}
+                  showActualValues={true}
                 />
               </div>
             </CardContent>
@@ -694,7 +715,10 @@ const Sales = () => {
                   target={100} 
                   maxScore={Math.max(100 * 1.5, salesData.salesMetrics.hclabInternal.achieved * 1.1)} 
                   trend={6.1} 
-                  icon={<Building className="h-4 w-4" />} 
+                  icon={<Building className="h-4 w-4" />}
+                  actualValue={salesData.salesMetrics.hclabInternal.current}
+                  targetValue={salesData.salesMetrics.hclabInternal.target}
+                  showActualValues={true}
                 />
                 <GaugeMetricCard 
                   title="SNZ Service" 
@@ -702,7 +726,10 @@ const Sales = () => {
                   target={100} 
                   maxScore={Math.max(100 * 1.5, salesData.salesMetrics.snzService.achieved * 1.1)} 
                   trend={4.7} 
-                  icon={<Headphones className="h-4 w-4" />} 
+                  icon={<Headphones className="h-4 w-4" />}
+                  actualValue={salesData.salesMetrics.snzService.current}
+                  targetValue={salesData.salesMetrics.snzService.target}
+                  showActualValues={true}
                 />
               </div>
             </CardContent>

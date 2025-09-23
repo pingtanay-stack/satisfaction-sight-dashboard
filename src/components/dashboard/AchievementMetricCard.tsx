@@ -17,6 +17,10 @@ interface AchievementMetricCardProps {
     current: string;
     recommendation?: string;
   };
+  // Sales-specific fields
+  actualValue?: number;
+  targetValue?: number;
+  showActualValues?: boolean;
 }
 export function AchievementMetricCard({
   title,
@@ -28,7 +32,10 @@ export function AchievementMetricCard({
   className,
   onClick,
   benchmark,
-  insights
+  insights,
+  actualValue,
+  targetValue,
+  showActualValues = false
 }: AchievementMetricCardProps) {
   // Dynamic scaling for sales - allow over-performance
   const dynamicMaxScore = Math.max(maxScore, target * 1.5, currentScore * 1.1);
@@ -134,16 +141,35 @@ export function AchievementMetricCard({
             {/* Score Display */}
             <div className="text-center space-y-1">
               <div className="flex items-center justify-center gap-2">
-                <span className={cn("text-3xl font-bold bg-gradient-to-r bg-clip-text text-transparent group-hover:animate-number-roll", salesStatus.glow ? "from-success to-success-foreground animate-bounce-in" : "from-primary to-secondary")}>
-                  {currentScore.toFixed(1)}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {isOverPerforming ? `(${(overPerformanceRatio * 100).toFixed(0)}%)` : `/ ${target}`}
-                </span>
+                {showActualValues && actualValue ? (
+                  <>
+                    <span className={cn("text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent group-hover:animate-number-roll", salesStatus.glow ? "from-success to-success-foreground animate-bounce-in" : "from-primary to-secondary")}>
+                      ${(actualValue / 1000000).toFixed(1)}M
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      ({currentScore.toFixed(1)}%)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className={cn("text-3xl font-bold bg-gradient-to-r bg-clip-text text-transparent group-hover:animate-number-roll", salesStatus.glow ? "from-success to-success-foreground animate-bounce-in" : "from-primary to-secondary")}>
+                      {currentScore.toFixed(1)}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {isOverPerforming ? `(${(overPerformanceRatio * 100).toFixed(0)}%)` : `/ ${target}`}
+                    </span>
+                  </>
+                )}
               </div>
-              <p className="text-xs text-muted-foreground">
-                {isOverPerforming ? `${((overPerformanceRatio - 1) * 100).toFixed(1)}% above target (${target.toFixed(1)})` : `Target: ${target.toFixed(1)}`}
-              </p>
+              {showActualValues && targetValue ? (
+                <p className="text-xs text-muted-foreground">
+                  Target: ${(targetValue / 1000000).toFixed(1)}M
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  {isOverPerforming ? `${((overPerformanceRatio - 1) * 100).toFixed(1)}% above target (${target.toFixed(1)})` : `Target: ${target.toFixed(1)}`}
+                </p>
+              )}
             </div>
             
             {/* Sales Progress Bar */}
