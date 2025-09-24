@@ -15,10 +15,12 @@ import { toast } from 'sonner';
 import { SalesData, MonthlyTargetData, saveSalesDataToSupabase, loadSalesDataFromSupabase, hasSavedSalesDataInSupabase } from '@/lib/salesStorage';
 import { calculateYTDAnalysis, calculateTrend, FY_MONTHS, FY_MONTHS_SHORT } from '@/utils/ytdCalculations';
 import * as XLSX from 'xlsx';
+// Default sales data with FY structure - CUMULATIVE VALUES
 const defaultSalesData: SalesData = {
   salesMetrics: {
+    // External Sales - Health IT  
     eclair: {
-      current: 2125000, // 5 months FY progress (Apr-Aug)
+      current: 2125000, // Cumulative through Aug 2025 (5 months)
       target: 5100000, // Full FY target
       achieved: 83.33 // YTD achievement vs expected YTD
     },
@@ -37,6 +39,7 @@ const defaultSalesData: SalesData = {
       target: 5400000,
       achieved: 86.67
     },
+    // External Sales - IVD
     urinalysis: {
       total: {
         current: 3000000,
@@ -90,6 +93,7 @@ const defaultSalesData: SalesData = {
         }
       }
     },
+    // Internal Sales
     hclabInternal: {
       current: 1125000,
       target: 3000000,
@@ -110,28 +114,28 @@ const defaultSalesData: SalesData = {
       hclabExternal: 370000
     }, {
       month: 'May 2025',
-      eclair: 410000,
-      delphicAP: 310000,
-      delphicLIS: 440000,
-      hclabExternal: 380000
+      eclair: 810000, // Cumulative: 400K + 410K = 810K
+      delphicAP: 610000, // Cumulative: 300K + 310K = 610K
+      delphicLIS: 870000, // Cumulative: 430K + 440K = 870K
+      hclabExternal: 750000 // Cumulative: 370K + 380K = 750K
     }, {
       month: 'Jun 2025',
-      eclair: 420000,
-      delphicAP: 320000,
-      delphicLIS: 450000,
-      hclabExternal: 390000
+      eclair: 1230000, // Cumulative: 810K + 420K = 1,230K
+      delphicAP: 930000, // Cumulative: 610K + 320K = 930K
+      delphicLIS: 1320000, // Cumulative: 870K + 450K = 1,320K
+      hclabExternal: 1140000 // Cumulative: 750K + 390K = 1,140K
     }, {
       month: 'Jul 2025',
-      eclair: 435000,
-      delphicAP: 335000,
-      delphicLIS: 470000,
-      hclabExternal: 400000
+      eclair: 1665000, // Cumulative: 1,230K + 435K = 1,665K
+      delphicAP: 1265000, // Cumulative: 930K + 335K = 1,265K
+      delphicLIS: 1790000, // Cumulative: 1,320K + 470K = 1,790K
+      hclabExternal: 1540000 // Cumulative: 1,140K + 400K = 1,540K
     }, {
       month: 'Aug 2025',
-      eclair: 460000,
-      delphicAP: 360000,
-      delphicLIS: 510000,
-      hclabExternal: 410000
+      eclair: 2125000, // Cumulative: 1,665K + 460K = 2,125K
+      delphicAP: 1625000, // Cumulative: 1,265K + 360K = 1,625K
+      delphicLIS: 2300000, // Cumulative: 1,790K + 510K = 2,300K
+      hclabExternal: 1950000 // Cumulative: 1,540K + 410K = 1,950K
     }],
     external_ivd: [{
       month: 'Apr 2025',
@@ -140,24 +144,24 @@ const defaultSalesData: SalesData = {
       fcm: 400000
     }, {
       month: 'May 2025',
-      urinalysis: 575000,
-      ogt: 260000,
-      fcm: 420000
+      urinalysis: 1125000, // Cumulative: 550K + 575K = 1,125K
+      ogt: 510000, // Cumulative: 250K + 260K = 510K
+      fcm: 820000 // Cumulative: 400K + 420K = 820K
     }, {
       month: 'Jun 2025',
-      urinalysis: 600000,
-      ogt: 275000,
-      fcm: 445000
+      urinalysis: 1725000, // Cumulative: 1,125K + 600K = 1,725K
+      ogt: 785000, // Cumulative: 510K + 275K = 785K
+      fcm: 1265000 // Cumulative: 820K + 445K = 1,265K
     }, {
       month: 'Jul 2025',
-      urinalysis: 625000,
-      ogt: 290000,
-      fcm: 470000
+      urinalysis: 2350000, // Cumulative: 1,725K + 625K = 2,350K
+      ogt: 1075000, // Cumulative: 785K + 290K = 1,075K
+      fcm: 1735000 // Cumulative: 1,265K + 470K = 1,735K
     }, {
       month: 'Aug 2025',
-      urinalysis: 650000,
-      ogt: 300000,
-      fcm: 490000
+      urinalysis: 3000000, // Cumulative: 2,350K + 650K = 3,000K
+      ogt: 1375000, // Cumulative: 1,075K + 300K = 1,375K
+      fcm: 2225000 // Cumulative: 1,735K + 490K = 2,225K
     }],
     internal: [{
       month: 'Apr 2025',
@@ -165,60 +169,60 @@ const defaultSalesData: SalesData = {
       snzInternal: 125000
     }, {
       month: 'May 2025',
-      hclabInternal: 210000,
-      snzInternal: 130000
+      hclabInternal: 410000, // Cumulative: 200K + 210K = 410K
+      snzInternal: 255000 // Cumulative: 125K + 130K = 255K
     }, {
       month: 'Jun 2025',
-      hclabInternal: 220000,
-      snzInternal: 135000
+      hclabInternal: 630000, // Cumulative: 410K + 220K = 630K
+      snzInternal: 390000 // Cumulative: 255K + 135K = 390K
     }, {
       month: 'Jul 2025',
-      hclabInternal: 235000,
-      snzInternal: 145000
+      hclabInternal: 865000, // Cumulative: 630K + 235K = 865K
+      snzInternal: 535000 // Cumulative: 390K + 145K = 535K
     }, {
       month: 'Aug 2025',
-      hclabInternal: 260000,
-      snzInternal: 165000
+      hclabInternal: 1125000, // Cumulative: 865K + 260K = 1,125K
+      snzInternal: 700000 // Cumulative: 535K + 165K = 700K
     }]
   },
   monthlyTargets: {
     external_health_it: FY_MONTHS_SHORT.slice(0, 5).map((month, index) => ({
       month: FY_MONTHS[index],
       targets: { 
-        eclair: 425000, 
-        delphicAP: 400000, 
-        delphicLIS: 550000, 
-        hclabExternal: 450000 
+        eclair: 425000 * (index + 1), // Cumulative: 425K, 850K, 1,275K, 1,700K, 2,125K
+        delphicAP: 400000 * (index + 1), // Cumulative: 400K, 800K, 1,200K, 1,600K, 2,000K
+        delphicLIS: 550000 * (index + 1), // Cumulative: 550K, 1,100K, 1,650K, 2,200K, 2,750K
+        hclabExternal: 450000 * (index + 1) // Cumulative: 450K, 900K, 1,350K, 1,800K, 2,250K
       },
       actuals: { 
-        eclair: [400000, 410000, 420000, 435000, 460000][index], 
-        delphicAP: [300000, 310000, 320000, 335000, 360000][index], 
-        delphicLIS: [430000, 440000, 450000, 470000, 510000][index], 
-        hclabExternal: [370000, 380000, 390000, 400000, 410000][index] 
+        eclair: [400000, 810000, 1230000, 1665000, 2125000][index], 
+        delphicAP: [300000, 610000, 930000, 1265000, 1625000][index], 
+        delphicLIS: [430000, 870000, 1320000, 1790000, 2300000][index], 
+        hclabExternal: [370000, 750000, 1140000, 1540000, 1950000][index] 
       }
     })),
     external_ivd: FY_MONTHS_SHORT.slice(0, 5).map((month, index) => ({
       month: FY_MONTHS[index],
       targets: { 
-        urinalysis: 700000, 
-        ogt: 300000, 
-        fcm: 500000 
+        urinalysis: 700000 * (index + 1), // Cumulative: 700K, 1,400K, 2,100K, 2,800K, 3,500K
+        ogt: 300000 * (index + 1), // Cumulative: 300K, 600K, 900K, 1,200K, 1,500K
+        fcm: 500000 * (index + 1) // Cumulative: 500K, 1,000K, 1,500K, 2,000K, 2,500K
       },
       actuals: { 
-        urinalysis: [550000, 575000, 600000, 625000, 650000][index], 
-        ogt: [250000, 260000, 275000, 290000, 300000][index], 
-        fcm: [400000, 420000, 445000, 470000, 490000][index] 
+        urinalysis: [550000, 1125000, 1725000, 2350000, 3000000][index], 
+        ogt: [250000, 510000, 785000, 1075000, 1375000][index], 
+        fcm: [400000, 820000, 1265000, 1735000, 2225000][index] 
       }
     })),
     internal: FY_MONTHS_SHORT.slice(0, 5).map((month, index) => ({
       month: FY_MONTHS[index],
       targets: { 
-        hclabInternal: 250000, 
-        snzInternal: 150000 
+        hclabInternal: 250000 * (index + 1), // Cumulative: 250K, 500K, 750K, 1,000K, 1,250K
+        snzInternal: 150000 * (index + 1) // Cumulative: 150K, 300K, 450K, 600K, 750K
       },
       actuals: { 
-        hclabInternal: [200000, 210000, 220000, 235000, 260000][index], 
-        snzInternal: [125000, 130000, 135000, 145000, 165000][index] 
+        hclabInternal: [200000, 410000, 630000, 865000, 1125000][index], 
+        snzInternal: [125000, 255000, 390000, 535000, 700000][index] 
       }
     }))
   },

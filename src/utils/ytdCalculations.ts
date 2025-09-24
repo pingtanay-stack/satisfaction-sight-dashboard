@@ -23,9 +23,9 @@ export const FY_MONTHS_SHORT = [
 ];
 
 /**
- * Calculate Financial Year-to-Date analysis based on monthly data
- * @param monthlyData Array of monthly actual values (Apr to current month)
- * @param annualTarget Full financial year target (Apr-Mar)
+ * Calculate Financial Year-to-Date analysis based on CUMULATIVE monthly data
+ * @param monthlyData Array of monthly cumulative values (Apr to current month)
+ * @param annualTarget Full financial year target (cumulative)
  * @param currentFYMonth Current FY month (1-12, where 1=Apr, 12=Mar, defaults to monthlyData.length)
  */
 export function calculateYTDAnalysis(
@@ -37,14 +37,29 @@ export function calculateYTDAnalysis(
   const monthsCompleted = Math.min(months, monthlyData.length);
   const monthsRemaining = 12 - monthsCompleted;
   
-  // Calculate YTD values
-  const ytdActual = monthlyData.slice(0, monthsCompleted).reduce((sum, val) => sum + val, 0);
+  // For cumulative data, YTD actual is the latest month's cumulative value
+  const ytdActual = monthsCompleted > 0 ? monthlyData[monthsCompleted - 1] : 0;
+  
+  // Expected YTD is proportional to months completed
   const ytdExpected = (annualTarget / 12) * monthsCompleted;
   const ytdAchievement = ytdExpected > 0 ? (ytdActual / ytdExpected) * 100 : 0;
   
-  // Project year-end performance based on current trend
-  const avgMonthlyActual = monthsCompleted > 0 ? ytdActual / monthsCompleted : 0;
-  const projectedYearEnd = ytdActual + (avgMonthlyActual * monthsRemaining);
+  // Calculate monthly growth rate for projection
+  let avgMonthlyGrowth = 0;
+  if (monthsCompleted > 1) {
+    // Calculate average monthly increment from cumulative data
+    let totalIncrements = 0;
+    for (let i = 1; i < monthsCompleted; i++) {
+      totalIncrements += (monthlyData[i] - monthlyData[i - 1]);
+    }
+    avgMonthlyGrowth = totalIncrements / (monthsCompleted - 1);
+  } else if (monthsCompleted === 1) {
+    // If only one month, use that as the growth rate
+    avgMonthlyGrowth = monthlyData[0];
+  }
+  
+  // Project year-end performance based on average monthly growth
+  const projectedYearEnd = ytdActual + (avgMonthlyGrowth * monthsRemaining);
   
   // Calculate required monthly average for remaining months to meet target
   const remainingRequired = Math.max(0, annualTarget - ytdActual);
@@ -66,17 +81,32 @@ export function calculateYTDAnalysis(
 }
 
 /**
- * Calculate trend percentage from monthly data
+ * Calculate trend percentage from CUMULATIVE monthly data
+ * This calculates the growth from previous month's cumulative to current month's cumulative
  */
 export function calculateTrend(monthlyData: number[]): number {
   if (monthlyData.length < 2) return 0;
   
-  const current = monthlyData[monthlyData.length - 1];
-  const previous = monthlyData[monthlyData.length - 2];
+  const currentCumulative = monthlyData[monthlyData.length - 1];
+  const previousCumulative = monthlyData[monthlyData.length - 2];
   
-  if (previous === 0) return 0;
+  if (previousCumulative === 0) return 0;
   
-  return ((current - previous) / previous) * 100;
+  // Calculate the monthly increment (current cumulative - previous cumulative)
+  const currentMonthValue = currentCumulative - previousCumulative;
+  
+  // Compare with previous month's increment for trend
+  if (monthlyData.length < 3) {
+    // If we only have 2 months, compare current month to first month
+    return ((currentMonthValue - previousCumulative) / previousCumulative) * 100;
+  }
+  
+  const prePreviousCumulative = monthlyData[monthlyData.length - 3];
+  const previousMonthValue = previousCumulative - prePreviousCumulative;
+  
+  if (previousMonthValue === 0) return 0;
+  
+  return ((currentMonthValue - previousMonthValue) / previousMonthValue) * 100;
 }
 
 /**
