@@ -7,9 +7,9 @@ import { Wrench, Beaker, HeadphonesIcon, TrendingUp, DollarSign, Target } from '
 import { cn } from '@/lib/utils';
 
 interface ProductBreakdown {
-  instruments: number;
-  reagents: number;
-  service: number;
+  instruments: { current: number; target: number; achieved: number };
+  reagents: { current: number; target: number; achieved: number };
+  service: { current: number; target: number; achieved: number };
 }
 
 interface ProductDetailModalProps {
@@ -22,10 +22,14 @@ interface ProductDetailModalProps {
   breakdown: ProductBreakdown;
   monthlyData: Array<{
     month: string;
-    instruments: number;
-    reagents: number;
-    service: number;
-    total: number;
+    instruments_actual: number;
+    instruments_target: number;
+    reagents_actual: number;
+    reagents_target: number;
+    service_actual: number;
+    service_target: number;
+    total_actual: number;
+    total_target: number;
   }>;
   trend: number;
 }
@@ -79,9 +83,27 @@ export function ProductDetailModal({
 
   // Calculate category percentages
   const categoryData = [
-    { name: 'Instruments', value: breakdown.instruments, icon: 'instruments' as const },
-    { name: 'Reagents', value: breakdown.reagents, icon: 'reagents' as const },
-    { name: 'Service', value: breakdown.service, icon: 'service' as const }
+    { 
+      name: 'Instruments', 
+      current: breakdown.instruments.current, 
+      target: breakdown.instruments.target,
+      achieved: breakdown.instruments.achieved,
+      icon: 'instruments' as const 
+    },
+    { 
+      name: 'Reagents', 
+      current: breakdown.reagents.current, 
+      target: breakdown.reagents.target,
+      achieved: breakdown.reagents.achieved,
+      icon: 'reagents' as const 
+    },
+    { 
+      name: 'Service', 
+      current: breakdown.service.current, 
+      target: breakdown.service.target,
+      achieved: breakdown.service.achieved,
+      icon: 'service' as const 
+    }
   ];
 
   return (
@@ -156,7 +178,8 @@ export function ProductDetailModal({
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {categoryData.map((category) => {
-                  const percentage = totalSales > 0 ? (category.value / totalSales) * 100 : 0;
+                  const percentage = totalSales > 0 ? (category.current / totalSales) * 100 : 0;
+                  const targetProgress = category.target > 0 ? (category.current / category.target) * 100 : 0;
                   return (
                     <div key={category.name} className="space-y-3">
                       <div className="flex items-center justify-between">
@@ -164,20 +187,44 @@ export function ProductDetailModal({
                           {getCategoryIcon(category.icon)}
                           <span className="font-medium">{category.name}</span>
                         </div>
-                        <span className="text-sm font-semibold">
-                          ${(category.value / 1000000).toFixed(2)}M
-                        </span>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold">
+                            ${(category.current / 1000000).toFixed(2)}M
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Target: ${(category.target / 1000000).toFixed(2)}M
+                          </div>
+                        </div>
                       </div>
                       
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>{percentage.toFixed(1)}% of total</span>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">{percentage.toFixed(1)}% of total</span>
+                          <span className={cn(
+                            "font-medium",
+                            targetProgress >= 100 ? "text-success" : 
+                            targetProgress >= 80 ? "text-warning" : "text-destructive"
+                          )}>
+                            {category.achieved.toFixed(1)}% achieved
+                          </span>
                         </div>
-                        <div className="h-2 bg-muted rounded-full overflow-hidden">
-                          <div 
-                            className={cn("h-full bg-gradient-to-r transition-all duration-1000", getCategoryColor(category.icon))}
-                            style={{ width: `${percentage}%` }}
-                          />
+                        
+                        {/* Progress toward category target */}
+                        <div className="space-y-1">
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className={cn(
+                                "h-full bg-gradient-to-r transition-all duration-1000",
+                                targetProgress >= 100 ? "from-success to-success-foreground" :
+                                targetProgress >= 80 ? "from-warning to-warning-foreground" :
+                                getCategoryColor(category.icon)
+                              )}
+                              style={{ width: `${Math.min(targetProgress, 100)}%` }}
+                            />
+                          </div>
+                          <div className="text-xs text-muted-foreground text-center">
+                            Progress to Target: {targetProgress.toFixed(1)}%
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -187,40 +234,84 @@ export function ProductDetailModal({
             </CardContent>
           </Card>
 
-          {/* Trend Chart */}
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                <span>Monthly Sales Trends</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SalesTrendChart 
-                data={monthlyData} 
-                title={`${productName} Trend Analysis`}
-                showActualVsTarget={false}
-              />
-              <div className="mt-4 flex flex-wrap gap-4 justify-center">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-blue-500"></div>
-                  <span className="text-xs text-muted-foreground">Instruments</span>
+          {/* Actual vs Target Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <span>Monthly Breakdown Trends</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SalesTrendChart 
+                  data={monthlyData} 
+                  title={`${productName} Category Breakdown`}
+                  showActualVsTarget={false}
+                />
+                <div className="mt-4 flex flex-wrap gap-4 justify-center">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded bg-blue-500"></div>
+                    <span className="text-xs text-muted-foreground">Instruments</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded bg-green-500"></div>
+                    <span className="text-xs text-muted-foreground">Reagents</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded bg-purple-500"></div>
+                    <span className="text-xs text-muted-foreground">Service</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded bg-orange-500"></div>
+                    <span className="text-xs text-muted-foreground">Total</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-green-500"></div>
-                  <span className="text-xs text-muted-foreground">Reagents</span>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-secondary" />
+                  <span>Actual vs Target</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SalesTrendChart 
+                  data={monthlyData} 
+                  title={`${productName} - Actual vs Target`}
+                  showActualVsTarget={true}
+                />
+                <div className="mt-4 flex flex-wrap gap-4 justify-center">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-0.5 bg-blue-500"></div>
+                    <span className="text-xs text-muted-foreground">Instruments (Actual)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-0.5 bg-blue-300 border-dashed border border-blue-500"></div>
+                    <span className="text-xs text-muted-foreground">Instruments (Target)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-0.5 bg-green-500"></div>
+                    <span className="text-xs text-muted-foreground">Reagents (Actual)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-0.5 bg-green-300 border-dashed border border-green-500"></div>
+                    <span className="text-xs text-muted-foreground">Reagents (Target)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-0.5 bg-purple-500"></div>
+                    <span className="text-xs text-muted-foreground">Service (Actual)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-0.5 bg-purple-300 border-dashed border border-purple-500"></div>
+                    <span className="text-xs text-muted-foreground">Service (Target)</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-purple-500"></div>
-                  <span className="text-xs text-muted-foreground">Service</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-orange-500"></div>
-                  <span className="text-xs text-muted-foreground">Total</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

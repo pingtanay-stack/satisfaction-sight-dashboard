@@ -486,20 +486,31 @@ const Sales = () => {
     const productData = salesData.salesMetrics[selectedProduct];
     const productName = selectedProduct === 'urinalysis' ? 'Urinalysis' : 'FCM';
     
-    // Generate monthly data for the modal
-    const monthlyData = salesData.monthlyData.external_ivd.map(item => ({
-      month: item.month,
-      instruments: selectedProduct === 'urinalysis' 
-        ? Number(item.urinalysis) * 0.33 // Approximate breakdown
-        : Number(item.fcm) * 0.36,
-      reagents: selectedProduct === 'urinalysis' 
-        ? Number(item.urinalysis) * 0.50 
-        : Number(item.fcm) * 0.51,
-      service: selectedProduct === 'urinalysis' 
-        ? Number(item.urinalysis) * 0.17 
-        : Number(item.fcm) * 0.13,
-      total: selectedProduct === 'urinalysis' ? Number(item.urinalysis) : Number(item.fcm)
-    }));
+    // Use actual breakdown data from Excel with targets
+    const monthlyData = salesData.monthlyTargets.external_ivd.map(item => {
+      const prefix = selectedProduct === 'urinalysis' ? 'urinalysis' : 'fcm';
+      
+      // Calculate breakdown ratios from the current breakdown data
+      const instrumentRatio = productData.breakdown.instrument?.current / productData.total.current || 0;
+      const reagentRatio = productData.breakdown.reagents?.current / productData.total.current || 0;
+      const serviceRatio = productData.breakdown.service?.current / productData.total.current || 0;
+      
+      const targetInstrumentRatio = productData.breakdown.instrument?.target / productData.total.target || 0;
+      const targetReagentRatio = productData.breakdown.reagents?.target / productData.total.target || 0;
+      const targetServiceRatio = productData.breakdown.service?.target / productData.total.target || 0;
+      
+      return {
+        month: item.month,
+        instruments_actual: item.actuals[prefix] * instrumentRatio,
+        instruments_target: item.targets[prefix] * targetInstrumentRatio,
+        reagents_actual: item.actuals[prefix] * reagentRatio,
+        reagents_target: item.targets[prefix] * targetReagentRatio,
+        service_actual: item.actuals[prefix] * serviceRatio,
+        service_target: item.targets[prefix] * targetServiceRatio,
+        total_actual: item.actuals[prefix],
+        total_target: item.targets[prefix]
+      };
+    });
 
     return {
       productName,
@@ -507,9 +518,21 @@ const Sales = () => {
       totalSales: productData.total.current,
       target: productData.total.target,
       breakdown: {
-        instruments: productData.breakdown.instrument?.current || 0,
-        reagents: productData.breakdown.reagents?.current || 0,
-        service: productData.breakdown.service?.current || 0,
+        instruments: {
+          current: productData.breakdown.instrument?.current || 0,
+          target: productData.breakdown.instrument?.target || 0,
+          achieved: productData.breakdown.instrument?.achieved || 0
+        },
+        reagents: {
+          current: productData.breakdown.reagents?.current || 0,
+          target: productData.breakdown.reagents?.target || 0,
+          achieved: productData.breakdown.reagents?.achieved || 0
+        },
+        service: {
+          current: productData.breakdown.service?.current || 0,
+          target: productData.breakdown.service?.target || 0,
+          achieved: productData.breakdown.service?.achieved || 0
+        }
       },
       monthlyData,
       trend: 3.5 // Default trend value
