@@ -13,6 +13,7 @@ import { ProductDetailModal } from '@/components/dashboard/ProductDetailModal';
 import { DataSourceBadge } from '@/components/ui/data-source-badge';
 import { toast } from 'sonner';
 import { SalesData, MonthlyTargetData, saveSalesDataToSupabase, loadSalesDataFromSupabase, hasSavedSalesDataInSupabase } from '@/lib/salesStorage';
+import { calculateYTDAnalysis, calculateTrend } from '@/utils/ytdCalculations';
 import * as XLSX from 'xlsx';
 const defaultSalesData: SalesData = {
   salesMetrics: {
@@ -372,33 +373,39 @@ const Sales = () => {
         fcm_service: { a: sum(rows.map(r => Number(r['FCM Service Current']) || 0)), t: sum(rows.map(r => Number(r['FCM Service Target']) || 0)) },
       };
 
+      // Helper function for YTD achievement calculation
+      const calculateYTDAchievement = (actualYTD: number, annualTarget: number, monthsCompleted: number = rows.length): number => {
+        const expectedYTD = (annualTarget / 12) * monthsCompleted;
+        return expectedYTD > 0 ? +((actualYTD / expectedYTD) * 100).toFixed(2) : 0;
+      };
+
       const pct = (a: number, t: number) => (t > 0 ? +(((a / t) * 100).toFixed(2)) : 0);
 
       const newSalesData: SalesData = {
         salesMetrics: {
-          eclair: { current: ytd.eclair.a, target: ytd.eclair.t, achieved: pct(ytd.eclair.a, ytd.eclair.t) },
-          delphicAP: { current: ytd.delphicAP.a, target: ytd.delphicAP.t, achieved: pct(ytd.delphicAP.a, ytd.delphicAP.t) },
-          delphicLIS: { current: ytd.delphicLIS.a, target: ytd.delphicLIS.t, achieved: pct(ytd.delphicLIS.a, ytd.delphicLIS.t) },
-          hclabExternal: { current: ytd.hclabExternal.a, target: ytd.hclabExternal.t, achieved: pct(ytd.hclabExternal.a, ytd.hclabExternal.t) },
+          eclair: { current: ytd.eclair.a, target: ytd.eclair.t, achieved: calculateYTDAchievement(ytd.eclair.a, ytd.eclair.t) },
+          delphicAP: { current: ytd.delphicAP.a, target: ytd.delphicAP.t, achieved: calculateYTDAchievement(ytd.delphicAP.a, ytd.delphicAP.t) },
+          delphicLIS: { current: ytd.delphicLIS.a, target: ytd.delphicLIS.t, achieved: calculateYTDAchievement(ytd.delphicLIS.a, ytd.delphicLIS.t) },
+          hclabExternal: { current: ytd.hclabExternal.a, target: ytd.hclabExternal.t, achieved: calculateYTDAchievement(ytd.hclabExternal.a, ytd.hclabExternal.t) },
           urinalysis: {
-            total: { current: ytd.urinalysis.a, target: ytd.urinalysis.t, achieved: pct(ytd.urinalysis.a, ytd.urinalysis.t) },
+            total: { current: ytd.urinalysis.a, target: ytd.urinalysis.t, achieved: calculateYTDAchievement(ytd.urinalysis.a, ytd.urinalysis.t) },
             breakdown: {
-              instrument: { current: ytd.urinalysis_instrument.a, target: ytd.urinalysis_instrument.t, achieved: pct(ytd.urinalysis_instrument.a, ytd.urinalysis_instrument.t) },
-              reagents: { current: ytd.urinalysis_reagents.a, target: ytd.urinalysis_reagents.t, achieved: pct(ytd.urinalysis_reagents.a, ytd.urinalysis_reagents.t) },
-              service: { current: ytd.urinalysis_service.a, target: ytd.urinalysis_service.t, achieved: pct(ytd.urinalysis_service.a, ytd.urinalysis_service.t) },
+              instrument: { current: ytd.urinalysis_instrument.a, target: ytd.urinalysis_instrument.t, achieved: calculateYTDAchievement(ytd.urinalysis_instrument.a, ytd.urinalysis_instrument.t) },
+              reagents: { current: ytd.urinalysis_reagents.a, target: ytd.urinalysis_reagents.t, achieved: calculateYTDAchievement(ytd.urinalysis_reagents.a, ytd.urinalysis_reagents.t) },
+              service: { current: ytd.urinalysis_service.a, target: ytd.urinalysis_service.t, achieved: calculateYTDAchievement(ytd.urinalysis_service.a, ytd.urinalysis_service.t) },
             }
           },
-          ogt: { current: ytd.ogt.a, target: ytd.ogt.t, achieved: pct(ytd.ogt.a, ytd.ogt.t) },
+          ogt: { current: ytd.ogt.a, target: ytd.ogt.t, achieved: calculateYTDAchievement(ytd.ogt.a, ytd.ogt.t) },
           fcm: {
-            total: { current: ytd.fcm.a, target: ytd.fcm.t, achieved: pct(ytd.fcm.a, ytd.fcm.t) },
+            total: { current: ytd.fcm.a, target: ytd.fcm.t, achieved: calculateYTDAchievement(ytd.fcm.a, ytd.fcm.t) },
             breakdown: {
-              reagents: { current: ytd.fcm_reagents.a, target: ytd.fcm_reagents.t, achieved: pct(ytd.fcm_reagents.a, ytd.fcm_reagents.t) },
-              instrument: { current: ytd.fcm_instrument.a, target: ytd.fcm_instrument.t, achieved: pct(ytd.fcm_instrument.a, ytd.fcm_instrument.t) },
-              service: { current: ytd.fcm_service.a, target: ytd.fcm_service.t, achieved: pct(ytd.fcm_service.a, ytd.fcm_service.t) },
+              reagents: { current: ytd.fcm_reagents.a, target: ytd.fcm_reagents.t, achieved: calculateYTDAchievement(ytd.fcm_reagents.a, ytd.fcm_reagents.t) },
+              instrument: { current: ytd.fcm_instrument.a, target: ytd.fcm_instrument.t, achieved: calculateYTDAchievement(ytd.fcm_instrument.a, ytd.fcm_instrument.t) },
+              service: { current: ytd.fcm_service.a, target: ytd.fcm_service.t, achieved: calculateYTDAchievement(ytd.fcm_service.a, ytd.fcm_service.t) },
             }
           },
-          hclabInternal: { current: ytd.hclabInternal.a, target: ytd.hclabInternal.t, achieved: pct(ytd.hclabInternal.a, ytd.hclabInternal.t) },
-          snzService: { current: ytd.snzService.a, target: ytd.snzService.t, achieved: pct(ytd.snzService.a, ytd.snzService.t) },
+          hclabInternal: { current: ytd.hclabInternal.a, target: ytd.hclabInternal.t, achieved: calculateYTDAchievement(ytd.hclabInternal.a, ytd.hclabInternal.t) },
+          snzService: { current: ytd.snzService.a, target: ytd.snzService.t, achieved: calculateYTDAchievement(ytd.snzService.a, ytd.snzService.t) },
         },
         monthlyData,
         monthlyTargets: {
@@ -407,7 +414,7 @@ const Sales = () => {
           internal: mt_internal,
         },
         companyTripProgress: {
-          overall: pct(
+          overall: calculateYTDAchievement(
             ytd.eclair.a + ytd.delphicAP.a + ytd.delphicLIS.a + ytd.hclabExternal.a +
             ytd.urinalysis.a + ytd.ogt.a + ytd.fcm.a + ytd.hclabInternal.a + ytd.snzService.a,
             ytd.eclair.t + ytd.delphicAP.t + ytd.delphicLIS.t + ytd.hclabExternal.t +

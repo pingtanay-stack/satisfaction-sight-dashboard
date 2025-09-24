@@ -3,8 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SalesTrendChart } from './SalesTrendChart';
-import { Wrench, Beaker, HeadphonesIcon, TrendingUp, DollarSign, Target } from 'lucide-react';
+import { StackedCategoryChart } from './StackedCategoryChart';
+import { Wrench, Beaker, HeadphonesIcon, TrendingUp, DollarSign, Target, Calendar, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { calculateYTDAnalysis, formatCurrency, getPerformanceStatus } from '@/utils/ytdCalculations';
 
 interface ProductBreakdown {
   instruments: { current: number; target: number; achieved: number };
@@ -78,6 +80,11 @@ export function ProductDetailModal({
   monthlyData,
   trend
 }: ProductDetailModalProps) {
+  // Extract monthly actual values for YTD analysis
+  const monthlyActuals = monthlyData.map(item => item.total_actual);
+  const ytdAnalysis = calculateYTDAnalysis(monthlyActuals, target);
+  const performanceStatus = getPerformanceStatus(ytdAnalysis.ytdAchievement);
+
   const progressToTarget = (totalSales / target) * 100;
   const remainingToTarget = Math.max(0, target - totalSales);
 
@@ -119,6 +126,64 @@ export function ProductDetailModal({
         </DialogHeader>
 
         <div className="space-y-6 mt-6">
+          {/* YTD Analysis Overview */}
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                <span>Year-to-Date Performance Analysis</span>
+                <Badge variant={performanceStatus.status === 'excellent' || performanceStatus.status === 'good' ? "default" : 
+                               performanceStatus.status === 'warning' ? "secondary" : "destructive"}>
+                  {performanceStatus.label}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-sm text-muted-foreground">YTD Achievement</div>
+                  <div className={cn("text-xl font-bold", performanceStatus.color)}>
+                    {ytdAnalysis.ytdAchievement.toFixed(1)}%
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {formatCurrency(ytdAnalysis.ytdActual)} / {formatCurrency(ytdAnalysis.ytdExpected)}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm text-muted-foreground">Projected Year-End</div>
+                  <div className="text-xl font-bold text-secondary">
+                    {formatCurrency(ytdAnalysis.projectedYearEnd)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    vs {formatCurrency(target)} target
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm text-muted-foreground">Required Monthly</div>
+                  <div className="text-xl font-bold text-primary">
+                    {formatCurrency(ytdAnalysis.requiredMonthlyAverage)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {ytdAnalysis.monthsRemaining} months left
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm text-muted-foreground">Status</div>
+                  <div className="flex items-center justify-center gap-1">
+                    {ytdAnalysis.isOnTrack ? (
+                      <TrendingUp className="h-4 w-4 text-success" />
+                    ) : (
+                      <AlertTriangle className="h-4 w-4 text-warning" />
+                    )}
+                    <span className={cn("text-sm font-medium", ytdAnalysis.isOnTrack ? "text-success" : "text-warning")}>
+                      {ytdAnalysis.isOnTrack ? "On Track" : "Behind"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Overview Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="glass-card">
@@ -234,38 +299,24 @@ export function ProductDetailModal({
             </CardContent>
           </Card>
 
-          {/* Actual vs Target Charts */}
+          {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  <span>Monthly Breakdown Trends</span>
+                  <div className="w-3 h-3 bg-chart-1 rounded mr-1"></div>
+                  <div className="w-3 h-3 bg-chart-2 rounded mr-1"></div>
+                  <div className="w-3 h-3 bg-chart-3 rounded mr-1"></div>
+                  <span>Monthly Category Breakdown</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <SalesTrendChart 
+                <StackedCategoryChart 
                   data={monthlyData} 
-                  title={`${productName} Category Breakdown`}
-                  showActualVsTarget={false}
+                  title={`${productName} Category Sales`}
                 />
-                <div className="mt-4 flex flex-wrap gap-4 justify-center">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-blue-500"></div>
-                    <span className="text-xs text-muted-foreground">Instruments</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-green-500"></div>
-                    <span className="text-xs text-muted-foreground">Reagents</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-purple-500"></div>
-                    <span className="text-xs text-muted-foreground">Service</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-orange-500"></div>
-                    <span className="text-xs text-muted-foreground">Total</span>
-                  </div>
+                <div className="mt-4 text-xs text-muted-foreground text-center">
+                  Stacked view showing contribution of each category to monthly totals
                 </div>
               </CardContent>
             </Card>
