@@ -23,7 +23,7 @@ export interface SalesData {
         service: { current: number; target: number; achieved: number };
       };
     };
-    ogt: { current: number; target: number; achieved: number };
+    ogt: { current: number; target: number; achieved: number }; // Only reagents
     fcm: {
       total: { current: number; target: number; achieved: number };
       breakdown: {
@@ -35,7 +35,7 @@ export interface SalesData {
     
     // Internal Sales
     hclabInternal: { current: number; target: number; achieved: number };
-    snzService: { current: number; target: number; achieved: number };
+    snzInternal: { current: number; target: number; achieved: number }; // Renamed from snzService
   };
   monthlyData: {
     [key: string]: {

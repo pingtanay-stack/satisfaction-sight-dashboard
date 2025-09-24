@@ -13,190 +13,220 @@ import { ProductDetailModal } from '@/components/dashboard/ProductDetailModal';
 import { DataSourceBadge } from '@/components/ui/data-source-badge';
 import { toast } from 'sonner';
 import { SalesData, MonthlyTargetData, saveSalesDataToSupabase, loadSalesDataFromSupabase, hasSavedSalesDataInSupabase } from '@/lib/salesStorage';
-import { calculateYTDAnalysis, calculateTrend } from '@/utils/ytdCalculations';
+import { calculateYTDAnalysis, calculateTrend, FY_MONTHS, FY_MONTHS_SHORT } from '@/utils/ytdCalculations';
 import * as XLSX from 'xlsx';
 const defaultSalesData: SalesData = {
   salesMetrics: {
     eclair: {
-      current: 850000,
-      target: 1000000,
-      achieved: 85
+      current: 2125000, // 5 months FY progress (Apr-Aug)
+      target: 5100000, // Full FY target
+      achieved: 83.33 // YTD achievement vs expected YTD
     },
     delphicAP: {
-      current: 650000,
-      target: 800000,
+      current: 1625000,
+      target: 4800000,
       achieved: 81.25
     },
     delphicLIS: {
-      current: 920000,
-      target: 1100000,
+      current: 2300000,
+      target: 6600000,
       achieved: 83.64
     },
     hclabExternal: {
-      current: 780000,
-      target: 900000,
+      current: 1950000,
+      target: 5400000,
       achieved: 86.67
     },
     urinalysis: {
       total: {
-        current: 1200000,
-        target: 1400000,
+        current: 3000000,
+        target: 8400000,
         achieved: 85.71
       },
       breakdown: {
         instrument: {
-          current: 400000,
-          target: 500000,
+          current: 1000000,
+          target: 3000000,
           achieved: 80
         },
         reagents: {
-          current: 600000,
-          target: 700000,
+          current: 1500000,
+          target: 4200000,
           achieved: 85.71
         },
         service: {
-          current: 200000,
-          target: 200000,
+          current: 500000,
+          target: 1200000,
           achieved: 100
         }
       }
     },
-    ogt: {
-      current: 550000,
-      target: 600000,
+    ogt: { // Only reagents for OGT
+      current: 1375000,
+      target: 3600000,
       achieved: 91.67
     },
     fcm: {
       total: {
-        current: 890000,
-        target: 1000000,
+        current: 2225000,
+        target: 6000000,
         achieved: 89
       },
       breakdown: {
         reagents: {
-          current: 450000,
-          target: 500000,
+          current: 1125000,
+          target: 3000000,
           achieved: 90
         },
         instrument: {
-          current: 320000,
-          target: 350000,
+          current: 800000,
+          target: 2100000,
           achieved: 91.43
         },
         service: {
-          current: 120000,
-          target: 150000,
+          current: 300000,
+          target: 900000,
           achieved: 80
         }
       }
     },
     hclabInternal: {
-      current: 450000,
-      target: 500000,
+      current: 1125000,
+      target: 3000000,
       achieved: 90
     },
-    snzService: {
-      current: 280000,
-      target: 300000,
+    snzInternal: { // Renamed from snzService
+      current: 700000,
+      target: 1800000,
       achieved: 93.33
     }
   },
   monthlyData: {
     external_health_it: [{
-      month: 'Jan',
-      eclair: 800000,
-      delphicAP: 600000,
-      delphicLIS: 850000,
-      hclabExternal: 700000
+      month: 'Apr 2025',
+      eclair: 400000,
+      delphicAP: 300000,
+      delphicLIS: 430000,
+      hclabExternal: 370000
     }, {
-      month: 'Feb',
-      eclair: 820000,
-      delphicAP: 620000,
-      delphicLIS: 880000,
-      hclabExternal: 720000
+      month: 'May 2025',
+      eclair: 410000,
+      delphicAP: 310000,
+      delphicLIS: 440000,
+      hclabExternal: 380000
     }, {
-      month: 'Mar',
-      eclair: 850000,
-      delphicAP: 650000,
-      delphicLIS: 920000,
-      hclabExternal: 780000
+      month: 'Jun 2025',
+      eclair: 420000,
+      delphicAP: 320000,
+      delphicLIS: 450000,
+      hclabExternal: 390000
+    }, {
+      month: 'Jul 2025',
+      eclair: 435000,
+      delphicAP: 335000,
+      delphicLIS: 470000,
+      hclabExternal: 400000
+    }, {
+      month: 'Aug 2025',
+      eclair: 460000,
+      delphicAP: 360000,
+      delphicLIS: 510000,
+      hclabExternal: 410000
     }],
     external_ivd: [{
-      month: 'Jan',
-      urinalysis: 1100000,
-      ogt: 500000,
-      fcm: 800000
+      month: 'Apr 2025',
+      urinalysis: 550000,
+      ogt: 250000,
+      fcm: 400000
     }, {
-      month: 'Feb',
-      urinalysis: 1150000,
-      ogt: 520000,
-      fcm: 840000
+      month: 'May 2025',
+      urinalysis: 575000,
+      ogt: 260000,
+      fcm: 420000
     }, {
-      month: 'Mar',
-      urinalysis: 1200000,
-      ogt: 550000,
-      fcm: 890000
+      month: 'Jun 2025',
+      urinalysis: 600000,
+      ogt: 275000,
+      fcm: 445000
+    }, {
+      month: 'Jul 2025',
+      urinalysis: 625000,
+      ogt: 290000,
+      fcm: 470000
+    }, {
+      month: 'Aug 2025',
+      urinalysis: 650000,
+      ogt: 300000,
+      fcm: 490000
     }],
     internal: [{
-      month: 'Jan',
-      hclabInternal: 400000,
-      snzService: 250000
+      month: 'Apr 2025',
+      hclabInternal: 200000,
+      snzInternal: 125000
     }, {
-      month: 'Feb',
-      hclabInternal: 420000,
-      snzService: 260000
+      month: 'May 2025',
+      hclabInternal: 210000,
+      snzInternal: 130000
     }, {
-      month: 'Mar',
-      hclabInternal: 450000,
-      snzService: 280000
+      month: 'Jun 2025',
+      hclabInternal: 220000,
+      snzInternal: 135000
+    }, {
+      month: 'Jul 2025',
+      hclabInternal: 235000,
+      snzInternal: 145000
+    }, {
+      month: 'Aug 2025',
+      hclabInternal: 260000,
+      snzInternal: 165000
     }]
   },
   monthlyTargets: {
-    external_health_it: [{
-      month: 'Jan',
-      targets: { eclair: 83000, delphicAP: 67000, delphicLIS: 92000, hclabExternal: 75000 },
-      actuals: { eclair: 80000, delphicAP: 60000, delphicLIS: 85000, hclabExternal: 70000 }
-    }, {
-      month: 'Feb', 
-      targets: { eclair: 84000, delphicAP: 68000, delphicLIS: 93000, hclabExternal: 76000 },
-      actuals: { eclair: 82000, delphicAP: 62000, delphicLIS: 88000, hclabExternal: 72000 }
-    }, {
-      month: 'Mar',
-      targets: { eclair: 85000, delphicAP: 69000, delphicLIS: 94000, hclabExternal: 77000 },
-      actuals: { eclair: 85000, delphicAP: 65000, delphicLIS: 92000, hclabExternal: 78000 }
-    }],
-    external_ivd: [{
-      month: 'Jan',
-      targets: { urinalysis: 117000, ogt: 50000, fcm: 83000 },
-      actuals: { urinalysis: 110000, ogt: 50000, fcm: 80000 }
-    }, {
-      month: 'Feb',
-      targets: { urinalysis: 118000, ogt: 51000, fcm: 84000 },
-      actuals: { urinalysis: 115000, ogt: 52000, fcm: 84000 }
-    }, {
-      month: 'Mar',
-      targets: { urinalysis: 119000, ogt: 52000, fcm: 85000 },
-      actuals: { urinalysis: 120000, ogt: 55000, fcm: 89000 }
-    }],
-    internal: [{
-      month: 'Jan',
-      targets: { hclabInternal: 42000, snzService: 25000 },
-      actuals: { hclabInternal: 40000, snzService: 25000 }
-    }, {
-      month: 'Feb', 
-      targets: { hclabInternal: 43000, snzService: 26000 },
-      actuals: { hclabInternal: 42000, snzService: 26000 }
-    }, {
-      month: 'Mar',
-      targets: { hclabInternal: 44000, snzService: 27000 },
-      actuals: { hclabInternal: 45000, snzService: 28000 }
-    }]
+    external_health_it: FY_MONTHS_SHORT.slice(0, 5).map((month, index) => ({
+      month: FY_MONTHS[index],
+      targets: { 
+        eclair: 425000, 
+        delphicAP: 400000, 
+        delphicLIS: 550000, 
+        hclabExternal: 450000 
+      },
+      actuals: { 
+        eclair: [400000, 410000, 420000, 435000, 460000][index], 
+        delphicAP: [300000, 310000, 320000, 335000, 360000][index], 
+        delphicLIS: [430000, 440000, 450000, 470000, 510000][index], 
+        hclabExternal: [370000, 380000, 390000, 400000, 410000][index] 
+      }
+    })),
+    external_ivd: FY_MONTHS_SHORT.slice(0, 5).map((month, index) => ({
+      month: FY_MONTHS[index],
+      targets: { 
+        urinalysis: 700000, 
+        ogt: 300000, 
+        fcm: 500000 
+      },
+      actuals: { 
+        urinalysis: [550000, 575000, 600000, 625000, 650000][index], 
+        ogt: [250000, 260000, 275000, 290000, 300000][index], 
+        fcm: [400000, 420000, 445000, 470000, 490000][index] 
+      }
+    })),
+    internal: FY_MONTHS_SHORT.slice(0, 5).map((month, index) => ({
+      month: FY_MONTHS[index],
+      targets: { 
+        hclabInternal: 250000, 
+        snzInternal: 150000 
+      },
+      actuals: { 
+        hclabInternal: [200000, 210000, 220000, 235000, 260000][index], 
+        snzInternal: [125000, 130000, 135000, 145000, 165000][index] 
+      }
+    }))
   },
   companyTripProgress: {
     overall: 87.2,
-    target: 10000000,
-    achieved: 8720000,
-    requiredForTrip: 9000000
+    target: 50000000, // Full FY target
+    achieved: 21800000, // YTD achieved (5 months)
+    requiredForTrip: 45000000
   }
 };
 
@@ -265,12 +295,12 @@ const Sales = () => {
         'Urinalysis Instrument Target','Urinalysis Instrument Current',
         'Urinalysis Reagents Target','Urinalysis Reagents Current',
         'Urinalysis Service Target','Urinalysis Service Current',
-        'OGT Target','OGT Current',
+        'OGT Target','OGT Current', // Only reagents for OGT
         'FCM Reagents Target','FCM Reagents Current',
         'FCM Instrument Target','FCM Instrument Current',
         'FCM Service Target','FCM Service Current',
         'HCLAB Internal Target','HCLAB Internal Current',
-        'SNZ Service Target','SNZ Service Current'
+        'SNZ Internal Target','SNZ Internal Current' // Renamed from SNZ Service
       ];
 
       const missing = requiredCols.filter(c => !(c in rows[0]));
@@ -322,11 +352,11 @@ const Sales = () => {
         month: String(r['Month']),
         targets: {
           hclabInternal: Number(r['HCLAB Internal Target']) || 0,
-          snzService: Number(r['SNZ Service Target']) || 0,
+          snzInternal: Number(r['SNZ Internal Target']) || 0,
         },
         actuals: {
           hclabInternal: Number(r['HCLAB Internal Current']) || 0,
-          snzService: Number(r['SNZ Service Current']) || 0,
+          snzInternal: Number(r['SNZ Internal Current']) || 0,
         }
       }));
 
@@ -348,7 +378,7 @@ const Sales = () => {
         internal: rows.map(r => ({
           month: String(r['Month']),
           hclabInternal: Number(r['HCLAB Internal Current']) || 0,
-          snzService: Number(r['SNZ Service Current']) || 0,
+          snzInternal: Number(r['SNZ Internal Current']) || 0,
         })),
       } as SalesData['monthlyData'];
 
@@ -363,7 +393,7 @@ const Sales = () => {
         ogt: { a: total(monthlyData.external_ivd, 'ogt'), t: mt_external_ivd.reduce((a, r) => a + r.targets.ogt, 0) },
         fcm: { a: total(monthlyData.external_ivd, 'fcm'), t: mt_external_ivd.reduce((a, r) => a + r.targets.fcm, 0) },
         hclabInternal: { a: total(monthlyData.internal, 'hclabInternal'), t: mt_internal.reduce((a, r) => a + r.targets.hclabInternal, 0) },
-        snzService: { a: total(monthlyData.internal, 'snzService'), t: mt_internal.reduce((a, r) => a + r.targets.snzService, 0) },
+        snzInternal: { a: total(monthlyData.internal, 'snzInternal'), t: mt_internal.reduce((a, r) => a + r.targets.snzInternal, 0) },
         // breakdowns
         urinalysis_instrument: { a: sum(rows.map(r => Number(r['Urinalysis Instrument Current']) || 0)), t: sum(rows.map(r => Number(r['Urinalysis Instrument Target']) || 0)) },
         urinalysis_reagents: { a: sum(rows.map(r => Number(r['Urinalysis Reagents Current']) || 0)), t: sum(rows.map(r => Number(r['Urinalysis Reagents Target']) || 0)) },
@@ -405,7 +435,7 @@ const Sales = () => {
             }
           },
           hclabInternal: { current: ytd.hclabInternal.a, target: ytd.hclabInternal.t, achieved: calculateYTDAchievement(ytd.hclabInternal.a, ytd.hclabInternal.t) },
-          snzService: { current: ytd.snzService.a, target: ytd.snzService.t, achieved: calculateYTDAchievement(ytd.snzService.a, ytd.snzService.t) },
+          snzInternal: { current: ytd.snzInternal.a, target: ytd.snzInternal.t, achieved: calculateYTDAchievement(ytd.snzInternal.a, ytd.snzInternal.t) },
         },
         monthlyData,
         monthlyTargets: {
@@ -416,16 +446,16 @@ const Sales = () => {
         companyTripProgress: {
           overall: calculateYTDAchievement(
             ytd.eclair.a + ytd.delphicAP.a + ytd.delphicLIS.a + ytd.hclabExternal.a +
-            ytd.urinalysis.a + ytd.ogt.a + ytd.fcm.a + ytd.hclabInternal.a + ytd.snzService.a,
+            ytd.urinalysis.a + ytd.ogt.a + ytd.fcm.a + ytd.hclabInternal.a + ytd.snzInternal.a,
             ytd.eclair.t + ytd.delphicAP.t + ytd.delphicLIS.t + ytd.hclabExternal.t +
-            ytd.urinalysis.t + ytd.ogt.t + ytd.fcm.t + ytd.hclabInternal.t + ytd.snzService.t
+            ytd.urinalysis.t + ytd.ogt.t + ytd.fcm.t + ytd.hclabInternal.t + ytd.snzInternal.t
           ),
           target: ytd.eclair.t + ytd.delphicAP.t + ytd.delphicLIS.t + ytd.hclabExternal.t +
-                  ytd.urinalysis.t + ytd.ogt.t + ytd.fcm.t + ytd.hclabInternal.t + ytd.snzService.t,
+                  ytd.urinalysis.t + ytd.ogt.t + ytd.fcm.t + ytd.hclabInternal.t + ytd.snzInternal.t,
           achieved: ytd.eclair.a + ytd.delphicAP.a + ytd.delphicLIS.a + ytd.hclabExternal.a +
-                    ytd.urinalysis.a + ytd.ogt.a + ytd.fcm.a + ytd.hclabInternal.a + ytd.snzService.a,
+                    ytd.urinalysis.a + ytd.ogt.a + ytd.fcm.a + ytd.hclabInternal.a + ytd.snzInternal.a,
           requiredForTrip: Math.round((ytd.eclair.t + ytd.delphicAP.t + ytd.delphicLIS.t + ytd.hclabExternal.t +
-                    ytd.urinalysis.t + ytd.ogt.t + ytd.fcm.t + ytd.hclabInternal.t + ytd.snzService.t) * 0.9),
+                    ytd.urinalysis.t + ytd.ogt.t + ytd.fcm.t + ytd.hclabInternal.t + ytd.snzInternal.t) * 0.9),
         }
       };
 
@@ -440,47 +470,47 @@ const Sales = () => {
     }
   };
   const downloadTemplate = () => {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                    'July', 'August', 'September', 'October', 'November', 'December'];
-    
-    const templateData = months.map(month => ({
+    // Use Financial Year months (Apr 2025 - Mar 2026)
+    const templateData = FY_MONTHS.map(month => ({
       Month: month,
       // Health IT
-      'Eclair Target': 83333,
+      'Eclair Target': 425000, // Annual FY target / 12
       'Eclair Current': 0,
-      'Delphic AP Target': 66667,
+      'Delphic AP Target': 400000,
       'Delphic AP Current': 0,
-      'Delphic LIS Target': 91667,
+      'Delphic LIS Target': 550000,
       'Delphic LIS Current': 0,
-      'HCLAB External Target': 75000,
+      'HCLAB External Target': 450000,
       'HCLAB External Current': 0,
-      // IVD
-      'Urinalysis Instrument Target': 41667,
+      // IVD - Urinalysis (with breakdowns)
+      'Urinalysis Instrument Target': 250000,
       'Urinalysis Instrument Current': 0,
-      'Urinalysis Reagents Target': 58333,
+      'Urinalysis Reagents Target': 350000,
       'Urinalysis Reagents Current': 0,
-      'Urinalysis Service Target': 16667,
+      'Urinalysis Service Target': 100000,
       'Urinalysis Service Current': 0,
-      'OGT Target': 50000,
+      // IVD - OGT (Only reagents)
+      'OGT Target': 300000,
       'OGT Current': 0,
-      'FCM Reagents Target': 41667,
+      // IVD - FCM (with breakdowns)
+      'FCM Reagents Target': 250000,
       'FCM Reagents Current': 0,
-      'FCM Instrument Target': 29167,
+      'FCM Instrument Target': 175000,
       'FCM Instrument Current': 0,
-      'FCM Service Target': 12500,
+      'FCM Service Target': 75000,
       'FCM Service Current': 0,
-      // Internal
-      'HCLAB Internal Target': 41667,
+      // Internal Sales
+      'HCLAB Internal Target': 250000,
       'HCLAB Internal Current': 0,
-      'SNZ Service Target': 25000,
-      'SNZ Service Current': 0
+      'SNZ Internal Target': 150000, // Renamed from SNZ Service
+      'SNZ Internal Current': 0
     }));
     
     const worksheet = XLSX.utils.json_to_sheet(templateData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Template');
-    XLSX.writeFile(workbook, 'sales_template.xlsx');
-    toast.success('12-month template downloaded successfully!');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Template FY25-26');
+    XLSX.writeFile(workbook, 'sales_template_FY25-26.xlsx');
+    toast.success('FY25-26 template downloaded successfully!');
   };
   const handleProductClick = (productType: 'urinalysis' | 'fcm') => {
     setSelectedProduct(productType);
@@ -751,14 +781,14 @@ const Sales = () => {
                   showActualValues={true}
                 />
                 <GaugeMetricCard 
-                  title="SNZ Service" 
-                  currentScore={salesData.salesMetrics.snzService.achieved} 
+                  title="SNZ Internal" 
+                  currentScore={salesData.salesMetrics.snzInternal.achieved} 
                   target={100} 
-                  maxScore={Math.max(100 * 1.5, salesData.salesMetrics.snzService.achieved * 1.1)} 
+                  maxScore={Math.max(100 * 1.5, salesData.salesMetrics.snzInternal.achieved * 1.1)} 
                   trend={4.7} 
                   icon={<Headphones className="h-4 w-4" />}
-                  actualValue={salesData.salesMetrics.snzService.current}
-                  targetValue={salesData.salesMetrics.snzService.target}
+                  actualValue={salesData.salesMetrics.snzInternal.current}
+                  targetValue={salesData.salesMetrics.snzInternal.target}
                   showActualValues={true}
                 />
               </div>
@@ -828,7 +858,7 @@ const Sales = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Button onClick={downloadTemplate} variant="outline" className="w-full">
                   <Download className="h-4 w-4 mr-2" />
-                  Download 12-Month Template
+                  Download FY25-26 Template
                 </Button>
                 <div className="relative">
                   <input type="file" accept=".xlsx,.xls" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />

@@ -1,4 +1,4 @@
-// YTD (Year-to-Date) calculation utilities for sales dashboard
+// YTD (Year-to-Date) calculation utilities for sales dashboard - Financial Year Format (Apr-Mar)
 
 export interface YTDAnalysis {
   ytdActual: number;
@@ -11,18 +11,29 @@ export interface YTDAnalysis {
   monthsRemaining: number;
 }
 
+// Financial Year months mapping (Apr = 1, May = 2, ..., Mar = 12)
+export const FY_MONTHS = [
+  'Apr 2025', 'May 2025', 'Jun 2025', 'Jul 2025', 'Aug 2025', 'Sep 2025',
+  'Oct 2025', 'Nov 2025', 'Dec 2025', 'Jan 2026', 'Feb 2026', 'Mar 2026'
+];
+
+export const FY_MONTHS_SHORT = [
+  'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+  'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'
+];
+
 /**
- * Calculate Year-to-Date analysis based on monthly data
- * @param monthlyData Array of monthly actual values
- * @param annualTarget Full year target
- * @param currentMonth Current month (1-12, defaults to monthlyData.length)
+ * Calculate Financial Year-to-Date analysis based on monthly data
+ * @param monthlyData Array of monthly actual values (Apr to current month)
+ * @param annualTarget Full financial year target (Apr-Mar)
+ * @param currentFYMonth Current FY month (1-12, where 1=Apr, 12=Mar, defaults to monthlyData.length)
  */
 export function calculateYTDAnalysis(
   monthlyData: number[], 
   annualTarget: number, 
-  currentMonth?: number
+  currentFYMonth?: number
 ): YTDAnalysis {
-  const months = currentMonth || monthlyData.length;
+  const months = currentFYMonth || monthlyData.length;
   const monthsCompleted = Math.min(months, monthlyData.length);
   const monthsRemaining = 12 - monthsCompleted;
   
