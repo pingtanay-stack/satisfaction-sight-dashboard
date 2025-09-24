@@ -107,12 +107,25 @@ export const loadSalesDataFromSupabase = async (defaultData: SalesData): Promise
     return defaultData;
   }
 
-  return {
-    salesMetrics: savedData.sales_metrics as SalesData['salesMetrics'],
-    monthlyData: savedData.monthly_data as SalesData['monthlyData'],
-    monthlyTargets: (savedData as any).monthly_targets as SalesData['monthlyTargets'] || {},
-    companyTripProgress: savedData.company_trip_progress as SalesData['companyTripProgress']
-  };
+  try {
+    const loadedData = {
+      salesMetrics: savedData.sales_metrics as SalesData['salesMetrics'],
+      monthlyData: savedData.monthly_data as SalesData['monthlyData'],
+      monthlyTargets: (savedData as any).monthly_targets as SalesData['monthlyTargets'] || {},
+      companyTripProgress: savedData.company_trip_progress as SalesData['companyTripProgress']
+    };
+
+    // Handle legacy data: convert snzService to snzInternal if needed
+    if (loadedData.salesMetrics && (loadedData.salesMetrics as any).snzService && !loadedData.salesMetrics.snzInternal) {
+      loadedData.salesMetrics.snzInternal = (loadedData.salesMetrics as any).snzService;
+      delete (loadedData.salesMetrics as any).snzService;
+    }
+
+    return loadedData;
+  } catch (parseError) {
+    console.error('Error parsing saved data, returning default:', parseError);
+    return defaultData;
+  }
 };
 
 export const clearSalesDataFromSupabase = async (): Promise<void> => {

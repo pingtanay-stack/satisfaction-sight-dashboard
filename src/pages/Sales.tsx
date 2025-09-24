@@ -261,12 +261,34 @@ const Sales = () => {
         const hasData = await hasSavedSalesDataInSupabase();
         if (hasData) {
           const data = await loadSalesDataFromSupabase(defaultSalesData);
+          
+          // Debug: Check if data structure is correct
+          console.log('Loaded sales data:', data);
+          console.log('SNZ data:', data.salesMetrics.snzInternal);
+          
+          // Fix any old data structure issues
+          if ((data.salesMetrics as any).snzService && !data.salesMetrics.snzInternal) {
+            data.salesMetrics.snzInternal = (data.salesMetrics as any).snzService;
+            delete (data.salesMetrics as any).snzService;
+          }
+          
+          // Ensure all required properties exist
+          const requiredMetrics = ['eclair', 'delphicAP', 'delphicLIS', 'hclabExternal', 'urinalysis', 'ogt', 'fcm', 'hclabInternal', 'snzInternal'];
+          for (const metric of requiredMetrics) {
+            if (!data.salesMetrics[metric]) {
+              console.warn(`Missing metric: ${metric}, using default`);
+              data.salesMetrics[metric] = defaultSalesData.salesMetrics[metric];
+            }
+          }
+          
           setSalesData(data);
           setIsUsingRealData(true);
           setLastUpdated(new Date());
         }
       } catch (error) {
         console.error('Error loading sales data:', error);
+        // Fallback to default data on error
+        setSalesData(defaultSalesData);
       }
     };
     loadData();
@@ -697,13 +719,13 @@ const Sales = () => {
                 />
                 <RadialMetricCard 
                   title="HCLAB External" 
-                  currentScore={salesData.salesMetrics.hclabExternal.achieved} 
+                  currentScore={salesData.salesMetrics.hclabExternal?.achieved || 0} 
                   target={100} 
-                  maxScore={Math.max(100 * 1.5, salesData.salesMetrics.hclabExternal.achieved * 1.1)} 
+                  maxScore={Math.max(100 * 1.5, (salesData.salesMetrics.hclabExternal?.achieved || 0) * 1.1)} 
                   trend={4.2} 
                   icon={<Building className="h-4 w-4" />}
-                  actualValue={salesData.salesMetrics.hclabExternal.current}
-                  targetValue={salesData.salesMetrics.hclabExternal.target}
+                  actualValue={salesData.salesMetrics.hclabExternal?.current || 0}
+                  targetValue={salesData.salesMetrics.hclabExternal?.target || 0}
                   showActualValues={true}
                 />
               </div>
@@ -722,37 +744,37 @@ const Sales = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <AchievementMetricCard 
                   title="Urinalysis" 
-                  currentScore={salesData.salesMetrics.urinalysis.total.achieved} 
+                  currentScore={salesData.salesMetrics.urinalysis?.total?.achieved || 0} 
                   target={100} 
-                  maxScore={Math.max(100 * 1.5, salesData.salesMetrics.urinalysis.total.achieved * 1.1)} 
+                  maxScore={Math.max(100 * 1.5, (salesData.salesMetrics.urinalysis?.total?.achieved || 0) * 1.1)} 
                   trend={3.8} 
                   icon={<Beaker className="h-4 w-4" />}
                   onClick={() => handleProductClick('urinalysis')}
-                  actualValue={salesData.salesMetrics.urinalysis.total.current}
-                  targetValue={salesData.salesMetrics.urinalysis.total.target}
+                  actualValue={salesData.salesMetrics.urinalysis?.total?.current || 0}
+                  targetValue={salesData.salesMetrics.urinalysis?.total?.target || 0}
                   showActualValues={true}
                 />
                 <AchievementMetricCard 
                   title="OGT" 
-                  currentScore={salesData.salesMetrics.ogt.achieved} 
+                  currentScore={salesData.salesMetrics.ogt?.achieved || 0} 
                   target={100} 
-                  maxScore={Math.max(100 * 1.5, salesData.salesMetrics.ogt.achieved * 1.1)} 
+                  maxScore={Math.max(100 * 1.5, (salesData.salesMetrics.ogt?.achieved || 0) * 1.1)} 
                   trend={5.5} 
-                  icon={<TestTube className="h-4 w-4" />}
-                  actualValue={salesData.salesMetrics.ogt.current}
-                  targetValue={salesData.salesMetrics.ogt.target}
+                  icon={<Microscope className="h-4 w-4" />}
+                  actualValue={salesData.salesMetrics.ogt?.current || 0}
+                  targetValue={salesData.salesMetrics.ogt?.target || 0}
                   showActualValues={true}
                 />
                 <AchievementMetricCard 
                   title="FCM" 
-                  currentScore={salesData.salesMetrics.fcm.total.achieved} 
+                  currentScore={salesData.salesMetrics.fcm?.total?.achieved || 0} 
                   target={100} 
-                  maxScore={Math.max(100 * 1.5, salesData.salesMetrics.fcm.total.achieved * 1.1)} 
+                  maxScore={Math.max(100 * 1.5, (salesData.salesMetrics.fcm?.total?.achieved || 0) * 1.1)} 
                   trend={2.9} 
-                  icon={<Microscope className="h-4 w-4" />}
+                  icon={<TestTube className="h-4 w-4" />}
                   onClick={() => handleProductClick('fcm')}
-                  actualValue={salesData.salesMetrics.fcm.total.current}
-                  targetValue={salesData.salesMetrics.fcm.total.target}
+                  actualValue={salesData.salesMetrics.fcm?.total?.current || 0}
+                  targetValue={salesData.salesMetrics.fcm?.total?.target || 0}
                   showActualValues={true}
                 />
               </div>
@@ -771,24 +793,24 @@ const Sales = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <GaugeMetricCard 
                   title="HCLAB Internal" 
-                  currentScore={salesData.salesMetrics.hclabInternal.achieved} 
+                  currentScore={salesData.salesMetrics.hclabInternal?.achieved || 0} 
                   target={100} 
-                  maxScore={Math.max(100 * 1.5, salesData.salesMetrics.hclabInternal.achieved * 1.1)} 
+                  maxScore={Math.max(100 * 1.5, (salesData.salesMetrics.hclabInternal?.achieved || 0) * 1.1)} 
                   trend={6.1} 
                   icon={<Building className="h-4 w-4" />}
-                  actualValue={salesData.salesMetrics.hclabInternal.current}
-                  targetValue={salesData.salesMetrics.hclabInternal.target}
+                  actualValue={salesData.salesMetrics.hclabInternal?.current || 0}
+                  targetValue={salesData.salesMetrics.hclabInternal?.target || 0}
                   showActualValues={true}
                 />
                 <GaugeMetricCard 
                   title="SNZ Internal" 
-                  currentScore={salesData.salesMetrics.snzInternal.achieved} 
+                  currentScore={salesData.salesMetrics.snzInternal?.achieved || 0} 
                   target={100} 
-                  maxScore={Math.max(100 * 1.5, salesData.salesMetrics.snzInternal.achieved * 1.1)} 
+                  maxScore={Math.max(100 * 1.5, (salesData.salesMetrics.snzInternal?.achieved || 0) * 1.1)} 
                   trend={4.7} 
                   icon={<Headphones className="h-4 w-4" />}
-                  actualValue={salesData.salesMetrics.snzInternal.current}
-                  targetValue={salesData.salesMetrics.snzInternal.target}
+                  actualValue={salesData.salesMetrics.snzInternal?.current || 0}
+                  targetValue={salesData.salesMetrics.snzInternal?.target || 0}
                   showActualValues={true}
                 />
               </div>
