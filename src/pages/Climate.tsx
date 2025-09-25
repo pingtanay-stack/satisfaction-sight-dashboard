@@ -49,7 +49,7 @@ const Climate = () => {
   const [selectedTeam, setSelectedTeam] = useState("General");
   const [activeTab, setActiveTab] = useState("overview");
   const [newRating, setNewRating] = useState(2);
-  const [newIdea, setNewIdea] = useState({ title: "", description: "", category: "Culture", anonymous: false });
+  const [newIdea, setNewIdea] = useState({ title: "", description: "", category: "Culture", anonymous: false, submitterName: "" });
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
@@ -238,7 +238,7 @@ const Climate = () => {
       toast({ title: "Error submitting idea", variant: "destructive" });
     } else {
       toast({ title: "💡 Idea submitted successfully!" });
-      setNewIdea({ title: "", description: "", category: "Culture", anonymous: false });
+      setNewIdea({ title: "", description: "", category: "Culture", anonymous: false, submitterName: "" });
       loadIdeas();
     }
   };
@@ -465,12 +465,12 @@ const Climate = () => {
               <span className="text-4xl ml-2 animate-bounce">{getScoreEmoji(parseFloat(overallScore))}</span>
             </div>
             <div className="flex justify-center gap-1 mb-4">
-              {[5, 4, 3, 2, 1].map((star) => (
-                <Star
-                  key={star}
+              {[5, 4, 3, 2, 1].map((level) => (
+                <Heart
+                  key={level}
                   className={`h-6 w-6 transition-all duration-300 hover:scale-125 ${
-                    parseFloat(overallScore) <= star 
-                      ? 'fill-yellow-400 text-yellow-400 animate-twinkle' 
+                    parseFloat(overallScore) <= level 
+                      ? 'fill-red-400 text-red-400 animate-pulse' 
                       : 'text-gray-300'
                   }`}
                 />
@@ -592,15 +592,15 @@ const Climate = () => {
                           <span className="text-lg ml-1">{getScoreEmoji(avgScore)}</span>
                         </div>
                         <div className="flex justify-center gap-1 mb-2">
-                          {[5, 4, 3, 2, 1].map((star) => (
-                            <Star
-                              key={star}
+                          {[5, 4, 3, 2, 1].map((level) => (
+                            <ThumbsUp
+                              key={level}
                               className={`h-4 w-4 transition-all duration-300 ${
-                                avgScore <= star 
-                                  ? 'fill-yellow-400 text-yellow-400 animate-twinkle' 
+                                avgScore <= level 
+                                  ? 'fill-green-400 text-green-400 animate-pulse' 
                                   : 'text-gray-300'
                               }`}
-                              style={{ animationDelay: `${star * 0.2}s` }}
+                              style={{ animationDelay: `${level * 0.2}s` }}
                             />
                           ))}
                         </div>
@@ -610,20 +610,26 @@ const Climate = () => {
                       <div className="space-y-2">
                         <label className="text-xs font-medium">Rate this team (1-5):</label>
                         <div className="flex gap-1 justify-center">
-                          {[1, 2, 3, 4, 5].map((rating) => (
+                          {[
+                            { rating: 1, emoji: "😄", variant: "default" },
+                            { rating: 2, emoji: "😊", variant: "default" },
+                            { rating: 3, emoji: "😐", variant: "secondary" },
+                            { rating: 4, emoji: "😔", variant: "destructive" },
+                            { rating: 5, emoji: "😢", variant: "destructive" }
+                          ].map(({ rating, emoji, variant }) => (
                             <Button
                               key={rating}
                               size="sm"
-                              variant={rating <= 2 ? "default" : rating <= 3 ? "secondary" : "destructive"}
+                              variant={variant as "default" | "secondary" | "destructive"}
                               onClick={() => handleTeamVote(team, rating)}
-                              className="w-10 h-10 text-xs hover-scale"
+                              className="w-10 h-10 text-lg hover-scale"
                             >
-                              {rating}
+                              {emoji}
                             </Button>
                           ))}
                         </div>
                         <p className="text-xs text-center text-muted-foreground">
-                          Click to vote: 1-2 = Great! • 3 = Good • 4-5 = Needs work
+                          Click to vote: 😄😊 = Great! • 😐 = Good • 😔😢 = Needs work
                         </p>
                       </div>
                     </CardContent>
@@ -713,6 +719,14 @@ const Climate = () => {
                   onChange={(e) => setNewIdea({ ...newIdea, description: e.target.value })}
                   className="hover-glow"
                 />
+                {!newIdea.anonymous && (
+                  <Input
+                    placeholder="👤 Your name (optional)"
+                    value={newIdea.submitterName}
+                    onChange={(e) => setNewIdea({ ...newIdea, submitterName: e.target.value })}
+                    className="hover-glow"
+                  />
+                )}
                 <div className="flex gap-4 items-center">
                   <Select 
                     value={newIdea.category} 
