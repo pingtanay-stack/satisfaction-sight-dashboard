@@ -13,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Upload, FileDown, Users, Lightbulb, Star, TrendingUp, MessageSquare, ThumbsUp, Sparkles, Heart, Smile, Zap, Trophy, Target, BarChart3, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
-
 interface ClimateData {
   overall_satisfaction: number;
   communication_cooperation: number;
@@ -22,7 +21,6 @@ interface ClimateData {
   survey_data: any;
   monthly_data: any;
 }
-
 interface IdeaData {
   id: string;
   title: string;
@@ -33,45 +31,50 @@ interface IdeaData {
   is_anonymous: boolean;
   created_at: string;
 }
-
 interface TeamScore {
   team_name: string;
   average_score: number;
   vote_count: number;
 }
-
 const Climate = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [climateData, setClimateData] = useState<ClimateData | null>(null);
   const [ideas, setIdeas] = useState<IdeaData[]>([]);
   const [teamScores, setTeamScores] = useState<TeamScore[]>([]);
   const [selectedTeam, setSelectedTeam] = useState("General");
   const [activeTab, setActiveTab] = useState("overview");
   const [newRating, setNewRating] = useState(2);
-  const [newIdea, setNewIdea] = useState({ title: "", description: "", category: "Culture", anonymous: false, submitterName: "" });
+  const [newIdea, setNewIdea] = useState({
+    title: "",
+    description: "",
+    category: "Culture",
+    anonymous: false,
+    submitterName: ""
+  });
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
-
   const teams = ["Sales & Marketing", "Technical", "Development", "Admin"];
-
   const loadTeamScores = async () => {
-    const { data, error } = await supabase.rpc('get_team_scores');
+    const {
+      data,
+      error
+    } = await supabase.rpc('get_team_scores');
     if (data && !error) {
       setTeamScores(data);
     }
   };
-
   const loadClimateData = async () => {
-    const { data: user } = await supabase.auth.getUser();
+    const {
+      data: user
+    } = await supabase.auth.getUser();
     if (!user.user) return;
-
-    const { data, error } = await supabase
-      .from('user_climate_data')
-      .select('*')
-      .eq('user_id', user.user.id)
-      .single();
-
+    const {
+      data,
+      error
+    } = await supabase.from('user_climate_data').select('*').eq('user_id', user.user.id).single();
     if (data && !error) {
       setClimateData(data);
     } else {
@@ -86,86 +89,95 @@ const Climate = () => {
       });
     }
   };
-
   const loadIdeas = async () => {
-    const { data, error } = await supabase
-      .from('climate_ideas')
-      .select('*')
-      .order('votes', { ascending: false });
-
+    const {
+      data,
+      error
+    } = await supabase.from('climate_ideas').select('*').order('votes', {
+      ascending: false
+    });
     if (data && !error) {
       setIdeas(data);
     }
   };
-
   useEffect(() => {
     loadClimateData();
     loadIdeas();
     loadTeamScores();
   }, []);
-
   const handleTeamVote = async (teamName: string, score: number) => {
-    const { data: user } = await supabase.auth.getUser();
-    
-    const { error } = await supabase
-      .from('team_votes')
-      .insert({
-        team_name: teamName,
-        user_id: user.user?.id || null,
-        vote_score: score
-      });
-
+    const {
+      data: user
+    } = await supabase.auth.getUser();
+    const {
+      error
+    } = await supabase.from('team_votes').insert({
+      team_name: teamName,
+      user_id: user.user?.id || null,
+      vote_score: score
+    });
     if (error) {
-      toast({ title: "Error saving vote", variant: "destructive" });
+      toast({
+        title: "Error saving vote",
+        variant: "destructive"
+      });
     } else {
-      toast({ title: `🗳️ Vote submitted for ${teamName}!` });
+      toast({
+        title: `🗳️ Vote submitted for ${teamName}!`
+      });
       loadTeamScores(); // Reload team scores to show updated averages
     }
   };
-
   const handleQuickRating = async () => {
-    const { data: user } = await supabase.auth.getUser();
+    const {
+      data: user
+    } = await supabase.auth.getUser();
     if (!user.user) {
-      toast({ title: "Please sign in to rate", variant: "destructive" });
+      toast({
+        title: "Please sign in to rate",
+        variant: "destructive"
+      });
       return;
     }
-
     setIsSubmittingRating(true);
-
-    const { error } = await supabase
-      .from('user_climate_data')
-      .upsert({
-        user_id: user.user.id,
-        team_name: selectedTeam,
-        overall_satisfaction: newRating,
-        communication_cooperation: newRating,
-        learning_development: newRating,
-        survey_data: {},
-        monthly_data: {}
-      });
-
+    const {
+      error
+    } = await supabase.from('user_climate_data').upsert({
+      user_id: user.user.id,
+      team_name: selectedTeam,
+      overall_satisfaction: newRating,
+      communication_cooperation: newRating,
+      learning_development: newRating,
+      survey_data: {},
+      monthly_data: {}
+    });
     if (error) {
-      toast({ title: "Error saving rating", variant: "destructive" });
+      toast({
+        title: "Error saving rating",
+        variant: "destructive"
+      });
     } else {
       setShowSuccessAnimation(true);
-      toast({ title: "🎉 Rating saved successfully!" });
+      toast({
+        title: "🎉 Rating saved successfully!"
+      });
       setTimeout(() => setShowSuccessAnimation(false), 2000);
       loadClimateData();
     }
-    
     setIsSubmittingRating(false);
   };
-
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     try {
-      const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+      const workbook = XLSX.read(await file.arrayBuffer(), {
+        type: 'array'
+      });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const data = XLSX.utils.sheet_to_json(worksheet);
-      
-      const { data: user } = await supabase.auth.getUser();
+      const {
+        data: user
+      } = await supabase.auth.getUser();
       if (!user.user) return;
 
       // Process and save climate survey data (inverted scoring: 1=best, 5=worst)
@@ -178,96 +190,102 @@ const Climate = () => {
         survey_data: data as any,
         monthly_data: {} as any
       };
-
-      const { error } = await supabase
-        .from('user_climate_data')
-        .upsert(climateData);
-
+      const {
+        error
+      } = await supabase.from('user_climate_data').upsert(climateData);
       if (error) {
-        toast({ title: "Error uploading data", variant: "destructive" });
+        toast({
+          title: "Error uploading data",
+          variant: "destructive"
+        });
       } else {
-        toast({ title: "📊 Survey data uploaded successfully!" });
+        toast({
+          title: "📊 Survey data uploaded successfully!"
+        });
         loadClimateData();
       }
     } catch (error) {
-      toast({ title: "Error processing file", variant: "destructive" });
+      toast({
+        title: "Error processing file",
+        variant: "destructive"
+      });
     }
   };
-
   const downloadTemplate = () => {
-    const templateData = [
-      { 
-        'Employee ID': 'EMP001',
-        'Team': 'Sales & Marketing',
-        'Overall Satisfaction (1-5, 1=Best)': 2,
-        'Communication & Cooperation (1-5, 1=Best)': 3,
-        'Learning & Development (1-5, 1=Best)': 2,
-        'Comments': 'Great team environment'
-      },
-      { 
-        'Employee ID': 'EMP002',
-        'Team': 'Technical',
-        'Overall Satisfaction (1-5, 1=Best)': 1,
-        'Communication & Cooperation (1-5, 1=Best)': 2,
-        'Learning & Development (1-5, 1=Best)': 1,
-        'Comments': 'Excellent growth opportunities'
-      }
-    ];
-
+    const templateData = [{
+      'Employee ID': 'EMP001',
+      'Team': 'Sales & Marketing',
+      'Overall Satisfaction (1-5, 1=Best)': 2,
+      'Communication & Cooperation (1-5, 1=Best)': 3,
+      'Learning & Development (1-5, 1=Best)': 2,
+      'Comments': 'Great team environment'
+    }, {
+      'Employee ID': 'EMP002',
+      'Team': 'Technical',
+      'Overall Satisfaction (1-5, 1=Best)': 1,
+      'Communication & Cooperation (1-5, 1=Best)': 2,
+      'Learning & Development (1-5, 1=Best)': 1,
+      'Comments': 'Excellent growth opportunities'
+    }];
     const ws = XLSX.utils.json_to_sheet(templateData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Climate Survey Template');
     XLSX.writeFile(wb, 'climate_survey_template.xlsx');
   };
-
   const submitIdea = async () => {
     if (!newIdea.title || !newIdea.description) return;
-
-    const { data: user } = await supabase.auth.getUser();
-    const { error } = await supabase
-      .from('climate_ideas')
-      .insert({
-        title: newIdea.title,
-        description: newIdea.description,
-        category: newIdea.category,
-        user_id: newIdea.anonymous ? null : user.user?.id,
-        is_anonymous: newIdea.anonymous
-      });
-
+    const {
+      data: user
+    } = await supabase.auth.getUser();
+    const {
+      error
+    } = await supabase.from('climate_ideas').insert({
+      title: newIdea.title,
+      description: newIdea.description,
+      category: newIdea.category,
+      user_id: newIdea.anonymous ? null : user.user?.id,
+      is_anonymous: newIdea.anonymous
+    });
     if (error) {
-      toast({ title: "Error submitting idea", variant: "destructive" });
+      toast({
+        title: "Error submitting idea",
+        variant: "destructive"
+      });
     } else {
-      toast({ title: "💡 Idea submitted successfully!" });
-      setNewIdea({ title: "", description: "", category: "Culture", anonymous: false, submitterName: "" });
+      toast({
+        title: "💡 Idea submitted successfully!"
+      });
+      setNewIdea({
+        title: "",
+        description: "",
+        category: "Culture",
+        anonymous: false,
+        submitterName: ""
+      });
       loadIdeas();
     }
   };
-
   const voteIdea = async (ideaId: string) => {
     const idea = ideas.find(i => i.id === ideaId);
     if (!idea) return;
-
-    const { error } = await supabase
-      .from('climate_ideas')
-      .update({ votes: idea.votes + 1 })
-      .eq('id', ideaId);
-
+    const {
+      error
+    } = await supabase.from('climate_ideas').update({
+      votes: idea.votes + 1
+    }).eq('id', ideaId);
     if (!error) {
-      toast({ title: "👍 Vote added!" });
+      toast({
+        title: "👍 Vote added!"
+      });
       loadIdeas();
     }
   };
-
-  const overallScore = climateData ? 
-    ((climateData.overall_satisfaction + climateData.communication_cooperation + climateData.learning_development) / 3).toFixed(1)
-    : "2.5";
-
+  const overallScore = climateData ? ((climateData.overall_satisfaction + climateData.communication_cooperation + climateData.learning_development) / 3).toFixed(1) : "2.5";
   const getScoreColor = (score: number) => {
     if (score <= 1.5) return "text-green-500";
-    if (score <= 2.5) return "text-yellow-500"; 
+    if (score <= 2.5) return "text-yellow-500";
     return "text-red-500";
   };
-
   const getScoreEmoji = (score: number) => {
     if (score <= 1.5) return "🤩";
     if (score <= 2.0) return "😄";
@@ -275,24 +293,24 @@ const Climate = () => {
     if (score <= 3.5) return "😐";
     return "😢";
   };
-
   const getMoodGradient = (score: number) => {
     if (score <= 1.5) return "from-green-400 to-emerald-500";
     if (score <= 2.5) return "from-yellow-400 to-orange-500";
     return "from-red-400 to-pink-500";
   };
-
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
-      case 'Approved': return 'bg-green-500';
-      case 'Under Review': return 'bg-yellow-500';
-      case 'Implemented': return 'bg-blue-500';
-      default: return 'bg-gray-500';
+      case 'Approved':
+        return 'bg-green-500';
+      case 'Under Review':
+        return 'bg-yellow-500';
+      case 'Implemented':
+        return 'bg-blue-500';
+      default:
+        return 'bg-gray-500';
     }
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/8 via-background to-secondary/6 bg-[length:400%_400%] animate-gradient-shift">
+  return <div className="min-h-screen bg-gradient-to-br from-primary/8 via-background to-secondary/6 bg-[length:400%_400%] animate-gradient-shift">
       {/* Header with matching gradient style */}
       <div className="border-b bg-gradient-to-r from-primary/5 via-secondary/3 to-primary/5 backdrop-blur-sm border-border/50">
         <div className="flex items-center justify-between px-6 py-4">
@@ -336,7 +354,9 @@ const Climate = () => {
             </div>
 
             {/* House Body */}
-            <div className="bg-gradient-to-b from-background to-secondary/5 border-2 border-primary/30 rounded-none relative" style={{marginTop: '-2px'}}>
+            <div className="bg-gradient-to-b from-background to-secondary/5 border-2 border-primary/30 rounded-none relative" style={{
+            marginTop: '-2px'
+          }}>
               
               {/* Dashboard Navigation - Top Floor */}
               <div className="text-center py-8 border-b border-border/50 bg-gradient-to-r from-primary/10 to-secondary/10">
@@ -346,22 +366,13 @@ const Climate = () => {
                   <Sparkles className="h-6 w-6 text-yellow-500 animate-twinkle" />
                 </h2>
                 <div className="flex justify-center gap-6 flex-wrap">
-                  <Button 
-                    onClick={() => navigate("/")} 
-                    className="hover-lift bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-4 h-auto"
-                  >
+                  <Button onClick={() => navigate("/")} className="hover-lift bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-4 h-auto">
                     📊 Customer Dashboard
                   </Button>
-                  <Button 
-                    onClick={() => navigate("/sales")} 
-                    className="hover-lift bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-lg px-8 py-4 h-auto"
-                  >
+                  <Button onClick={() => navigate("/sales")} className="hover-lift bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-lg px-8 py-4 h-auto">
                     📈 Sales Dashboard
                   </Button>
-                  <Button 
-                    className="hover-lift bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-lg px-8 py-4 h-auto opacity-75 cursor-not-allowed"
-                    disabled
-                  >
+                  <Button className="hover-lift bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-lg px-8 py-4 h-auto opacity-75 cursor-not-allowed" disabled>
                     ⛅ Climate Dashboard (Current)
                   </Button>
                 </div>
@@ -381,17 +392,31 @@ const Climate = () => {
 
               {/* Four Pillars - Main Floor */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-background/80">
-                {[
-                  { title: "People", icon: Users, color: "bg-blue-500", description: "Customer Experience", dashboard: "/" },
-                  { title: "Innovate", icon: Lightbulb, color: "bg-green-500", description: "Continuous Improvement", dashboard: "/climate" },
-                  { title: "Protect", icon: Shield, color: "bg-orange-500", description: "Quality Assurance", dashboard: "/" },
-                  { title: "Expand", icon: TrendingUp, color: "bg-purple-500", description: "Growth & Scale", dashboard: "/sales" }
-                ].map(pillar => (
-                  <div 
-                    key={pillar.title} 
-                    className="text-center group bg-background/70 rounded-lg p-4 border border-border/30 hover:border-primary/50 transition-all duration-200 shadow-sm cursor-pointer hover-lift"
-                    onClick={() => navigate(pillar.dashboard)}
-                  >
+                {[{
+                title: "People",
+                icon: Users,
+                color: "bg-blue-500",
+                description: "Customer Experience",
+                dashboard: "/"
+              }, {
+                title: "Innovate",
+                icon: Lightbulb,
+                color: "bg-green-500",
+                description: "Continuous Improvement",
+                dashboard: "/climate"
+              }, {
+                title: "Protect",
+                icon: Shield,
+                color: "bg-orange-500",
+                description: "Quality Assurance",
+                dashboard: "/"
+              }, {
+                title: "Expand",
+                icon: TrendingUp,
+                color: "bg-purple-500",
+                description: "Growth & Scale",
+                dashboard: "/sales"
+              }].map(pillar => <div key={pillar.title} className="text-center group bg-background/70 rounded-lg p-4 border border-border/30 hover:border-primary/50 transition-all duration-200 shadow-sm cursor-pointer hover-lift" onClick={() => navigate(pillar.dashboard)}>
                     <div className="mb-3">
                       <div className={`w-12 h-12 rounded-full ${pillar.color} flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-200 shadow-lg`}>
                         <pillar.icon className="w-6 h-6 text-white" />
@@ -399,8 +424,7 @@ const Climate = () => {
                       <h3 className="text-sm font-semibold text-foreground mb-1">{pillar.title}</h3>
                       <p className="text-xs text-muted-foreground">{pillar.description}</p>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </div>
 
@@ -423,28 +447,24 @@ const Climate = () => {
             🚀 The heart of our innovation! Share brilliant ideas to transform our workplace culture!
           </p>
           <div className="flex justify-center gap-4">
-            <Button 
-              variant="outline" 
-              className="text-lg px-6 py-3 h-auto hover-lift bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border-2 animate-pulse"
-              onClick={() => {
-                setActiveTab('ideas');
-                setTimeout(() => {
-                  document.getElementById('ideas-section')?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-              }}
-            >
+            <Button variant="outline" className="text-lg px-6 py-3 h-auto hover-lift bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border-2 animate-pulse" onClick={() => {
+            setActiveTab('ideas');
+            setTimeout(() => {
+              document.getElementById('ideas-section')?.scrollIntoView({
+                behavior: 'smooth'
+              });
+            }, 100);
+          }}>
               💭 {ideas.length} Active Ideas
             </Button>
-            <Button 
-              variant="outline" 
-              className="text-lg px-6 py-3 h-auto hover-lift bg-gradient-to-r from-yellow-500/10 to-orange-500/10 hover:from-yellow-500/20 hover:to-orange-500/20 border-2 animate-pulse"
-              onClick={() => {
-                setActiveTab('ideas');
-                setTimeout(() => {
-                  document.getElementById('submit-idea-section')?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-              }}
-            >
+            <Button variant="outline" className="text-lg px-6 py-3 h-auto hover-lift bg-gradient-to-r from-yellow-500/10 to-orange-500/10 hover:from-yellow-500/20 hover:to-orange-500/20 border-2 animate-pulse" onClick={() => {
+            setActiveTab('ideas');
+            setTimeout(() => {
+              document.getElementById('submit-idea-section')?.scrollIntoView({
+                behavior: 'smooth'
+              });
+            }, 100);
+          }}>
               ⚡ Innovation Hub
             </Button>
           </div>
@@ -464,19 +484,8 @@ const Climate = () => {
               {overallScore}/5.0
               <span className="text-4xl ml-2 animate-bounce">{getScoreEmoji(parseFloat(overallScore))}</span>
             </div>
-            <div className="flex justify-center gap-1 mb-4">
-              {[5, 4, 3, 2, 1].map((level) => (
-                <Heart
-                  key={level}
-                  className={`h-6 w-6 transition-all duration-300 hover:scale-125 ${
-                    parseFloat(overallScore) <= level 
-                      ? 'fill-red-400 text-red-400 animate-pulse' 
-                      : 'text-gray-300'
-                  }`}
-                />
-              ))}
-            </div>
-            <div className={`h-2 bg-gradient-to-r ${getMoodGradient(parseFloat(overallScore))} rounded-full mx-auto max-w-xs animate-pulse`}></div>
+            
+            
             <p className="text-muted-foreground">Based on Communication, Learning & Overall Satisfaction (1=Best, 5=Needs Improvement)</p>
           </CardContent>
         </Card>
@@ -503,10 +512,7 @@ const Climate = () => {
                     {climateData?.communication_cooperation.toFixed(1) || "2.2"}/5.0
                     <span className="text-lg ml-2">{getScoreEmoji(climateData?.communication_cooperation || 2.2)}</span>
                   </div>
-                  <Progress 
-                    value={100 - (climateData?.communication_cooperation || 2.2) * 20} 
-                    className="mt-2 h-3 animate-shimmer" 
-                  />
+                  <Progress value={100 - (climateData?.communication_cooperation || 2.2) * 20} className="mt-2 h-3 animate-shimmer" />
                   <div className="mt-2 text-xs text-muted-foreground group-hover:text-primary transition-colors">
                     Excellent team synergy! 🤝
                   </div>
@@ -525,10 +531,7 @@ const Climate = () => {
                     {climateData?.learning_development.toFixed(1) || "2.0"}/5.0
                     <span className="text-lg ml-2">{getScoreEmoji(climateData?.learning_development || 2.0)}</span>
                   </div>
-                  <Progress 
-                    value={100 - (climateData?.learning_development || 2.0) * 20} 
-                    className="mt-2 h-3 animate-shimmer" 
-                  />
+                  <Progress value={100 - (climateData?.learning_development || 2.0) * 20} className="mt-2 h-3 animate-shimmer" />
                   <div className="mt-2 text-xs text-muted-foreground group-hover:text-primary transition-colors">
                     Great growth mindset! 📚
                   </div>
@@ -547,10 +550,7 @@ const Climate = () => {
                     {climateData?.overall_satisfaction.toFixed(1) || "1.8"}/5.0
                     <span className="text-lg ml-2">{getScoreEmoji(climateData?.overall_satisfaction || 1.8)}</span>  
                   </div>
-                  <Progress 
-                    value={100 - (climateData?.overall_satisfaction || 1.8) * 20} 
-                    className="mt-2 h-3 animate-shimmer" 
-                  />
+                  <Progress value={100 - (climateData?.overall_satisfaction || 1.8) * 20} className="mt-2 h-3 animate-shimmer" />
                   <div className="mt-2 text-xs text-muted-foreground group-hover:text-primary transition-colors">
                     Keep up the good vibes! ✨
                   </div>
@@ -573,12 +573,12 @@ const Climate = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {teams.map((team, index) => {
-                const teamScore = teamScores.find(ts => ts.team_name === team);
-                const avgScore = teamScore?.average_score || 3.0;
-                const voteCount = teamScore?.vote_count || 0;
-                
-                return (
-                  <Card key={team} className="glass-card hover-lift animate-fade-in cursor-pointer group border-2 border-primary/20" style={{ animationDelay: `${index * 0.1}s` }}>
+              const teamScore = teamScores.find(ts => ts.team_name === team);
+              const avgScore = teamScore?.average_score || 3.0;
+              const voteCount = teamScore?.vote_count || 0;
+              return <Card key={team} className="glass-card hover-lift animate-fade-in cursor-pointer group border-2 border-primary/20" style={{
+                animationDelay: `${index * 0.1}s`
+              }}>
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm font-medium text-center">
                         <Trophy className="h-6 w-6 text-yellow-500 animate-twinkle mx-auto mb-2" />
@@ -591,51 +591,48 @@ const Climate = () => {
                           {avgScore}/5.0
                           <span className="text-lg ml-1">{getScoreEmoji(avgScore)}</span>
                         </div>
-                        <div className="flex justify-center gap-1 mb-2">
-                          {[5, 4, 3, 2, 1].map((level) => (
-                            <ThumbsUp
-                              key={level}
-                              className={`h-4 w-4 transition-all duration-300 ${
-                                avgScore <= level 
-                                  ? 'fill-green-400 text-green-400 animate-pulse' 
-                                  : 'text-gray-300'
-                              }`}
-                              style={{ animationDelay: `${level * 0.2}s` }}
-                            />
-                          ))}
-                        </div>
+                        
                         <Badge variant="outline" className="mb-4">📊 {voteCount} votes</Badge>
                       </div>
                       
                       <div className="space-y-2">
                         <label className="text-xs font-medium">Rate this team (1-5):</label>
                         <div className="flex gap-1 justify-center">
-                          {[
-                            { rating: 1, emoji: "😄", variant: "default" },
-                            { rating: 2, emoji: "😊", variant: "default" },
-                            { rating: 3, emoji: "😐", variant: "secondary" },
-                            { rating: 4, emoji: "😔", variant: "destructive" },
-                            { rating: 5, emoji: "😢", variant: "destructive" }
-                          ].map(({ rating, emoji, variant }) => (
-                            <Button
-                              key={rating}
-                              size="sm"
-                              variant={variant as "default" | "secondary" | "destructive"}
-                              onClick={() => handleTeamVote(team, rating)}
-                              className="w-10 h-10 text-lg hover-scale"
-                            >
+                          {[{
+                        rating: 1,
+                        emoji: "😄",
+                        variant: "default"
+                      }, {
+                        rating: 2,
+                        emoji: "😊",
+                        variant: "default"
+                      }, {
+                        rating: 3,
+                        emoji: "😐",
+                        variant: "secondary"
+                      }, {
+                        rating: 4,
+                        emoji: "😔",
+                        variant: "destructive"
+                      }, {
+                        rating: 5,
+                        emoji: "😢",
+                        variant: "destructive"
+                      }].map(({
+                        rating,
+                        emoji,
+                        variant
+                      }) => <Button key={rating} size="sm" variant={variant as "default" | "secondary" | "destructive"} onClick={() => handleTeamVote(team, rating)} className="w-10 h-10 text-lg hover-scale">
                               {emoji}
-                            </Button>
-                          ))}
+                            </Button>)}
                         </div>
                         <p className="text-xs text-center text-muted-foreground">
                           Click to vote: 😄😊 = Great! • 😐 = Good • 😔😢 = Needs work
                         </p>
                       </div>
                     </CardContent>
-                  </Card>
-                );
-              })}
+                  </Card>;
+            })}
             </div>
           </TabsContent>
 
@@ -652,12 +649,7 @@ const Climate = () => {
                   <p className="text-sm text-muted-foreground">
                     Upload Excel files containing survey results from HR 📊
                   </p>
-                  <Input
-                    type="file"
-                    accept=".xlsx,.xls,.csv"
-                    onChange={handleFileUpload}
-                    className="hover-glow"
-                  />
+                  <Input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileUpload} className="hover-glow" />
                   <Button variant="outline" onClick={downloadTemplate} className="w-full hover-lift">
                     <FileDown className="h-4 w-4 mr-2" />
                     Download Template 📄
@@ -707,31 +699,23 @@ const Climate = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Input
-                  placeholder="💡 Idea title..."
-                  value={newIdea.title}
-                  onChange={(e) => setNewIdea({ ...newIdea, title: e.target.value })}
-                  className="hover-glow"
-                />
-                <Textarea
-                  placeholder="✨ Describe your idea to enhance work culture..."
-                  value={newIdea.description}
-                  onChange={(e) => setNewIdea({ ...newIdea, description: e.target.value })}
-                  className="hover-glow"
-                />
-                {!newIdea.anonymous && (
-                  <Input
-                    placeholder="👤 Your name (optional)"
-                    value={newIdea.submitterName}
-                    onChange={(e) => setNewIdea({ ...newIdea, submitterName: e.target.value })}
-                    className="hover-glow"
-                  />
-                )}
+                <Input placeholder="💡 Idea title..." value={newIdea.title} onChange={e => setNewIdea({
+                ...newIdea,
+                title: e.target.value
+              })} className="hover-glow" />
+                <Textarea placeholder="✨ Describe your idea to enhance work culture..." value={newIdea.description} onChange={e => setNewIdea({
+                ...newIdea,
+                description: e.target.value
+              })} className="hover-glow" />
+                {!newIdea.anonymous && <Input placeholder="👤 Your name (optional)" value={newIdea.submitterName} onChange={e => setNewIdea({
+                ...newIdea,
+                submitterName: e.target.value
+              })} className="hover-glow" />}
                 <div className="flex gap-4 items-center">
-                  <Select 
-                    value={newIdea.category} 
-                    onValueChange={(value) => setNewIdea({ ...newIdea, category: value })}
-                  >
+                  <Select value={newIdea.category} onValueChange={value => setNewIdea({
+                  ...newIdea,
+                  category: value
+                })}>
                     <SelectTrigger className="w-48 hover-glow">
                       <SelectValue />
                     </SelectTrigger>
@@ -743,19 +727,13 @@ const Climate = () => {
                     </SelectContent>
                   </Select>
                   <label className="flex items-center gap-2 text-sm">
-                    <input 
-                      type="checkbox" 
-                      checked={newIdea.anonymous}
-                      onChange={(e) => setNewIdea({ ...newIdea, anonymous: e.target.checked })}
-                      className="rounded"
-                    />
+                    <input type="checkbox" checked={newIdea.anonymous} onChange={e => setNewIdea({
+                    ...newIdea,
+                    anonymous: e.target.checked
+                  })} className="rounded" />
                     🎭 Submit anonymously
                   </label>
-                  <Button 
-                    onClick={submitIdea}
-                    disabled={!newIdea.title || !newIdea.description}
-                    className="hover-lift bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                  >
+                  <Button onClick={submitIdea} disabled={!newIdea.title || !newIdea.description} className="hover-lift bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
                     <Lightbulb className="h-4 w-4 mr-2" />
                     Submit Idea ✨
                   </Button>
@@ -773,22 +751,17 @@ const Climate = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {ideas.length === 0 ? (
-                    <div className="text-center py-8">
+                  {ideas.length === 0 ? <div className="text-center py-8">
                       <Lightbulb className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
                       <p className="text-muted-foreground">💭 No ideas yet. Be the first to share!</p>
-                    </div>
-                  ) : (
-                    ideas.map((idea, index) => (
-                      <Card key={idea.id} className="glass-surface hover-lift" style={{ animationDelay: `${index * 0.1}s` }}>
+                    </div> : ideas.map((idea, index) => <Card key={idea.id} className="glass-surface hover-lift" style={{
+                  animationDelay: `${index * 0.1}s`
+                }}>
                         <CardContent className="pt-4">
                           <div className="flex justify-between items-start mb-2">
                             <h3 className="font-medium text-sm">{idea.title}</h3>
                             <div className="flex items-center gap-2">
-                              <Badge 
-                                variant="outline" 
-                                className={`text-xs ${getStatusBadgeColor(idea.status)} text-white animate-fade-in`}
-                              >
+                              <Badge variant="outline" className={`text-xs ${getStatusBadgeColor(idea.status)} text-white animate-fade-in`}>
                                 {idea.status}
                               </Badge>
                             </div>
@@ -803,28 +776,19 @@ const Climate = () => {
                                 {idea.is_anonymous ? "👤 Anonymous" : "👥 Team Member"}
                               </span>
                             </div>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={() => voteIdea(idea.id)}
-                              className="hover-scale"
-                            >
+                            <Button variant="ghost" size="sm" onClick={() => voteIdea(idea.id)} className="hover-scale">
                               <ThumbsUp className="h-3 w-3 mr-1" />
                               {idea.votes} 👍
                             </Button>
                           </div>
                         </CardContent>
-                      </Card>
-                    ))
-                  )}
+                      </Card>)}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Climate;
