@@ -13,12 +13,11 @@ interface TrendChartProps {
 
 export function TrendChart({ title, data, target, maxScore }: TrendChartProps) {
   return (
-    <Card className="animate-slide-up card-shadow">
-      <CardHeader>
-        <CardTitle className="text-lg">{title} - Monthly Trend</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-64">
+    <div className="animate-slide-up">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold">{title} - Monthly Trend</h3>
+      </div>
+      <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
@@ -70,7 +69,6 @@ export function TrendChart({ title, data, target, maxScore }: TrendChartProps) {
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }

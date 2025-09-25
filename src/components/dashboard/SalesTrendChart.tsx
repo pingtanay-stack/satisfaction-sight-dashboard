@@ -135,7 +135,7 @@ export function SalesTrendChart({ data, title = "Sales Trend", showActualVsTarge
   );
 
   return (
-    <Card className="p-4">
+    <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">{title}</h3>
         <InfoPopover />
@@ -194,6 +194,6 @@ export function SalesTrendChart({ data, title = "Sales Trend", showActualVsTarge
           </LineChart>
         </ResponsiveContainer>
       </div>
-    </Card>
+    </div>
   );
 }

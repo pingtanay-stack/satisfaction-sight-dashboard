@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SalesTrendChart } from './SalesTrendChart';
 import { StackedCategoryChart } from './StackedCategoryChart';
+import { ExpandableChart } from '@/components/ui/expandable-chart';
 import { Wrench, Beaker, HeadphonesIcon, TrendingUp, DollarSign, Target, Calendar, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { calculateYTDAnalysis, formatCurrency, getPerformanceStatus } from '@/utils/ytdCalculations';
@@ -311,10 +312,12 @@ export function ProductDetailModal({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <StackedCategoryChart 
-                  data={monthlyData} 
-                  title={`${productName} Category Sales`}
-                />
+                <ExpandableChart title={`${productName} Monthly Category Breakdown`}>
+                  <StackedCategoryChart 
+                    data={monthlyData} 
+                    title={`${productName} Category Sales`}
+                  />
+                </ExpandableChart>
                 <div className="mt-4 text-xs text-muted-foreground text-center">
                   Stacked view showing contribution of each category to monthly totals
                 </div>
@@ -329,11 +332,13 @@ export function ProductDetailModal({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <SalesTrendChart 
-                  data={monthlyData} 
-                  title={`${productName} - Actual vs Target`}
-                  showActualVsTarget={true}
-                />
+                <ExpandableChart title={`${productName} - Actual vs Target Trends`}>
+                  <SalesTrendChart 
+                    data={monthlyData} 
+                    title={`${productName} - Actual vs Target`}
+                    showActualVsTarget={true}
+                  />
+                </ExpandableChart>
                 <div className="mt-4 flex flex-wrap gap-4 justify-center">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-0.5 bg-blue-500"></div>

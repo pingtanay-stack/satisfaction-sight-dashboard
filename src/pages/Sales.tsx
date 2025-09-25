@@ -11,6 +11,7 @@ import { IsometricAdventureProgress } from '@/components/dashboard/IsometricAdve
 import { SalesTrendChart } from '@/components/dashboard/SalesTrendChart';
 import { ProductDetailModal } from '@/components/dashboard/ProductDetailModal';
 import { DataSourceBadge } from '@/components/ui/data-source-badge';
+import { ExpandableChart } from '@/components/ui/expandable-chart';
 import { toast } from 'sonner';
 import { SalesData, MonthlyTargetData, saveSalesDataToSupabase, loadSalesDataFromSupabase, hasSavedSalesDataInSupabase } from '@/lib/salesStorage';
 import { calculateYTDAnalysis, calculateTrend, FY_MONTHS, FY_MONTHS_SHORT } from '@/utils/ytdCalculations';
@@ -831,11 +832,13 @@ const Sales = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <SalesTrendChart 
-                  data={transformMonthlyTargetsToChartData(salesData.monthlyTargets.external_health_it || [])}
-                  title="Health IT - Actual vs Target"
-                  showActualVsTarget={true}
-                />
+                <ExpandableChart title="Health IT - Actual vs Target Trends">
+                  <SalesTrendChart 
+                    data={transformMonthlyTargetsToChartData(salesData.monthlyTargets.external_health_it || [])}
+                    title="Health IT - Actual vs Target"
+                    showActualVsTarget={true}
+                  />
+                </ExpandableChart>
               </CardContent>
             </Card>
             
@@ -847,11 +850,13 @@ const Sales = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <SalesTrendChart 
-                  data={transformMonthlyTargetsToChartData(salesData.monthlyTargets.external_ivd || [])}
-                  title="IVD - Actual vs Target"
-                  showActualVsTarget={true}
-                />
+                <ExpandableChart title="IVD - Actual vs Target Trends">
+                  <SalesTrendChart 
+                    data={transformMonthlyTargetsToChartData(salesData.monthlyTargets.external_ivd || [])}
+                    title="IVD - Actual vs Target"
+                    showActualVsTarget={true}
+                  />
+                </ExpandableChart>
               </CardContent>
             </Card>
 
@@ -863,11 +868,13 @@ const Sales = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <SalesTrendChart 
-                  data={transformMonthlyTargetsToChartData(salesData.monthlyTargets.internal || [])}
-                  title="Internal Sales - Actual vs Target"
-                  showActualVsTarget={true}
-                />
+                <ExpandableChart title="Internal Sales - Actual vs Target Trends">
+                  <SalesTrendChart 
+                    data={transformMonthlyTargetsToChartData(salesData.monthlyTargets.internal || [])}
+                    title="Internal Sales - Actual vs Target"
+                    showActualVsTarget={true}
+                  />
+                </ExpandableChart>
               </CardContent>
             </Card>
           </div>
