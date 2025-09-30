@@ -210,7 +210,7 @@ export function IsometricAdventureProgress({
           <div className="text-center space-y-3">
             <div className="flex items-center justify-center gap-3">
       <Trophy className="h-6 w-6 text-primary animate-pulse" />
-      <h3 className="text-xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">Colin
+      <h3 className="text-xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">Hind Swaid
       </h3>
       <Trophy className="h-6 w-6 text-primary animate-pulse" />
             </div>
